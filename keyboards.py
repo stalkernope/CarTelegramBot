@@ -3,7 +3,6 @@ from telegram import (
     InlineKeyboardMarkup
 )
 
-from config import INSTAGRAM
 
 
 def main_menu():
@@ -17,7 +16,7 @@ def main_menu():
             ),
 
             InlineKeyboardButton(
-                "⚔️ Битва легенд",
+                "⚔️ Битва машин",
                 callback_data="battle"
             )
         ],
@@ -25,13 +24,26 @@ def main_menu():
 
         [
             InlineKeyboardButton(
-                "🎲 Мой автомобиль",
+                "🎲 Моя машина",
                 callback_data="match"
             ),
 
             InlineKeyboardButton(
+                "🎁 Открыть кейс",
+                callback_data="case"
+            )
+        ],
+
+
+        [
+            InlineKeyboardButton(
                 "🏆 Мой гараж",
                 callback_data="garage"
+            ),
+
+            InlineKeyboardButton(
+                "🛒 Магазин",
+                callback_data="shop"
             )
         ],
 
@@ -40,27 +52,6 @@ def main_menu():
             InlineKeyboardButton(
                 "👤 Профиль",
                 callback_data="profile"
-            ),
-
-            InlineKeyboardButton(
-                "🌍 Каталог",
-                callback_data="catalog"
-            )
-        ],
-
-
-        [
-            InlineKeyboardButton(
-                "📸 Street Spot",
-                callback_data="street"
-            )
-        ],
-
-
-        [
-            InlineKeyboardButton(
-                "📷 Instagram",
-                url=INSTAGRAM
             )
         ]
 
@@ -77,13 +68,20 @@ def back_button():
 
     return InlineKeyboardMarkup(
 
-        [[
+        [
 
-            InlineKeyboardButton(
-                "⬅️ Назад",
-                callback_data="menu"
-            )
+            [
 
-        ]]
+                InlineKeyboardButton(
+
+                    "⬅️ Назад",
+
+                    callback_data="menu"
+
+                )
+
+            ]
+
+        ]
 
     )
