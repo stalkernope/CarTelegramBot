@@ -7,16 +7,13 @@
         "engine": "8.0 W16 Quad Turbo",
         "power": 1600,
         "speed": 440,
-        "zero100": 2.4,
-        "drive": "AWD",
         "price": 3900000,
         "rarity": "🔥 Mythic",
+        "rarity_score": 100,
         "category": "Hypercar",
         "photo": "",
-        "description": "Один из самых быстрых серийных гиперкаров в мире."
+        "description": "Один из самых быстрых серийных гиперкаров мира."
     },
-
-
     {
         "name": "Koenigsegg Jesko Absolut",
         "brand": "Koenigsegg",
@@ -25,102 +22,131 @@
         "engine": "5.0 V8 Twin Turbo",
         "power": 1600,
         "speed": 500,
-        "zero100": 2.5,
-        "drive": "RWD",
         "price": 3000000,
         "rarity": "🔥 Mythic",
+        "rarity_score": 100,
         "category": "Speed",
         "photo": "",
         "description": "Создан для абсолютной скорости."
     },
-
-
     {
-        "name": "Ferrari LaFerrari",
+        "name": "Nissan Skyline GT-R R34",
+        "brand": "Nissan",
+        "country": "Japan",
+        "year": 1999,
+        "engine": "RB26DETT Twin Turbo",
+        "power": 280,
+        "speed": 250,
+        "price": 180000,
+        "rarity": "💎 Legendary",
+        "rarity_score": 90,
+        "category": "JDM",
+        "photo": "",
+        "description": "Легенда японской автомобильной культуры."
+    },
+    {
+        "name": "Toyota Supra MK4",
+        "brand": "Toyota",
+        "country": "Japan",
+        "year": 1998,
+        "engine": "2JZ-GTE Twin Turbo",
+        "power": 320,
+        "speed": 250,
+        "price": 120000,
+        "rarity": "💎 Legendary",
+        "rarity_score": 88,
+        "category": "JDM",
+        "photo": "",
+        "description": "Один из самых известных JDM автомобилей."
+    },
+    {
+        "name": "Ferrari F40",
         "brand": "Ferrari",
         "country": "Italy",
-        "year": 2013,
-        "engine": "V12 Hybrid",
-        "power": 963,
-        "speed": 350,
-        "zero100": 2.6,
-        "drive": "RWD",
-        "price": 1500000,
-        "rarity": "💎 Legendary",
-        "category": "Collector",
+        "year": 1987,
+        "engine": "V8 Twin Turbo",
+        "power": 478,
+        "speed": 324,
+        "price": 2500000,
+        "rarity": "🔥 Mythic",
+        "rarity_score": 98,
+        "category": "Classic",
         "photo": "",
-        "description": "Гибридная легенда Ferrari."
+        "description": "Икона Ferrari и один из самых желанных суперкаров."
     },
-
-
     {
-        "name": "Lamborghini Aventador SVJ",
+        "name": "Lamborghini Diablo",
         "brand": "Lamborghini",
         "country": "Italy",
-        "year": 2018,
-        "engine": "6.5 V12",
-        "power": 770,
-        "speed": 350,
-        "zero100": 2.8,
-        "drive": "AWD",
-        "price": 600000,
+        "year": 1990,
+        "engine": "V12",
+        "power": 492,
+        "speed": 325,
+        "price": 700000,
         "rarity": "💎 Legendary",
-        "category": "Track",
+        "rarity_score": 92,
+        "category": "Classic",
         "photo": "",
-        "description": "Трековый монстр с атмосферным V12."
+        "description": "Культовый итальянский суперкар."
     },
-
-
     {
-        "name": "Porsche 911 GT3 RS",
+        "name": "Porsche 918 Spyder",
         "brand": "Porsche",
         "country": "Germany",
-        "year": 2023,
-        "engine": "4.0 Flat-6",
-        "power": 525,
-        "speed": 296,
-        "zero100": 3.2,
-        "drive": "RWD",
-        "price": 250000,
-        "rarity": "🔵 Rare",
-        "category": "Sport",
-        "photo": "",
-        "description": "Один из лучших трековых спорткаров."
-    },
-
-
-    {
-        "name": "McLaren Senna",
-        "brand": "McLaren",
-        "country": "UK",
-        "year": 2018,
-        "engine": "4.0 V8 Twin Turbo",
-        "power": 800,
-        "speed": 340,
-        "zero100": 2.8,
-        "drive": "RWD",
-        "price": 1000000,
+        "year": 2015,
+        "engine": "V8 Hybrid",
+        "power": 887,
+        "speed": 345,
+        "price": 900000,
         "rarity": "💎 Legendary",
-        "category": "Track Hypercar",
+        "rarity_score": 94,
+        "category": "Hybrid",
         "photo": "",
-        "description": "Лёгкий гиперкар созданный для максимальной скорости."
+        "description": "Гибридная технология Porsche."
     },
-
-
+    {
+        "name": "Ford GT",
+        "brand": "Ford",
+        "country": "USA",
+        "year": 2017,
+        "engine": "3.5 V6 Twin Turbo",
+        "power": 660,
+        "speed": 347,
+        "price": 500000,
+        "rarity": "💎 Legendary",
+        "rarity_score": 90,
+        "category": "American",
+        "photo": "",
+        "description": "Современная легенда Ле-Мана."
+    },
+    {
+        "name": "Dodge Challenger SRT Demon",
+        "brand": "Dodge",
+        "country": "USA",
+        "year": 2018,
+        "engine": "6.2 V8 Supercharged",
+        "power": 840,
+        "speed": 326,
+        "price": 150000,
+        "rarity": "🔵 Rare",
+        "rarity_score": 75,
+        "category": "Muscle",
+        "photo": "",
+        "description": "Монстр американских дрэг-гонок."
+    },
     {
         "name": "Mercedes AMG ONE",
         "brand": "Mercedes",
         "country": "Germany",
         "year": 2022,
-        "engine": "1.6 V6 Hybrid F1",
+        "engine": "F1 Hybrid V6",
         "power": 1049,
         "speed": 352,
-        "zero100": 2.9,
-        "drive": "AWD",
         "price": 2700000,
         "rarity": "🔥 Mythic",
+        "rarity_score": 99,
         "category": "Formula",
         "photo": "",
-        "description": "Формула-1 с номерными знаками."
+        "description": "Формула-1 с допуском на дороги."
     }
 ]
