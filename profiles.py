@@ -1,141 +1,76 @@
-from database import (
-    get_user,
-    load_data,
-    save_data
-)
-
-from config import USERS_FILE
+# =========================
+# CAR LEGENDS PROFILE
+# =========================
 
 
-LEVELS = [
+def get_title(level):
 
-    (0, "🚘 Новичок"),
+    if level >= 50:
+        return "👑 Автомобильный Бог"
 
-    (100, "🏁 Автоэнтузиаст"),
+    if level >= 30:
+        return "🔥 Легенда дорог"
 
-    (500, "🔥 Auto Expert"),
+    if level >= 15:
+        return "💎 Коллекционер легенд"
 
-    (1000, "💎 Car Collector"),
+    if level >= 5:
+        return "🏆 Опытный владелец"
 
-    (2500, "👑 Car Legend")
-
-]
-
-
-def get_level(xp):
-
-    level = "🚘 Новичок"
-
-    for points, name in LEVELS:
-
-        if xp >= points:
-            level = name
-
-    return level
+    return "🚗 Новичок"
 
 
 
-def update_level(user_id):
+def profile_text(user):
 
-    users = load_data(USERS_FILE)
+    level = user.get(
+        "level",
+        1
+    )
 
-    uid = str(user_id)
+    xp = user.get(
+        "xp",
+        0
+    )
 
+    coins = user.get(
+        "coins",
+        0
+    )
 
-    if uid in users:
-
-        xp = users[uid]["xp"]
-
-        users[uid]["level"] = get_level(xp)
-
-
-        save_data(
-            USERS_FILE,
-            users
-        )
-
-
-
-def add_achievement(user_id, achievement):
-
-    users = load_data(USERS_FILE)
-
-    uid = str(user_id)
-
-
-    if uid in users:
-
-        achievements = users[uid].get(
-            "achievements",
-            []
-        )
-
-
-        if achievement not in achievements:
-
-            achievements.append(
-                achievement
-            )
-
-
-        users[uid]["achievements"] = achievements
-
-
-        save_data(
-            USERS_FILE,
-            users
-        )
-
-
-
-def profile_text(user_id):
-
-    user = get_user(user_id)
-
-
-    cars = user.get(
-        "cars",
+    garage = user.get(
+        "garage",
         []
     )
 
+    wins = user.get(
+        "wins",
+        0
+    )
 
-    achievements = user.get(
-        "achievements",
-        []
+    losses = user.get(
+        "losses",
+        0
     )
 
 
-    text = (
+    return (
 
         "👤 <b>CAR LEGENDS PROFILE</b>\n\n"
 
-        f"⭐ Уровень:\n"
-        f"{user['level']}\n\n"
+        f"⭐ Уровень: {level}\n"
 
-        f"✨ XP: {user['xp']}\n"
+        f"🔥 XP: {xp}\n\n"
 
-        f"💰 Car Coins: {user['coins']}\n\n"
+        f"💰 Монеты: {coins}\n\n"
 
-        f"🏎 Машин в гараже: "
-        f"{len(cars)}\n\n"
+        f"🏎 Машин в гараже: {len(garage)}\n\n"
+
+        f"⚔️ Победы: {wins}\n"
+
+        f"❌ Поражения: {losses}\n\n"
+
+        f"🎖 Титул:\n"
+        f"{get_title(level)}"
 
     )
-
-
-    if achievements:
-
-        text += "🏅 Достижения:\n"
-
-        for a in achievements:
-
-            text += f"• {a}\n"
-
-    else:
-
-        text += (
-            "🏅 Достижения:\n"
-            "Пока нет"
-        )
-
-
-    return text
