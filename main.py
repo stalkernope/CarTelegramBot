@@ -20,7 +20,7 @@ from car_database import (
 )
 
 from database import (
-    get_user,
+    get_player,
     add_car_to_garage
 )
 
@@ -61,7 +61,7 @@ async def start(
 
     user = update.effective_user
 
-    get_user(
+    get_player(
         user.id
     )
 
@@ -206,7 +206,7 @@ async def profile_command(
     context: ContextTypes.DEFAULT_TYPE
 ):
 
-    user = get_user(
+    user = get_player(
         update.effective_user.id
     )
 
@@ -344,7 +344,7 @@ async def button_handler(
 
     if query.data == "profile":
 
-        user = get_user(
+        user = get_player(
             user_id
         )
 
@@ -367,7 +367,7 @@ async def button_handler(
 
     if query.data == "garage":
 
-        user = get_user(
+        user = get_player(
             user_id
         )
 
