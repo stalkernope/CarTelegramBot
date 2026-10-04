@@ -246,33 +246,67 @@ def player_win(user_id):
 
 
 
+# =========================
+# ИГРОК ВЫИГРАЛ
+# =========================
+
+
+def player_win(user_id):
+
+    add_win(
+        user_id
+    )
+
+
+
 def player_loss(user_id):
 
     add_loss(
         user_id
     )
-    
-    def battle_text(car1, car2):
+
+
+
+# =========================
+# ТЕКСТ БИТВЫ
+# =========================
+
+
+def battle_text(car1, car2):
 
     return (
 
         "⚔️ <b>LEGEND BATTLE</b>\n\n"
 
         f"🏎 <b>{car1['name']}</b>\n"
+
         f"⚡ {car1['power']} л.с.\n"
+
         f"🚀 {car1['speed']} км/ч\n"
+
         f"💎 {car1['rarity']}\n\n"
 
         "🔥 VS 🔥\n\n"
 
         f"🏎 <b>{car2['name']}</b>\n"
+
         f"⚡ {car2['power']} л.с.\n"
+
         f"🚀 {car2['speed']} км/ч\n"
+
         f"💎 {car2['rarity']}\n\n"
 
         "Выбирай победителя 👇"
+
     )
-    
-    def start_battle():
+
+
+
+# =========================
+# ЗАПУСК БИТВЫ
+# =========================
+
+
+def start_battle():
 
     return create_battle()
