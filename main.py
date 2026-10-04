@@ -15,6 +15,7 @@ TOKEN = os.environ["BOT_TOKEN"]
 CHANNEL = os.environ["CHANNEL_ID"]
 ADMIN_ID = int(os.environ.get("ADMIN_ID", "0"))
 INSTAGRAM = os.environ.get("INSTAGRAM_URL", "https://instagram.com/")
+BOT_USERNAME = os.environ.get("BOT_USERNAME", "To2waybot")
 HISTORY = "history.json"
 POOL_FILE = "pool.json"
 API = "https://en.wikipedia.org/w/api.php"
@@ -335,6 +336,9 @@ async def send_match(bot, chat_id):
 
 # ---------- команды ----------
 async def start(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
+    if ctx.args and ctx.args[0] == "match":
+        await send_match(ctx.bot, update.effective_chat.id)
+        return
     await update.message.reply_text(
         "🚘 <b>Привет! Я автобот про самые красивые машины мира.</b>\n\n"
         "🎲 /match — какая машина тебе подходит\n"
@@ -376,6 +380,37 @@ async def admin_stats(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
         f"эксклюзивов.\nПоказано уже: {len(load_history())}")
 
 
+async def admin_promo(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
+    if update.effective_user.id != ADMIN_ID:
+        return
+    kb = InlineKeyboardMarkup([
+        [InlineKeyboardButton(
+            "🎲 Узнать свою машину",
+            url=f"https://t.me/{BOT_USERNAME}?start=match")],
+        [InlineKeyboardButton("📸 Мой Instagram", url=INSTAGRAM)],
+    ])
+    text = (
+        "🚘 <b>Какая машина тебе подходит?</b>\n\n"
+        "Нажми кнопку ниже, и бот за пару секунд подберёт машину "
+        "под твой характер 🔥\n\n"
+        "Каждый день в канале:\n"
+        "🏎 12:00 — эксклюзив дня\n"
+        "🏁 19:00 — битва машин, голосуй за лучшую"
+    )
+    msg = await ctx.bot.send_message(CHANNEL, text, parse_mode="HTML",
+                                     reply_markup=kb)
+    pinned = True
+    try:
+        await ctx.bot.pin_chat_message(CHANNEL, msg.message_id)
+    except Exception as e:
+        logging.warning("pin error: %s", e)
+        pinned = False
+    await update.message.reply_text(
+        "✅ Промо-пост в канале и закреплён" if pinned else
+        "✅ Промо-пост в канале. Закрепить не вышло: дай боту право "
+        "«Закреплять сообщения» или закрепи вручную")
+
+
 async def on_button(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     q = update.callback_query
     await q.answer()
@@ -409,6 +444,7 @@ def main():
     app.add_handler(CommandHandler("post", admin_post))
     app.add_handler(CommandHandler("vote", admin_vote))
     app.add_handler(CommandHandler("stats", admin_stats))
+    app.add_handler(CommandHandler("promo", admin_promo))
     app.add_handler(CallbackQueryHandler(on_button))
     app.job_queue.run_daily(job_daily, time(12, 0, tzinfo=TZ))
     app.job_queue.run_daily(job_battle, time(19, 0, tzinfo=TZ))
