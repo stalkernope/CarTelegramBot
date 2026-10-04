@@ -23,30 +23,36 @@ def get_title(level):
 
 def profile_text(user):
 
+
     level = user.get(
         "level",
         1
     )
+
 
     xp = user.get(
         "xp",
         0
     )
 
+
     coins = user.get(
         "coins",
         0
     )
+
 
     garage = user.get(
         "garage",
         []
     )
 
+
     wins = user.get(
         "wins",
         0
     )
+
 
     losses = user.get(
         "losses",
@@ -54,9 +60,20 @@ def profile_text(user):
     )
 
 
+    title = user.get(
+
+        "title",
+
+        get_title(level)
+
+    )
+
+
     return (
 
         "👤 <b>CAR LEGENDS PROFILE</b>\n\n"
+
+        f"🎖 Титул: {title}\n\n"
 
         f"⭐ Уровень: {level}\n"
 
@@ -68,9 +85,6 @@ def profile_text(user):
 
         f"⚔️ Победы: {wins}\n"
 
-        f"❌ Поражения: {losses}\n\n"
-
-        f"🎖 Титул:\n"
-        f"{get_title(level)}"
+        f"❌ Поражения: {losses}"
 
     )
