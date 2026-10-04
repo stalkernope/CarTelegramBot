@@ -5,6 +5,7 @@ import random
 from datetime import time
 
 from telegram import Update
+
 from telegram.ext import (
     Application,
     CommandHandler,
@@ -14,27 +15,19 @@ from telegram.ext import (
 
 
 from keyboards import main_menu
+
 from car_database import (
-    get_random_car,
-    get_car
+    get_random_car
 )
 
 from database import (
     get_player,
-    add_car_to_garage
+    add_car,
+    add_coins
 )
 
-from profiles import profile_text
-
-from images import (
-    get_car_image,
-    photo_caption
-)
-
-
-from economy import (
-    add_coins,
-    get_balance
+from profiles import (
+    profile_text
 )
 
 
@@ -49,9 +42,46 @@ CHANNEL = "@toway2m"
 
 
 
-# ==========================
-# START
-# ==========================
+MATCH_TEXT = [
+
+    "🔥 Ты создан для скорости.",
+
+    "🏁 Тебе нужна машина с характером.",
+
+    "💎 Твой стиль — редкие автомобили.",
+
+    "🌙 Ночной город и мощный мотор.",
+
+    "👑 Ты выбираешь легенды."
+
+]
+
+
+
+def car_text(car):
+
+    return (
+
+        f"🏎 <b>{car['name']}</b>\n\n"
+
+        f"🏭 Бренд: {car.get('brand','')}\n"
+
+        f"🌍 Страна: {car.get('country','')}\n"
+
+        f"📅 Год: {car.get('year','')}\n\n"
+
+        f"⚡ Мощность: {car.get('power','')} л.с.\n"
+
+        f"🚀 Скорость: {car.get('speed','')} км/ч\n"
+
+        f"💰 Цена: {car.get('price','')} $\n"
+
+        f"💎 Редкость: {car.get('rarity','')}\n\n"
+
+        f"📖 {car.get('description','')}"
+
+    )
+
 
 
 async def start(
@@ -71,17 +101,18 @@ async def start(
         """
 🏎 <b>CAR LEGENDS CLUB</b>
 
-Добро пожаловать в клуб легендарных автомобилей 🔥
 
-Тебя ждут:
+Добро пожаловать в клуб легендарных машин 🔥
 
-🏁 Тысячи автомобилей
-⚔️ Битвы легенд
-🎲 Подбор машины
+
+🔥 Машины
+🎲 Подбор
+🎁 Кейсы
 🏆 Коллекция
 💰 Экономика
 
-Выбирай раздел 👇
+
+Выбирай 👇
 """,
 
         parse_mode="HTML",
@@ -89,10 +120,9 @@ async def start(
         reply_markup=main_menu()
 
     )
-    
-    # ==========================
+    # =========================
 # МАШИНА ДНЯ
-# ==========================
+# =========================
 
 
 async def car_command(
@@ -102,25 +132,34 @@ async def car_command(
 
     user = update.effective_user
 
+
     car = get_random_car()
 
 
-    add_car_to_garage(
+    if not car:
+
+        await update.message.reply_text(
+            "❌ База машин пустая"
+        )
+
+        return
+
+
+
+    add_car(
+
         user.id,
+
         car["name"]
+
     )
 
 
-    image = get_car_image(
-        car
-    )
+    await update.message.reply_text(
 
+        "🔥 <b>ТЕБЕ ВЫПАЛА МАШИНА</b>\n\n"
 
-    await update.message.reply_photo(
-
-        photo=image,
-
-        caption=photo_caption(car),
+        + car_text(car),
 
         parse_mode="HTML"
 
@@ -128,25 +167,9 @@ async def car_command(
 
 
 
-# ==========================
+# =========================
 # MATCH
-# ==========================
-
-
-MATCH_PHRASES = [
-
-    "🔥 Ты создан для скорости и эмоций",
-
-    "👑 Тебе нужна машина, которая выделяет тебя из толпы",
-
-    "💎 Твой стиль — редкость и эксклюзив",
-
-    "🏁 Ты выбираешь характер, а не просто автомобиль",
-
-    "🌙 Твой гараж должен быть наполнен легендами"
-
-]
-
+# =========================
 
 
 async def match_command(
@@ -160,35 +183,24 @@ async def match_command(
     car = get_random_car()
 
 
-    add_car_to_garage(
+    add_car(
+
         user.id,
+
         car["name"]
+
     )
 
 
-    image = get_car_image(
-        car
-    )
-
-
-    text = (
+    await update.message.reply_text(
 
         "🎲 <b>ТВОЯ МАШИНА ПО ХАРАКТЕРУ</b>\n\n"
 
-        + random.choice(MATCH_PHRASES)
+        + random.choice(MATCH_TEXT)
 
         + "\n\n"
 
-        + photo_caption(car)
-
-    )
-
-
-    await update.message.reply_photo(
-
-        photo=image,
-
-        caption=text,
+        + car_text(car),
 
         parse_mode="HTML"
 
@@ -196,9 +208,9 @@ async def match_command(
 
 
 
-# ==========================
+# =========================
 # ПРОФИЛЬ
-# ==========================
+# =========================
 
 
 async def profile_command(
@@ -207,7 +219,9 @@ async def profile_command(
 ):
 
     user = get_player(
+
         update.effective_user.id
+
     )
 
 
@@ -221,9 +235,9 @@ async def profile_command(
 
 
 
-# ==========================
+# =========================
 # БАЛАНС
-# ==========================
+# =========================
 
 
 async def balance_command(
@@ -231,26 +245,87 @@ async def balance_command(
     context: ContextTypes.DEFAULT_TYPE
 ):
 
-    coins = get_balance(
+    user = get_player(
+
         update.effective_user.id
+
     )
 
 
     await update.message.reply_text(
 
         f"""
-💰 <b>ТВОЙ БАЛАНС</b>
+💰 <b>БАЛАНС</b>
 
-Монеты: {coins} 🪙
+🪙 Монеты: {user['coins']}
+
+⭐ Уровень: {user['level']}
+
+🔥 XP: {user['xp']}
 """,
 
         parse_mode="HTML"
 
     )
-    
-    # ==========================
+
+
+
+# =========================
+# ГАРАЖ
+# =========================
+
+
+async def garage_command(
+    update: Update,
+    context: ContextTypes.DEFAULT_TYPE
+):
+
+    user = get_player(
+
+        update.effective_user.id
+
+    )
+
+
+    text = (
+
+        "🏆 <b>ТВОЙ ГАРАЖ</b>\n\n"
+
+    )
+
+
+    if user["garage"]:
+
+
+        for car in user["garage"]:
+
+            text += (
+
+                "🏎 "
+
+                + car
+
+                + "\n"
+
+            )
+
+
+    else:
+
+        text += "Пока пусто 😢"
+
+
+
+    await update.message.reply_text(
+
+        text,
+
+        parse_mode="HTML"
+
+    )
+    # =========================
 # ОБРАБОТКА КНОПОК
-# ==========================
+# =========================
 
 
 async def button_handler(
@@ -260,6 +335,7 @@ async def button_handler(
 
     query = update.callback_query
 
+
     await query.answer()
 
 
@@ -267,85 +343,86 @@ async def button_handler(
 
 
 
-    # ======================
+    # =====================
     # МАШИНА ДНЯ
-    # ======================
+    # =====================
 
     if query.data == "daily":
 
         car = get_random_car()
 
 
-        add_car_to_garage(
+        add_car(
+
             user_id,
+
             car["name"]
+
         )
 
 
-        await query.message.reply_photo(
+        await query.message.reply_text(
 
-            photo=get_car_image(car),
+            "🔥 <b>МАШИНА ДНЯ</b>\n\n"
 
-            caption=(
-                "🔥 <b>МАШИНА ДНЯ</b>\n\n"
-                + photo_caption(car)
-            ),
+            + car_text(car),
 
             parse_mode="HTML"
 
         )
 
+
         return
 
 
 
-    # ======================
-    # MATCH
-    # ======================
+    # =====================
+    # МОЯ МАШИНА
+    # =====================
 
     if query.data == "match":
 
         car = get_random_car()
 
 
-        add_car_to_garage(
+        add_car(
+
             user_id,
+
             car["name"]
+
         )
 
 
-        await query.message.reply_photo(
+        await query.message.reply_text(
 
-            photo=get_car_image(car),
+            "🎲 <b>ТЕБЕ ПОДХОДИТ:</b>\n\n"
 
-            caption=(
+            + random.choice(MATCH_TEXT)
 
-                "🎲 <b>ТЕБЕ ПОДХОДИТ:</b>\n\n"
+            + "\n\n"
 
-                + random.choice(MATCH_PHRASES)
-
-                + "\n\n"
-
-                + photo_caption(car)
-
-            ),
+            + car_text(car),
 
             parse_mode="HTML"
 
         )
 
+
         return
 
 
 
-    # ======================
+    # =====================
     # ПРОФИЛЬ
-    # ======================
+    # =====================
 
     if query.data == "profile":
 
         user = get_player(
+
             user_id
+
         )
 
 
@@ -357,51 +434,51 @@ async def button_handler(
 
         )
 
+
         return
 
 
 
-    # ======================
+    # =====================
     # ГАРАЖ
-    # ======================
+    # =====================
 
     if query.data == "garage":
 
         user = get_player(
+
             user_id
+
         )
 
 
-        garage = user.get(
-            "garage",
-            []
+        text = (
+
+            "🏆 <b>ТВОЙ ГАРАЖ</b>\n\n"
+
         )
 
 
-        if garage:
+        if user["garage"]:
 
 
-            text = (
-                "🏆 <b>ТВОЙ ГАРАЖ</b>\n\n"
-            )
-
-
-            for car in garage:
+            for car in user["garage"]:
 
                 text += (
+
                     "🏎 "
+
                     + car
+
                     + "\n"
+
                 )
 
 
         else:
 
-            text = (
-                "🏆 <b>ТВОЙ ГАРАЖ</b>\n\n"
-                "Пока пусто 😢\n"
-                "Получи первую машину!"
-            )
+            text += "Гараж пуст"
+
 
 
         await query.message.reply_text(
@@ -412,35 +489,121 @@ async def button_handler(
 
         )
 
+
         return
 
 
 
-    # ======================
-    # БИТВА
-    # ======================
+    # =====================
+    # КЕЙС
+    # =====================
 
-    if query.data == "battle":
-
-        from battles import create_battle_text
+    if query.data == "case":
 
 
-        battle = create_battle_text()
+        try:
+
+            from shop import open_case
+
+
+            car = open_case(
+
+                user_id
+
+            )
+
+
+            await query.message.reply_text(
+
+                "🎁 <b>LEGEND CASE</b>\n\n"
+
+                "🔥 Тебе выпало:\n\n"
+
+                + car_text(car),
+
+                parse_mode="HTML"
+
+            )
+
+
+        except Exception as e:
+
+            logging.error(e)
+
+
+            await query.message.reply_text(
+
+                "❌ Ошибка открытия кейса"
+
+            )
+
+
+        return
+
+
+
+    # =====================
+    # МАГАЗИН
+    # =====================
+
+    if query.data == "shop":
+
+
+        user = get_player(
+
+            user_id
+
+        )
 
 
         await query.message.reply_text(
 
-            battle,
+            f"""
+
+🛒 <b>МАГАЗИН</b>
+
+
+Твои монеты:
+
+🪙 {user['coins']}
+
+
+🎁 Открывай кейсы и собирай легенды!
+
+/balance
+
+""",
 
             parse_mode="HTML"
 
         )
 
+
+        return
+
+
+
+    # =====================
+    # НАЗАД
+    # =====================
+
+    if query.data == "menu":
+
+
+        await query.message.reply_text(
+
+            "Главное меню 👇",
+
+            reply_markup=main_menu()
+
+        )
+
+
         return
         
-        # ==========================
-# АВТОПОСТЫ
-# ==========================
+        # =========================
+# АВТОПОСТ
+# =========================
 
 
 async def daily_post(
@@ -450,17 +613,15 @@ async def daily_post(
     car = get_random_car()
 
 
-    await context.bot.send_photo(
+    await context.bot.send_message(
 
         chat_id=CHANNEL,
 
-        photo=get_car_image(car),
+        text=(
 
-        caption=(
+            "🔥 <b>МАШИНА ДНЯ</b>\n\n"
 
-            "🔥 <b>ЭКСКЛЮЗИВ ДНЯ</b>\n\n"
-
-            + photo_caption(car)
+            + car_text(car)
 
         ),
 
@@ -470,9 +631,9 @@ async def daily_post(
 
 
 
-# ==========================
+# =========================
 # ОШИБКИ
-# ==========================
+# =========================
 
 
 async def error_handler(
@@ -482,7 +643,7 @@ async def error_handler(
 
     logging.error(
 
-        "Ошибка: ",
+        "Ошибка бота",
 
         exc_info=context.error
 
@@ -490,9 +651,9 @@ async def error_handler(
 
 
 
-# ==========================
+# =========================
 # ЗАПУСК
-# ==========================
+# =========================
 
 
 def main():
@@ -510,7 +671,11 @@ def main():
     )
 
 
-    # команды
+
+    # =====================
+    # КОМАНДЫ
+    # =====================
+
 
     app.add_handler(
 
@@ -562,8 +727,21 @@ def main():
     )
 
 
+    app.add_handler(
 
-    # кнопки
+        CommandHandler(
+            "garage",
+            garage_command
+        )
+
+    )
+
+
+
+    # =====================
+    # КНОПКИ
+    # =====================
+
 
     app.add_handler(
 
@@ -575,7 +753,10 @@ def main():
 
 
 
-    # ошибки
+    # =====================
+    # ОШИБКИ
+    # =====================
+
 
     app.add_error_handler(
 
@@ -585,7 +766,10 @@ def main():
 
 
 
-    # каждый день машина
+    # =====================
+    # АВТОПОСТ
+    # =====================
+
 
     app.job_queue.run_daily(
 
@@ -597,6 +781,7 @@ def main():
         )
 
     )
+
 
 
     print(
@@ -611,4 +796,3 @@ def main():
 if __name__ == "__main__":
 
     main()
-    
