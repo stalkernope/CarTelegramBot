@@ -28,7 +28,6 @@ logging.basicConfig(
 # НАСТРОЙКИ
 # =========================
 
-
 TOKEN = os.environ["BOT_TOKEN"]
 
 CHANNEL = "@toway2m"
@@ -39,7 +38,7 @@ INSTAGRAM = os.environ.get(
 )
 
 
-DATA_FILE = "users.json"
+USERS_FILE = "users.json"
 
 
 
@@ -47,108 +46,101 @@ DATA_FILE = "users.json"
 # БАЗА МАШИН
 # =========================
 
-
 CARS = [
 
-{
-"name":"Bugatti Chiron Super Sport",
-"power":"1600 л.с.",
-"speed":"440 км/ч",
-"price":"3 900 000$",
-"type":"Гиперкар",
-"rarity":"🔥 Mythic"
-},
+    {
+        "name": "Bugatti Chiron Super Sport",
+        "power": "1600 л.с.",
+        "speed": "440 км/ч",
+        "price": "3 900 000$",
+        "type": "Гиперкар",
+        "rarity": "🔥 Mythic"
+    },
 
-{
-"name":"Koenigsegg Jesko Absolut",
-"power":"1600 л.с.",
-"speed":"500+ км/ч",
-"price":"3 000 000$",
-"type":"Гиперкар",
-"rarity":"🔥 Mythic"
-},
+    {
+        "name": "Koenigsegg Jesko Absolut",
+        "power": "1600 л.с.",
+        "speed": "500+ км/ч",
+        "price": "3 000 000$",
+        "type": "Гиперкар",
+        "rarity": "🔥 Mythic"
+    },
 
-{
-"name":"Pagani Huayra BC",
-"power":"800 л.с.",
-"speed":"370 км/ч",
-"price":"3 500 000$",
-"type":"Эксклюзив",
-"rarity":"💎 Legendary"
-},
+    {
+        "name": "Pagani Huayra BC",
+        "power": "800 л.с.",
+        "speed": "370 км/ч",
+        "price": "3 500 000$",
+        "type": "Эксклюзив",
+        "rarity": "💎 Legendary"
+    },
 
-{
-"name":"Ferrari LaFerrari",
-"power":"963 л.с.",
-"speed":"350 км/ч",
-"price":"1 500 000$",
-"type":"Гибридный суперкар",
-"rarity":"💎 Legendary"
-},
+    {
+        "name": "Ferrari LaFerrari",
+        "power": "963 л.с.",
+        "speed": "350 км/ч",
+        "price": "1 500 000$",
+        "type": "Гибридный суперкар",
+        "rarity": "💎 Legendary"
+    },
 
-{
-"name":"Lamborghini Aventador SVJ",
-"power":"770 л.с.",
-"speed":"350 км/ч",
-"price":"600 000$",
-"type":"Суперкар",
-"rarity":"🟣 Rare"
-},
+    {
+        "name": "Lamborghini Aventador SVJ",
+        "power": "770 л.с.",
+        "speed": "350 км/ч",
+        "price": "600 000$",
+        "type": "Суперкар",
+        "rarity": "🟣 Rare"
+    },
 
-{
-"name":"Porsche 911 GT3 RS",
-"power":"525 л.с.",
-"speed":"296 км/ч",
-"price":"250 000$",
-"type":"Спорткар",
-"rarity":"🔵 Rare"
-},
+    {
+        "name": "Porsche 911 GT3 RS",
+        "power": "525 л.с.",
+        "speed": "296 км/ч",
+        "price": "250 000$",
+        "type": "Спорткар",
+        "rarity": "🔵 Rare"
+    },
 
-{
-"name":"McLaren Senna",
-"power":"800 л.с.",
-"speed":"340 км/ч",
-"price":"1 000 000$",
-"type":"Трековый гиперкар",
-"rarity":"💎 Legendary"
-},
+    {
+        "name": "McLaren Senna",
+        "power": "800 л.с.",
+        "speed": "340 км/ч",
+        "price": "1 000 000$",
+        "type": "Трековый гиперкар",
+        "rarity": "💎 Legendary"
+    },
 
-{
-"name":"Mercedes AMG One",
-"power":"1049 л.с.",
-"speed":"352 км/ч",
-"price":"2 700 000$",
-"type":"Формула 1 для дороги",
-"rarity":"🔥 Mythic"
-}
+    {
+        "name": "Mercedes AMG One",
+        "power": "1049 л.с.",
+        "speed": "352 км/ч",
+        "price": "2 700 000$",
+        "type": "F1 для дороги",
+        "rarity": "🔥 Mythic"
+    }
 
 ]
-
-
-
-# =========================
-# ФРАЗЫ ДЛЯ MATCH
-# =========================
 
 
 MATCH_TEXT = [
 
-"🔥 Ты любишь внимание. Твоя машина должна заставлять людей оборачиваться.",
+    "🔥 Ты любишь внимание. Твоя машина должна заставлять людей оборачиваться.",
 
-"🏁 Ты создан для скорости и эмоций.",
+    "🏁 Ты создан для скорости и эмоций.",
 
-"💎 Тебе подходят редкие машины с характером.",
+    "💎 Тебе подходят редкие машины с характером.",
 
-"🌙 Твой стиль — ночной город, красивый звук и мощный мотор.",
+    "🌙 Твой стиль — ночной город и мощный мотор.",
 
-"👑 Ты выбираешь не транспорт, а произведение искусства."
+    "👑 Ты выбираешь не транспорт, а легенду."
 
 ]
 
 
 
 # =========================
-# РАБОТА С БАЗОЙ
+# БАЗА ПОЛЬЗОВАТЕЛЕЙ
 # =========================
 
 
@@ -157,12 +149,11 @@ def load_users():
     try:
 
         with open(
-            DATA_FILE,
-            "r",
+            USERS_FILE,
             encoding="utf-8"
-        ) as file:
+        ) as f:
 
-            return json.load(file)
+            return json.load(f)
 
     except:
 
@@ -173,21 +164,21 @@ def load_users():
 def save_users(users):
 
     with open(
-        DATA_FILE,
+        USERS_FILE,
         "w",
         encoding="utf-8"
-    ) as file:
+    ) as f:
 
         json.dump(
             users,
-            file,
+            f,
             ensure_ascii=False,
             indent=4
         )
 
 
 
-def create_user(user_id):
+def get_user(user_id):
 
     users = load_users()
 
@@ -198,13 +189,13 @@ def create_user(user_id):
 
         users[uid] = {
 
-            "xp":0,
+            "xp": 0,
 
-            "coins":100,
+            "coins": 100,
 
-            "garage":[],
+            "level": 1,
 
-            "level":1
+            "garage": []
 
         }
 
@@ -224,7 +215,9 @@ def add_car(user_id, car):
 
     if uid not in users:
 
-        create_user(user_id)
+        get_user(user_id)
+
+        users = load_users()
 
 
     if car not in users[uid]["garage"]:
@@ -234,22 +227,22 @@ def add_car(user_id, car):
         users[uid]["xp"] += 50
 
 
-        if users[uid]["xp"] >= users[uid]["level"]*200:
+        if users[uid]["xp"] >= users[uid]["level"] * 200:
 
             users[uid]["level"] += 1
 
 
-        save_users(users)
+    save_users(users)
 
 
 
-def get_car():
+def random_car():
 
     return random.choice(CARS)
 
 
 
-def car_card(car):
+def car_text(car):
 
     return (
 
@@ -268,13 +261,13 @@ def car_card(car):
     )
     
     # =========================
-# МЕНЮ
+# КЛАВИАТУРА
 # =========================
 
 
-def main_keyboard():
+def menu():
 
-    buttons = [
+    keyboard = [
 
         [
             InlineKeyboardButton(
@@ -290,17 +283,17 @@ def main_keyboard():
 
         [
             InlineKeyboardButton(
-                "🎲 Какая машина мне подходит",
+                "🎲 Моя машина",
                 callback_data="match"
+            ),
+
+            InlineKeyboardButton(
+                "🏆 Гараж",
+                callback_data="garage"
             )
         ],
 
         [
-            InlineKeyboardButton(
-                "🏆 Мой гараж",
-                callback_data="garage"
-            ),
-
             InlineKeyboardButton(
                 "👤 Профиль",
                 callback_data="profile"
@@ -309,89 +302,60 @@ def main_keyboard():
 
         [
             InlineKeyboardButton(
-                "📸 Мой Instagram",
+                "📸 Instagram",
                 url=INSTAGRAM
             )
         ]
 
     ]
 
-
-    return InlineKeyboardMarkup(
-        buttons
-    )
+    return InlineKeyboardMarkup(keyboard)
 
 
 
 # =========================
-# START
+# КОМАНДА START
 # =========================
 
 
-async def start(
-    update: Update,
-    ctx: ContextTypes.DEFAULT_TYPE
-):
+async def start(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
 
     user = update.effective_user
 
-
-    create_user(
-        user.id
-    )
-
-
-    text = """
-
-🏎 <b>CAR LEGENDS CLUB</b>
-
-Добро пожаловать в мир легендарных автомобилей 🌎
-
-Здесь тебя ждут:
-
-🔥 Эксклюзивные машины
-⚔️ Автомобильные битвы
-🎲 Подбор машины по характеру
-🏆 Личный гараж коллекционера
-💎 Редкие гиперкары
-
-Выбирай свой путь 👇
-
-"""
+    get_user(user.id)
 
 
     await update.message.reply_text(
 
-        text,
+        "🏎 <b>CAR LEGENDS CLUB</b>\n\n"
+
+        "Добро пожаловать в мир легендарных автомобилей 🌎\n\n"
+
+        "🔥 Эксклюзивные машины\n"
+        "⚔️ Битвы легенд\n"
+        "🎲 Подбор машины по характеру\n"
+        "🏆 Личный гараж\n\n"
+
+        "Выбирай раздел 👇",
 
         parse_mode="HTML",
 
-        reply_markup=main_keyboard()
+        reply_markup=menu()
 
     )
 
 
 
 # =========================
-# /CAR
+# КОМАНДА CAR
 # =========================
 
 
-async def car_command(
-    update: Update,
-    ctx: ContextTypes.DEFAULT_TYPE
-):
+async def car_command(update, ctx):
 
     user = update.effective_user
 
-
-    create_user(
-        user.id
-    )
-
-
-    car = get_car()
-
+    car = random_car()
 
     add_car(
         user.id,
@@ -401,8 +365,8 @@ async def car_command(
 
     await update.message.reply_text(
 
-        "🔥 <b>Эксклюзивная машина:</b>\n\n"
-        + car_card(car),
+        "🔥 <b>Эксклюзив дня:</b>\n\n"
+        + car_text(car),
 
         parse_mode="HTML"
 
@@ -411,24 +375,15 @@ async def car_command(
 
 
 # =========================
-# /MATCH
+# MATCH
 # =========================
 
 
-async def match_command(
-    update: Update,
-    ctx: ContextTypes.DEFAULT_TYPE
-):
+async def match_command(update, ctx):
 
     user = update.effective_user
 
-
-    create_user(
-        user.id
-    )
-
-
-    car = get_car()
+    car = random_car()
 
 
     add_car(
@@ -437,22 +392,15 @@ async def match_command(
     )
 
 
-    text = (
+    await update.message.reply_text(
 
-        "🎲 <b>Твоя машина по характеру:</b>\n\n"
+        "🎲 <b>Твоя машина:</b>\n\n"
 
         + random.choice(MATCH_TEXT)
 
         + "\n\n"
 
-        + car_card(car)
-
-    )
-
-
-    await update.message.reply_text(
-
-        text,
+        + car_text(car),
 
         parse_mode="HTML"
 
@@ -461,26 +409,20 @@ async def match_command(
 
 
 # =========================
-# /PROFILE
+# PROFILE
 # =========================
 
 
-async def profile_command(
-    update: Update,
-    ctx: ContextTypes.DEFAULT_TYPE
-):
+async def profile_command(update, ctx):
 
-    user_id = update.effective_user.id
-
-
-    user = create_user(
-        user_id
+    user = get_user(
+        update.effective_user.id
     )
 
 
     text = (
 
-        "👤 <b>ТВОЙ ПРОФИЛЬ</b>\n\n"
+        "👤 <b>ПРОФИЛЬ</b>\n\n"
 
         f"⭐ Уровень: {user['level']}\n"
 
@@ -488,7 +430,7 @@ async def profile_command(
 
         f"💰 Монеты: {user['coins']}\n\n"
 
-        "🏎 Твой гараж:\n"
+        "🏎 Гараж:\n"
 
     )
 
@@ -497,15 +439,11 @@ async def profile_command(
 
         for car in user["garage"]:
 
-            text += (
-                f"• {car}\n"
-            )
-
+            text += f"• {car}\n"
 
     else:
 
-        text += "Пока пусто"
-
+        text += "Пусто"
 
 
     await update.message.reply_text(
@@ -519,80 +457,95 @@ async def profile_command(
 
 
 # =========================
-# BUTTONS
+# БИТВА
 # =========================
 
 
-async def button_handler(
-    update: Update,
-    ctx: ContextTypes.DEFAULT_TYPE
-):
+async def send_battle(message):
+
+    car1 = random_car()
+
+    car2 = random_car()
+
+
+    while car1["name"] == car2["name"]:
+
+        car2 = random_car()
+
+
+
+    keyboard = [
+
+        [
+
+            InlineKeyboardButton(
+
+                car1["name"],
+
+                callback_data=f"vote:{car1['name']}"
+
+            )
+
+        ],
+
+        [
+
+            InlineKeyboardButton(
+
+                car2["name"],
+
+                callback_data=f"vote:{car2['name']}"
+
+            )
+
+        ]
+
+    ]
+
+
+    await message.reply_text(
+
+        "⚔️ <b>LEGEND BATTLE</b>\n\n"
+
+        + car_text(car1)
+
+        + "\n\n🔥 VS 🔥\n\n"
+
+        + car_text(car2),
+
+        parse_mode="HTML",
+
+        reply_markup=InlineKeyboardMarkup(keyboard)
+
+    )
+
+
+
+# =========================
+# КНОПКИ
+# =========================
+
+
+async def button_handler(update, ctx):
 
     query = update.callback_query
 
-
     await query.answer()
-# ⚔️ Битва машин
 
-if query.data == "battle":
-
-    from battles import start_battle
-
-    await start_battle(
-
-        query.message,
-
-        ctx
-
-    )
-
-    return
-
-# 🏆 Голосование
-
-if query.data.startswith("vote_"):
-
-    winner = query.data.replace(
-
-        "vote_",
-
-        ""
-
-    )
-
-    from battles import save_vote
-
-    save_vote(winner)
-
-    await query.edit_message_text(
-
-        f"🏆 Победитель: {winner}\n\nСпасибо за голос 🔥"
-
-    )
-
-    return
 
     user_id = query.from_user.id
 
 
-    create_user(
-        user_id
-    )
-
-
-
-    # Машина дня
 
     if query.data == "daily":
 
-
-        car = get_car()
-
+        car = random_car()
 
         await query.message.reply_text(
 
-            "🔥 <b>CAR OF THE DAY</b>\n\n"
-            + car_card(car),
+            "🔥 <b>МАШИНА ДНЯ</b>\n\n"
+
+            + car_text(car),
 
             parse_mode="HTML"
 
@@ -600,13 +553,9 @@ if query.data.startswith("vote_"):
 
 
 
-    # Match
-
     elif query.data == "match":
 
-
-        car = get_car()
-
+        car = random_car()
 
         add_car(
             user_id,
@@ -617,9 +566,12 @@ if query.data.startswith("vote_"):
         await query.message.reply_text(
 
             "🎲 Тебе подходит:\n\n"
+
             + random.choice(MATCH_TEXT)
+
             + "\n\n"
-            + car_card(car),
+
+            + car_text(car),
 
             parse_mode="HTML"
 
@@ -627,30 +579,29 @@ if query.data.startswith("vote_"):
 
 
 
-    # Garage
+    elif query.data == "battle":
 
-    elif query.data == "garage":
-
-
-        user = create_user(
-            user_id
+        await send_battle(
+            query.message
         )
 
 
-        text = "🏆 <b>ТВОЙ ГАРАЖ</b>\n\n"
+
+    elif query.data == "garage":
+
+        user = get_user(user_id)
+
+        text = "🏆 <b>ГАРАЖ</b>\n\n"
 
 
-        if user["garage"]:
+        for car in user["garage"]:
 
-            for car in user["garage"]:
-
-                text += f"🏎 {car}\n"
+            text += f"🏎 {car}\n"
 
 
-        else:
+        if not user["garage"]:
 
-            text += "Гараж пуст"
-
+            text += "Пусто"
 
 
         await query.message.reply_text(
@@ -663,140 +614,61 @@ if query.data.startswith("vote_"):
 
 
 
-    # Profile
-
     elif query.data == "profile":
 
-
-        user = create_user(
-            user_id
-        )
+        user = get_user(user_id)
 
 
         await query.message.reply_text(
 
-            "👤 <b>Профиль</b>\n\n"
-
+            f"👤 Профиль\n\n"
             f"⭐ Уровень: {user['level']}\n"
-
-            f"🔥 XP: {user['xp']}\n"
-
-            f"💰 Монеты: {user['coins']}",
+            f"🔥 XP: {user['xp']}",
 
             parse_mode="HTML"
 
         )
-        
-        # =========================
-# БИТВА МАШИН
-# =========================
-
-
-async def battle_command(
-    update: Update,
-    ctx: ContextTypes.DEFAULT_TYPE
-):
-
-    car1 = get_car()
-
-    car2 = get_car()
-
-
-    while car1["name"] == car2["name"]:
-
-        car2 = get_car()
 
 
 
-    await update.message.reply_poll(
+    elif query.data.startswith("vote:"):
 
-        question="⚔️ Какая машина сильнее?",
+        winner = query.data.replace(
 
-        options=[
+            "vote:",
 
-            car1["name"],
+            ""
 
-            car2["name"]
+        )
 
-        ],
 
-        is_anonymous=False
+        await query.edit_message_text(
 
-    )
+            "🏆 Победитель:\n\n"
+            f"{winner}\n\n"
+            "Спасибо за голос 🔥"
+
+        )
 
 
 
 # =========================
-# БИТВА ДЛЯ КНОПКИ
+# АВТОПОСТЫ
 # =========================
 
 
-async def send_battle(
-    message
-):
+async def daily_post(ctx):
 
-    car1 = get_car()
-
-    car2 = get_car()
-
-
-    while car1["name"] == car2["name"]:
-
-        car2 = get_car()
-
-
-
-    await message.reply_poll(
-
-        "⚔️ LEGEND BATTLE\n\n"
-        "Выбирай победителя 🔥",
-
-        [
-
-            car1["name"],
-
-            car2["name"]
-
-        ],
-
-        is_anonymous=False
-
-    )
-
-
-
-# =========================
-# АВТОПОСТ МАШИНЫ ДНЯ
-# =========================
-
-
-async def daily_post(
-    ctx: ContextTypes.DEFAULT_TYPE
-):
-
-    car = get_car()
-
-
-    text = (
-
-        "🔥 <b>ЭКСКЛЮЗИВ ДНЯ</b>\n\n"
-
-        + car_card(car)
-
-        + "\n\n"
-
-        "👑 Car Legends Club\n"
-
-        "Каждый день — новые легенды"
-
-    )
+    car = random_car()
 
 
     await ctx.bot.send_message(
 
-        chat_id=CHANNEL,
+        CHANNEL,
 
-        text=text,
+        "🔥 <b>ЭКСКЛЮЗИВ ДНЯ</b>\n\n"
+
+        + car_text(car),
 
         parse_mode="HTML"
 
@@ -804,85 +676,24 @@ async def daily_post(
 
 
 
-# =========================
-# АВТОПОСТ БИТВЫ
-# =========================
+async def battle_post(ctx):
 
-
-async def daily_battle(
-    ctx: ContextTypes.DEFAULT_TYPE
-):
-
-    car1 = get_car()
-
-    car2 = get_car()
-
-
-    while car1["name"] == car2["name"]:
-
-        car2 = get_car()
-
-
-
-    await ctx.bot.send_poll(
+    await ctx.bot.send_message(
 
         CHANNEL,
 
-        "⚔️ БИТВА ЛЕГЕНД\n\nКакая машина лучше?",
-
-        [
-
-            car1["name"],
-
-            car2["name"]
-
-        ],
-
-        is_anonymous=False
+        "⚔️ Сегодня вечером новая битва легенд 🔥"
 
     )
 
 
 
 # =========================
-# ОБРАБОТКА КНОПКИ BATTLE
+# ЗАПУСК
 # =========================
-
-
-async def battle_button(
-    update: Update,
-    ctx: ContextTypes.DEFAULT_TYPE
-):
-
-    query = update.callback_query
-
-
-    if query.data == "battle":
-
-        await query.answer()
-
-        await send_battle(
-            query.message
-        )
-        
-        # =========================
-# ЗАПУСК БОТА
-# =========================
-
-
-async def error_handler(
-    update,
-    ctx
-):
-
-    logging.error(
-        f"Ошибка: {ctx.error}"
-    )
-
 
 
 def main():
-
 
     app = (
 
@@ -897,114 +708,48 @@ def main():
     )
 
 
-    # Команды
+    app.add_handler(
+        CommandHandler("start", start)
+    )
 
     app.add_handler(
+        CommandHandler("car", car_command)
+    )
 
-        CommandHandler(
-            "start",
-            start
-        )
+    app.add_handler(
+        CommandHandler("match", match_command)
+    )
 
+    app.add_handler(
+        CommandHandler("profile", profile_command)
     )
 
 
     app.add_handler(
-
-        CommandHandler(
-            "car",
-            car_command
-        )
-
+        CallbackQueryHandler(button_handler)
     )
 
 
-    app.add_handler(
-
-        CommandHandler(
-            "match",
-            match_command
-        )
-
+    app.job_queue.run_daily(
+        daily_post,
+        time=time(12,0)
     )
 
 
-    app.add_handler(
-
-        CommandHandler(
-            "profile",
-            profile_command
-        )
-
+    app.job_queue.run_daily(
+        battle_post,
+        time=time(19,0)
     )
 
-
-    app.add_handler(
-
-        CommandHandler(
-            "battle",
-            battle_command
-        )
-
-    )
-
-
-    # Кнопки
-
-    app.add_handler(
-
-        CallbackQueryHandler(
-            button_handler
-        )
-
-    )
-
-
-    app.add_handler(
-
-        CallbackQueryHandler(
-            battle_button
-        )
-
-    )
-
-
-    # Ошибки
 
     app.add_error_handler(
-        error_handler
-    )
-
-
-
-    # Автоматические публикации
-
-    app.job_queue.run_daily(
-
-        daily_post,
-
-        time=time(
-            12,
-            0
-        )
-
-    )
-
-
-    app.job_queue.run_daily(
-
-        daily_battle,
-
-        time=time(
-            19,
-            0
-        )
-
+        lambda update, ctx:
+        logging.error(ctx.error)
     )
 
 
     print(
-        "🏎 Car Legends Club 4.0 запущен!"
+        "🏎 Car Legends Club 4.1 запущен!"
     )
 
 
