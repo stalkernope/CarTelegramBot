@@ -7,13 +7,15 @@ from car_database import load_cars
 from database import (
     get_player,
     add_car,
-    add_coins
+    add_coins,
+    has_car
 )
 
 
 
+
 # =========================
-# ЦЕНА МАШИНЫ
+# ЦЕНА
 # =========================
 
 
@@ -27,9 +29,8 @@ def get_buy_price(car):
 
 
 
-
 # =========================
-# МАШИНЫ В МАГАЗИНЕ
+# МАШИНЫ МАГАЗИНА
 # =========================
 
 
@@ -43,9 +44,11 @@ def get_shop_cars(count=3):
         return []
 
 
+
     if len(cars) <= count:
 
         return cars
+
 
 
     return random.sample(
@@ -56,6 +59,29 @@ def get_shop_cars(count=3):
 
     )
 
+
+
+
+# =========================
+# ПОИСК МАШИНЫ
+# =========================
+
+
+def find_shop_car(name):
+
+    cars = load_cars()
+
+
+    for car in cars:
+
+
+        if car.get("name") == name:
+
+            return car
+
+
+
+    return None
 
 
 
@@ -73,30 +99,40 @@ def buy_car(user_id, car_name):
     )
 
 
-    cars = load_cars()
 
-
-
-    car = None
-
-
-    for item in cars:
-
-        if item["name"] == car_name:
-
-            car = item
-
-            break
+    car = find_shop_car(
+        car_name
+    )
 
 
 
     if not car:
+
 
         raise Exception(
 
             "Машина не найдена"
 
         )
+
+
+
+
+    if has_car(
+
+        user_id,
+
+        car["name"]
+
+    ):
+
+
+        raise Exception(
+
+            "Эта машина уже есть в гараже 🏎"
+
+        )
+
 
 
 
@@ -108,9 +144,10 @@ def buy_car(user_id, car_name):
 
     if player["coins"] < price:
 
+
         raise Exception(
 
-            "Недостаточно монет"
+            "Недостаточно монет 💰"
 
         )
 
@@ -123,6 +160,7 @@ def buy_car(user_id, car_name):
         -price
 
     )
+
 
 
     add_car(
