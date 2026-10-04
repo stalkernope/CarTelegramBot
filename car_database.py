@@ -19,13 +19,35 @@ def load_cars():
         return []
 
 
-    with open(
-        CARS_FILE,
-        "r",
-        encoding="utf-8"
-    ) as file:
+    try:
 
-        return json.load(file)
+        with open(
+            CARS_FILE,
+            "r",
+            encoding="utf-8"
+        ) as file:
+
+            cars = json.load(file)
+
+
+            if isinstance(cars, list):
+
+                return cars
+
+
+            return []
+
+
+    except Exception as e:
+
+        print(
+            "Ошибка cars.json:",
+            e
+        )
+
+
+        return []
+
 
 
 
@@ -36,23 +58,38 @@ def load_cars():
 
 def save_cars(cars):
 
-    with open(
-        CARS_FILE,
-        "w",
-        encoding="utf-8"
-    ) as file:
+    try:
 
-        json.dump(
+        with open(
+            CARS_FILE,
+            "w",
+            encoding="utf-8"
+        ) as file:
 
-            cars,
 
-            file,
+            json.dump(
 
-            ensure_ascii=False,
+                cars,
 
-            indent=4
+                file,
+
+                ensure_ascii=False,
+
+                indent=4
+
+            )
+
+
+    except Exception as e:
+
+        print(
+
+            "Ошибка сохранения машин:",
+
+            e
 
         )
+
 
 
 
@@ -71,7 +108,10 @@ def get_random_car():
         return None
 
 
-    return random.choice(cars)
+    return random.choice(
+        cars
+    )
+
 
 
 
@@ -87,26 +127,39 @@ def get_car(name):
 
     for car in cars:
 
+
         if car.get("name") == name:
 
             return car
+
 
 
     return None
 
 
 
+
 # =========================
-# ДОБАВЛЕНИЕ НОВОЙ МАШИНЫ В БАЗУ
+# ДОБАВЛЕНИЕ МАШИНЫ
 # =========================
 
 
 def add_new_car(car):
 
+    if not car:
+
+        return
+
+
+
     cars = load_cars()
 
 
-    cars.append(car)
+    cars.append(
+        car
+    )
 
 
-    save_cars(cars)
+    save_cars(
+        cars
+    )
