@@ -18,7 +18,7 @@ INSTAGRAM = os.environ.get("INSTAGRAM_URL", "https://instagram.com/")
 HISTORY = "history.json"
 POOL_FILE = "pool.json"
 API = "https://en.wikipedia.org/w/api.php"
-UA = {"User-Agent": "CarTelegramBot/1.0 (personal channel bot)"}
+UA = {"User-Agent": "CarTelegramBot/1.0 (https://t.me/toway2m; Telegram channel bot) python-httpx"}
 TZ = ZoneInfo("Europe/Moscow")
 
 # ---------- отобранные эксклюзивы (приоритетный список) ----------
@@ -137,6 +137,29 @@ def again_kb():
     ])
 
 
+SEM = asyncio.Semaphore(3)
+
+
+async def wget(c, url, params=None, tries=4):
+    """GET с повторами, если Википедия отвечает 429/5xx или пусто."""
+    for i in range(tries):
+        try:
+            async with SEM:
+                r = await c.get(url, params=params)
+            if r.status_code == 200:
+                return r
+            logging.warning("HTTP %s for %s", r.status_code, url[:80])
+            if r.status_code in (429, 500, 502, 503, 504):
+                ra = r.headers.get("retry-after", "")
+                await asyncio.sleep(min(float(ra), 10) if ra.isdigit() else 2 * (i + 1))
+                continue
+            return None
+        except Exception as e:
+            logging.warning("request error: %s", e)
+            await asyncio.sleep(2 * (i + 1))
+    return None
+
+
 # ---------- большая база машин из категорий Википедии ----------
 def load_pool():
     global POOL
@@ -153,12 +176,15 @@ async def api_members(c, cat, kind, limit_total):
     if kind == "page":
         params["cmnamespace"] = 0
     while len(out) < limit_total:
+        r = await wget(c, API, params)
+        if r is None:
+            break
         try:
-            r = await c.get(API, params=params)
             j = r.json()
         except Exception as e:
-            logging.warning("category error (%s): %s", cat, e)
+            logging.warning("category json error (%s): %s", cat, e)
             break
+        await asyncio.sleep(0.4)
         out += [m["title"] for m in j.get("query", {}).get("categorymembers", [])]
         if "continue" in j:
             params.update(j["continue"])
@@ -204,11 +230,13 @@ async def get_car(en_title):
     try:
         async with httpx.AsyncClient(headers=UA, timeout=25,
                                      follow_redirects=True) as c:
-            r = await c.get(API, params={
+            r = await wget(c, API, {
                 "action": "query", "format": "json", "redirects": 1,
                 "prop": "pageimages|langlinks", "piprop": "thumbnail",
                 "pithumbsize": 1200, "lllang": "ru", "titles": en_title,
             })
+            if r is None:
+                return None
             page = next(iter(r.json()["query"]["pages"].values()))
             thumb = page.get("thumbnail", {}).get("source")
             ll = page.get("langlinks")
@@ -216,18 +244,20 @@ async def get_car(en_title):
                 return None
             ru_title = ll[0]["*"]
 
-            r2 = await c.get("https://ru.wikipedia.org/w/api.php", params={
+            r2 = await wget(c, "https://ru.wikipedia.org/w/api.php", {
                 "action": "query", "format": "json", "redirects": 1,
                 "prop": "extracts", "exintro": 1, "explaintext": 1,
                 "titles": ru_title,
             })
+            if r2 is None:
+                return None
             p2 = next(iter(r2.json()["query"]["pages"].values()))
             text = p2.get("extract", "").strip()
             if len(text) < 120:
                 return None
 
-            img = await c.get(thumb)
-            if img.status_code != 200:
+            img = await wget(c, thumb)
+            if img is None:
                 return None
             return {"name": ru_title, "text": text, "photo": img.content}
     except Exception as e:
