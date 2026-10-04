@@ -12,12 +12,14 @@ from database import (
 )
 
 
+
 BATTLES_FILE = "battle_stats.json"
 
 
 
+
 # =========================
-# СТАТИСТИКА БИТВ
+# СТАТИСТИКА
 # =========================
 
 
@@ -28,32 +30,66 @@ def load_stats():
         return {}
 
 
-    with open(
-        BATTLES_FILE,
-        "r",
-        encoding="utf-8"
-    ) as file:
+    try:
 
-        return json.load(file)
+        with open(
+            BATTLES_FILE,
+            "r",
+            encoding="utf-8"
+        ) as file:
+
+            data = json.load(file)
+
+
+            if isinstance(data, dict):
+
+                return data
+
+
+            return {}
+
+
+    except Exception as e:
+
+        print(
+            "Ошибка battle_stats:",
+            e
+        )
+
+        return {}
 
 
 
 
 def save_stats(data):
 
-    with open(
-        BATTLES_FILE,
-        "w",
-        encoding="utf-8"
-    ) as file:
+    try:
 
-        json.dump(
-            data,
-            file,
-            ensure_ascii=False,
-            indent=4
+        with open(
+            BATTLES_FILE,
+            "w",
+            encoding="utf-8"
+        ) as file:
+
+            json.dump(
+
+                data,
+
+                file,
+
+                ensure_ascii=False,
+
+                indent=4
+
+            )
+
+
+    except Exception as e:
+
+        print(
+            "Ошибка сохранения битв:",
+            e
         )
-
 
 
 
@@ -65,26 +101,57 @@ def save_stats(data):
 
 def create_battle():
 
-    car1 = get_random_car()
-
-    car2 = get_random_car()
+    cars = []
 
 
+    first = get_random_car()
 
-    if not car1 or not car2:
+
+    if first:
+
+        cars.append(first)
+
+
+
+    second = get_random_car()
+
+
+    if second:
+
+        cars.append(second)
+
+
+
+    if len(cars) < 2:
 
         return None, None
 
 
 
-    while car1["name"] == car2["name"]:
+    # защита от одинаковых машин
 
-        car2 = get_random_car()
+    attempts = 0
+
+
+    while (
+
+        cars[0]["name"]
+
+        ==
+
+        cars[1]["name"]
+
+        and attempts < 10
+
+    ):
+
+        cars[1] = get_random_car()
+
+        attempts += 1
 
 
 
-    return car1, car2
-
+    return cars[0], cars[1]
 
 
 
@@ -95,6 +162,11 @@ def create_battle():
 
 
 def car_power(car):
+
+    if not car:
+
+        return 0
+
 
 
     power = car.get(
@@ -115,23 +187,22 @@ def car_power(car):
     )
 
 
-    rarity_bonus = 0
-
+    bonus = 0
 
 
     if "Mythic" in rarity:
 
-        rarity_bonus = 500
+        bonus = 500
 
 
     elif "Legendary" in rarity:
 
-        rarity_bonus = 300
+        bonus = 300
 
 
     elif "Rare" in rarity:
 
-        rarity_bonus = 150
+        bonus = 150
 
 
 
@@ -139,7 +210,6 @@ def car_power(car):
         -50,
         50
     )
-
 
 
     return (
@@ -152,7 +222,7 @@ def car_power(car):
 
         +
 
-        rarity_bonus
+        bonus
 
         +
 
@@ -163,13 +233,17 @@ def car_power(car):
 
 
 
-
 # =========================
 # БИТВА
 # =========================
 
 
 def fight(car1, car2):
+
+    if not car1 or not car2:
+
+        return None, None
+
 
 
     score1 = car_power(
@@ -198,6 +272,7 @@ def fight(car1, car2):
 
 
 
+
     save_result(
         winner
     )
@@ -208,17 +283,19 @@ def fight(car1, car2):
 
 
 
-
 # =========================
-# СОХРАНЕНИЕ ПОБЕД
+# СОХРАНЕНИЕ ПОБЕД МАШИН
 # =========================
 
 
 def save_result(car):
 
+    if not car:
+
+        return
+
 
     data = load_stats()
-
 
 
     name = car["name"]
@@ -246,19 +323,16 @@ def save_result(car):
 
 
 
-
 # =========================
-# ТЕКСТ БИТВЫ
+# ТЕКСТ
 # =========================
 
 
 def battle_text(car1, car2):
 
-
     return (
 
         "⚔️ <b>LEGEND BATTLE</b>\n\n"
-
 
         f"🏎 <b>{car1['name']}</b>\n"
 
@@ -268,9 +342,7 @@ def battle_text(car1, car2):
 
         f"💎 {car1.get('rarity','')}\n\n"
 
-
         "🔥 VS 🔥\n\n"
-
 
         f"🏎 <b>{car2['name']}</b>\n"
 
@@ -280,7 +352,6 @@ def battle_text(car1, car2):
 
         f"💎 {car2.get('rarity','')}\n\n"
 
-
         "Выбирай победителя 👇"
 
     )
@@ -288,16 +359,14 @@ def battle_text(car1, car2):
 
 
 
-
 # =========================
-# ЗАПУСК БИТВЫ
+# СТАРТ БИТВЫ
 # =========================
 
 
 def start_battle():
 
     return create_battle()
-
 
 
 
