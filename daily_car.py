@@ -12,7 +12,6 @@ DAILY_FILE = "daily_car.json"
 
 
 
-
 # =========================
 # ЗАГРУЗКА
 # =========================
@@ -20,7 +19,9 @@ DAILY_FILE = "daily_car.json"
 
 def load_daily():
 
-    if not os.path.exists(DAILY_FILE):
+    if not os.path.exists(
+        DAILY_FILE
+    ):
 
         return None
 
@@ -33,18 +34,25 @@ def load_daily():
             encoding="utf-8"
         ) as file:
 
-            return json.load(file)
+            data = json.load(file)
+
+
+            if isinstance(data, dict):
+
+                return data
+
 
 
     except Exception as e:
 
         print(
-            "Ошибка daily_car.json:",
+            "Ошибка daily:",
             e
         )
 
-        return None
 
+
+    return None
 
 
 
@@ -80,11 +88,9 @@ def save_daily(data):
     except Exception as e:
 
         print(
-            "Ошибка сохранения машины дня:",
+            "Ошибка сохранения daily:",
             e
         )
-
-
 
 
 
@@ -95,7 +101,6 @@ def save_daily(data):
 
 def get_daily_car():
 
-
     today = str(
         date.today()
     )
@@ -105,17 +110,29 @@ def get_daily_car():
 
 
 
+    # если уже есть сегодня
+
     if daily:
 
 
-        if daily.get("date") == today:
+        if daily.get(
+            "date"
+        ) == today:
 
 
-            return daily.get(
+            car = daily.get(
                 "car"
             )
 
 
+            if car:
+
+                return car
+
+
+
+
+    # создаём новую
 
 
     car = get_random_car()
