@@ -137,9 +137,9 @@
         "type": "Гибридный гиперкар",
         "photo": "",
         "description": "Один из священной тройки гибридных гиперкаров."
-    }
+    },
     
-    {
+        {
         "name": "Ferrari 488 Pista",
         "brand": "Ferrari",
         "country": "Italy",
@@ -277,7 +277,7 @@
         "type": "Маслкар",
         "photo": "",
         "description": "Один из самых мощных Mustang."
-    }
+    },
 
     {
         "name": "Bugatti Veyron Super Sport",
@@ -320,8 +320,8 @@
         "photo": "",
         "description": "Последний Bugatti с легендарным W16."
     },
-
-    {
+    
+        {
         "name": "Koenigsegg Agera RS",
         "brand": "Koenigsegg",
         "country": "Sweden",
@@ -417,7 +417,7 @@
         "type": "Спорткар",
         "photo": "",
         "description": "Самый мощный серийный GT-R."
-    }
+    },
 
     {
         "name": "BMW M5 CS",
@@ -557,7 +557,7 @@
         "type": "Классика",
         "photo": "",
         "description": "Один из самых известных автомобилей Америки."
-    }
+    },
 
     {
         "name": "Toyota GR Supra A90",
@@ -655,47 +655,5 @@
         "type": "Гиперкар",
         "photo": "",
         "description": "Посвящён основателю Ferrari."
-    },
-
-    {
-        "name": "McLaren F1",
-        "brand": "McLaren",
-        "country": "United Kingdom",
-        "year": 1998,
-        "power": 618,
-        "speed": 386,
-        "price": 20000000,
-        "rarity": "🔥 Mythic",
-        "type": "Легендарный гиперкар",
-        "photo": "",
-        "description": "Один из самых дорогих автомобилей в мире."
-    },
-
-    {
-        "name": "Mercedes CLK GTR",
-        "brand": "Mercedes",
-        "country": "Germany",
-        "year": 1999,
-        "power": 604,
-        "speed": 344,
-        "price": 4000000,
-        "rarity": "🔥 Mythic",
-        "type": "Гоночный гиперкар",
-        "photo": "",
-        "description": "Дорожная версия гоночного монстра."
-    },
-
-    {
-        "name": "Aston Martin One-77",
-        "brand": "Aston Martin",
-        "country": "United Kingdom",
-        "year": 2012,
-        "power": 750,
-        "speed": 354,
-        "price": 1800000,
-        "rarity": "🔥 Mythic",
-        "type": "Эксклюзив",
-        "photo": "",
-        "description": "Очень редкий британский гиперкар."
     }
 ]
