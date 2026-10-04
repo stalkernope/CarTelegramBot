@@ -2,20 +2,125 @@
     {
         "name": "Bugatti Chiron Super Sport",
         "brand": "Bugatti",
-        "power": "1600 л.с.",
-        "speed": "440 км/ч",
-        "price": "3.9 млн $",
-        "rarity": "MYTHIC",
-        "country": "France"
+        "country": "France",
+        "year": 2021,
+        "engine": "8.0 W16 Quad Turbo",
+        "power": 1600,
+        "speed": 440,
+        "zero100": 2.4,
+        "drive": "AWD",
+        "price": 3900000,
+        "rarity": "🔥 Mythic",
+        "category": "Hypercar",
+        "photo": "",
+        "description": "Один из самых быстрых серийных гиперкаров в мире."
     },
+
+
+    {
+        "name": "Koenigsegg Jesko Absolut",
+        "brand": "Koenigsegg",
+        "country": "Sweden",
+        "year": 2020,
+        "engine": "5.0 V8 Twin Turbo",
+        "power": 1600,
+        "speed": 500,
+        "zero100": 2.5,
+        "drive": "RWD",
+        "price": 3000000,
+        "rarity": "🔥 Mythic",
+        "category": "Speed",
+        "photo": "",
+        "description": "Создан для абсолютной скорости."
+    },
+
 
     {
         "name": "Ferrari LaFerrari",
         "brand": "Ferrari",
-        "power": "963 л.с.",
-        "speed": "350 км/ч",
-        "price": "1.5 млн $",
-        "rarity": "LEGENDARY",
-        "country": "Italy"
+        "country": "Italy",
+        "year": 2013,
+        "engine": "V12 Hybrid",
+        "power": 963,
+        "speed": 350,
+        "zero100": 2.6,
+        "drive": "RWD",
+        "price": 1500000,
+        "rarity": "💎 Legendary",
+        "category": "Collector",
+        "photo": "",
+        "description": "Гибридная легенда Ferrari."
+    },
+
+
+    {
+        "name": "Lamborghini Aventador SVJ",
+        "brand": "Lamborghini",
+        "country": "Italy",
+        "year": 2018,
+        "engine": "6.5 V12",
+        "power": 770,
+        "speed": 350,
+        "zero100": 2.8,
+        "drive": "AWD",
+        "price": 600000,
+        "rarity": "💎 Legendary",
+        "category": "Track",
+        "photo": "",
+        "description": "Трековый монстр с атмосферным V12."
+    },
+
+
+    {
+        "name": "Porsche 911 GT3 RS",
+        "brand": "Porsche",
+        "country": "Germany",
+        "year": 2023,
+        "engine": "4.0 Flat-6",
+        "power": 525,
+        "speed": 296,
+        "zero100": 3.2,
+        "drive": "RWD",
+        "price": 250000,
+        "rarity": "🔵 Rare",
+        "category": "Sport",
+        "photo": "",
+        "description": "Один из лучших трековых спорткаров."
+    },
+
+
+    {
+        "name": "McLaren Senna",
+        "brand": "McLaren",
+        "country": "UK",
+        "year": 2018,
+        "engine": "4.0 V8 Twin Turbo",
+        "power": 800,
+        "speed": 340,
+        "zero100": 2.8,
+        "drive": "RWD",
+        "price": 1000000,
+        "rarity": "💎 Legendary",
+        "category": "Track Hypercar",
+        "photo": "",
+        "description": "Лёгкий гиперкар созданный для максимальной скорости."
+    },
+
+
+    {
+        "name": "Mercedes AMG ONE",
+        "brand": "Mercedes",
+        "country": "Germany",
+        "year": 2022,
+        "engine": "1.6 V6 Hybrid F1",
+        "power": 1049,
+        "speed": 352,
+        "zero100": 2.9,
+        "drive": "AWD",
+        "price": 2700000,
+        "rarity": "🔥 Mythic",
+        "category": "Formula",
+        "photo": "",
+        "description": "Формула-1 с номерными знаками."
     }
 ]
