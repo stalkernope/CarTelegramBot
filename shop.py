@@ -8,19 +8,39 @@ from database import (
     get_player,
     add_car,
     add_coins,
-    add_xp,
-    has_car
+    add_xp
 )
 
+
+
+# =========================
+# НАСТРОЙКИ
+# =========================
 
 
 CASE_PRICE = 500
 
 
 
+# =========================
+# ШАНСЫ РЕДКОСТИ
+# =========================
+
+
+RARITY_CHANCES = [
+
+    ("🔵 Rare", 60),
+
+    ("💎 Legendary", 30),
+
+    ("🔥 Mythic", 10)
+
+]
+
+
 
 # =========================
-# ВЫБОР МАШИНЫ ИЗ КЕЙСА
+# ПОЛУЧЕНИЕ МАШИНЫ ИЗ КЕЙСА
 # =========================
 
 
@@ -35,74 +55,50 @@ def get_case_car():
 
 
 
-    chance = random.randint(
+    rarity_roll = random.randint(
         1,
         100
     )
 
 
-    # 10% Mythic
+    if rarity_roll <= 10:
 
-    if chance <= 10:
-
-
-        pool = [
-
-            car for car in cars
-
-            if "Mythic" in car.get(
-                "rarity",
-                ""
-            )
-
-        ]
+        rarity = "🔥 Mythic"
 
 
-    # 30% Legendary
+    elif rarity_roll <= 40:
 
-    elif chance <= 40:
+        rarity = "💎 Legendary"
 
-
-        pool = [
-
-            car for car in cars
-
-            if "Legendary" in car.get(
-                "rarity",
-                ""
-            )
-
-        ]
-
-
-    # 60% Rare
 
     else:
 
+        rarity = "🔵 Rare"
 
-        pool = [
 
-            car for car in cars
 
-            if "Rare" in car.get(
-                "rarity",
-                ""
+    filtered = []
+
+
+    for car in cars:
+
+        if car.get("rarity") == rarity:
+
+            filtered.append(
+                car
             )
 
-        ]
 
 
+    if not filtered:
 
-    if not pool:
-
-        pool = cars
+        filtered = cars
 
 
 
     return random.choice(
-        pool
+        filtered
     )
-
 
 
 
@@ -122,11 +118,8 @@ def open_case(user_id):
 
     if player["coins"] < CASE_PRICE:
 
-
         raise Exception(
-
-            "Недостаточно монет 💰"
-
+            "❌ Нужно 500 🪙 монет"
         )
 
 
@@ -137,17 +130,11 @@ def open_case(user_id):
 
     if not car:
 
-
         raise Exception(
-
-            "Машины отсутствуют"
-
+            "❌ Машины не найдены"
         )
 
 
-
-
-    # списываем деньги
 
     add_coins(
 
@@ -156,17 +143,6 @@ def open_case(user_id):
         -CASE_PRICE
 
     )
-
-
-
-    already = has_car(
-
-        user_id,
-
-        car["name"]
-
-    )
-
 
 
     add_car(
@@ -178,42 +154,53 @@ def open_case(user_id):
     )
 
 
+    add_xp(
 
+        user_id,
 
-    # награды
+        100
 
-    if already:
-
-
-        add_xp(
-
-            user_id,
-
-            200
-
-        )
-
-
-        add_coins(
-
-            user_id,
-
-            100
-
-        )
-
-
-    else:
-
-
-        add_xp(
-
-            user_id,
-
-            100
-
-        )
+    )
 
 
 
     return car
+
+
+
+# =========================
+# ИНФОРМАЦИЯ КЕЙСА
+# =========================
+
+
+def case_info():
+
+    return (
+
+        "🎁 <b>LEGEND CASE</b>\n\n"
+
+        "💰 Цена: 500 🪙\n\n"
+
+        "🔵 Rare — 60%\n"
+
+        "💎 Legendary — 30%\n"
+
+        "🔥 Mythic — 10%\n\n"
+
+        "Открой и получи легендарную машину!"
+
+    )
+
+
+
+# =========================
+# ЦЕНА
+# =========================
+
+
+def get_car_price(car):
+
+    return car.get(
+        "price",
+        100000
+    )
