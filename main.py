@@ -642,7 +642,23 @@ def main():
         .build()
 
     )
+    
+    async def set_commands(application):
 
+        await application.bot.set_my_commands([
+
+            ("start", "Главное меню"),
+
+            ("car", "Случайная машина"),
+
+            ("match", "Какая машина тебе подходит"),
+
+            ("profile", "Мой профиль")
+
+        ])
+
+
+    app.post_init = set_commands
 
     # команды
 
