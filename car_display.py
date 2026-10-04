@@ -1,23 +1,58 @@
+# =========================
+# ОТОБРАЖЕНИЕ МАШИН
+# =========================
+
+
 def car_text(car):
+
+    if not car:
+
+        return "❌ Машина не найдена"
+
+
 
     return (
 
-        f"🏎 <b>{car['name']}</b>\n\n"
+        "🏎 <b>CAR LEGENDS</b>\n\n"
 
-        f"🏭 Бренд: {car['brand']}\n"
+        f"🚘 {car.get('name','')}\n"
 
-        f"🌍 Страна: {car['country']}\n"
+        f"🏭 {car.get('brand','')}\n"
 
-        f"📅 Год: {car['year']}\n\n"
+        f"🌍 {car.get('country','')}\n\n"
 
-        f"⚡ Мощность: {car['power']} л.с.\n"
+        f"⚡ Мощность: {car.get('power',0)} л.с.\n"
 
-        f"🚀 Скорость: {car['speed']} км/ч\n"
+        f"🚀 Скорость: {car.get('speed',0)} км/ч\n"
 
-        f"💰 Цена: {car['price']}$\n"
+        f"💰 Цена: {car.get('price',0)}$\n"
 
-        f"💎 Редкость: {car['rarity']}\n\n"
+        f"💎 Редкость: {car.get('rarity','')}\n\n"
 
-        f"📝 {car['description']}"
+        f"📝 {car.get('description','')}"
+
+    )
+
+
+
+
+
+def car_short(car):
+
+    if not car:
+
+        return "Нет машины"
+
+
+
+    return (
+
+        f"🏎 {car.get('name','')}\n"
+
+        f"💎 {car.get('rarity','')}\n"
+
+        f"⚡ {car.get('power',0)} л.с.\n"
+
+        f"🚀 {car.get('speed',0)} км/ч"
 
     )
