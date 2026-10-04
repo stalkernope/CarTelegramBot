@@ -7,7 +7,7 @@ DATABASE_FILE = "players.json"
 
 
 # =========================
-# СОЗДАНИЕ БАЗЫ
+# БАЗА
 # =========================
 
 
@@ -30,11 +30,6 @@ def create_database():
 
 
 
-# =========================
-# ЗАГРУЗКА
-# =========================
-
-
 def load_database():
 
     create_database()
@@ -46,11 +41,6 @@ def load_database():
 
         return json.load(file)
 
-
-
-# =========================
-# СОХРАНЕНИЕ
-# =========================
 
 
 def save_database(data):
@@ -98,7 +88,7 @@ def get_player(user_id):
 
             "losses": 0,
 
-            "title": "Новичок"
+            "title": "🚗 Новичок"
 
         }
 
@@ -106,8 +96,38 @@ def get_player(user_id):
         save_database(data)
 
 
-
     return data[uid]
+
+
+
+# =========================
+# ТИТУЛЫ
+# =========================
+
+
+def update_title(player):
+
+    level = player["level"]
+
+
+    if level >= 50:
+
+        player["title"] = "👑 Автомобильный Бог"
+
+
+    elif level >= 25:
+
+        player["title"] = "🔥 Легенда дорог"
+
+
+    elif level >= 10:
+
+        player["title"] = "💎 Коллекционер"
+
+
+    else:
+
+        player["title"] = "🚗 Новичок"
 
 
 
@@ -130,10 +150,9 @@ def add_xp(user_id, amount):
 
 
 
-    needed = player["level"] * 200
+    while player["xp"] >= player["level"] * 200:
 
-
-    if player["xp"] >= needed:
+        player["xp"] -= player["level"] * 200
 
         player["level"] += 1
 
@@ -141,8 +160,10 @@ def add_xp(user_id, amount):
 
 
 
-    data[uid] = player
+    update_title(player)
 
+
+    data[uid] = player
 
     save_database(data)
 
@@ -192,14 +213,26 @@ def add_car(user_id, car_name):
 
         player["garage"].append(car_name)
 
-        player["xp"] += 50
-
+        add_xp(
+            user_id,
+            50
+        )
 
 
     data[uid] = player
 
-
     save_database(data)
+
+
+
+def has_car(user_id, car_name):
+
+    player = get_player(
+        user_id
+    )
+
+
+    return car_name in player["garage"]
 
 
 
@@ -220,16 +253,20 @@ def add_win(user_id):
 
     player["wins"] += 1
 
-    player["xp"] += 100
 
     player["coins"] += 100
-
 
 
     data[uid] = player
 
 
     save_database(data)
+
+
+    add_xp(
+        user_id,
+        100
+    )
 
 
 
