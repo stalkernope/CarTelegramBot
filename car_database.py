@@ -7,11 +7,17 @@ CARS_FILE = "cars.json"
 
 
 
+# =========================
+# ЗАГРУЗКА МАШИН
+# =========================
+
+
 def load_cars():
 
     if not os.path.exists(CARS_FILE):
 
         return []
+
 
     with open(
         CARS_FILE,
@@ -23,6 +29,11 @@ def load_cars():
 
 
 
+# =========================
+# СОХРАНЕНИЕ
+# =========================
+
+
 def save_cars(cars):
 
     with open(
@@ -32,17 +43,28 @@ def save_cars(cars):
     ) as file:
 
         json.dump(
+
             cars,
+
             file,
+
             ensure_ascii=False,
+
             indent=4
+
         )
 
+
+
+# =========================
+# СЛУЧАЙНАЯ МАШИНА
+# =========================
 
 
 def get_random_car():
 
     cars = load_cars()
+
 
     if not cars:
 
@@ -53,6 +75,11 @@ def get_random_car():
 
 
 
+# =========================
+# ПОИСК МАШИНЫ
+# =========================
+
+
 def get_car(name):
 
     cars = load_cars()
@@ -60,7 +87,7 @@ def get_car(name):
 
     for car in cars:
 
-        if car["name"] == name:
+        if car.get("name") == name:
 
             return car
 
@@ -69,10 +96,17 @@ def get_car(name):
 
 
 
-def add_car(car):
+# =========================
+# ДОБАВЛЕНИЕ НОВОЙ МАШИНЫ В БАЗУ
+# =========================
+
+
+def add_new_car(car):
 
     cars = load_cars()
 
+
     cars.append(car)
+
 
     save_cars(cars)
