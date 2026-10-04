@@ -1,115 +1,27 @@
 import random
 
-
-from car_database import (
-    get_random_car,
-    load_cars
-)
-
-
+from car_database import load_cars
 from database import (
     get_player,
-    add_car
+    add_car,
+    add_coins,
+    add_xp
 )
 
 
-
-# =========================
-# ЦЕНА МАШИНЫ
-# =========================
-
-
-def get_car_price(car):
-
-    rarity = car.get(
-        "rarity",
-        ""
-    )
-
-
-    if "Mythic" in rarity:
-
-        return 1000000
-
-
-    if "Legendary" in rarity:
-
-        return 500000
-
-
-    if "Rare" in rarity:
-
-        return 150000
-
-
-    return 50000
+CASE_PRICE = 500
 
 
 
-# =========================
-# ПОКУПКА
-# =========================
-
-
-def buy_car(user_id, car):
-
-    player = get_player(
-        user_id
-    )
-
-
-    price = get_car_price(
-        car
-    )
-
-
-    if player["coins"] < price:
-
-        return {
-
-            "success": False,
-
-            "message":
-            "❌ Не хватает монет"
-
-        }
-
-
-
-    player["coins"] -= price
-
-
-    add_car(
-
-        user_id,
-
-        car["name"]
-
-    )
-
-
-    return {
-
-        "success": True,
-
-        "message":
-
-        f"🏎 Поздравляем!\n"
-        f"Ты купил {car['name']}"
-
-    }
-
-
-
-# =========================
-# КЕЙСЫ
-# =========================
-
-
-def open_case(user_id):
-
+def get_case_car():
 
     cars = load_cars()
+
+
+    if not cars:
+
+        return None
+
 
 
     chance = random.randint(
@@ -118,41 +30,94 @@ def open_case(user_id):
     )
 
 
-    if chance <= 5:
+    # 10% Mythic
 
-        # Mythic
+    if chance <= 10:
 
-        possible = [
+        pool = [
 
-            c for c in cars
+            car for car in cars
 
-            if "Mythic" in c["rarity"]
+            if "Mythic" in car["rarity"]
+
+        ]
+
+
+
+    # 30% Legendary
+
+    elif chance <= 40:
+
+        pool = [
+
+            car for car in cars
+
+            if "Legendary" in car["rarity"]
 
         ]
 
 
-    elif chance <= 25:
 
-        # Legendary
-
-        possible = [
-
-            c for c in cars
-
-            if "Legendary" in c["rarity"]
-
-        ]
-
+    # 60% Rare
 
     else:
 
-        possible = cars
+        pool = [
+
+            car for car in cars
+
+            if "Rare" in car["rarity"]
+
+        ]
 
 
 
-    car = random.choice(
-        possible
+    if not pool:
+
+        pool = cars
+
+
+
+    return random.choice(pool)
+
+
+
+
+def open_case(user_id):
+
+
+    player = get_player(
+        user_id
     )
+
+
+    if player["coins"] < CASE_PRICE:
+
+        raise Exception(
+            "Недостаточно монет"
+        )
+
+
+
+    add_coins(
+
+        user_id,
+
+        -CASE_PRICE
+
+    )
+
+
+    car = get_case_car()
+
+
+
+    if not car:
+
+        raise Exception(
+            "Нет машин"
+        )
+
 
 
     add_car(
@@ -164,28 +129,13 @@ def open_case(user_id):
     )
 
 
+    add_xp(
+
+        user_id,
+
+        100
+
+    )
+
+
     return car
-
-
-
-# =========================
-# ИНФОРМАЦИЯ О КЕЙСЕ
-# =========================
-
-
-def case_info():
-
-    return """
-
-🎁 <b>LEGEND CASE</b>
-
-Шансы:
-
-🔥 Mythic — 5%
-
-💎 Legendary — 20%
-
-🔵 Rare — 75%
-
-Открой и попробуй получить легенду!
-"""
