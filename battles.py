@@ -123,3 +123,52 @@ def top_battles():
 
 
     return result[:10]
+    
+    from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+
+
+async def start_battle(message, ctx):
+
+    cars = create_battle()
+
+    car1 = cars[0]
+    car2 = cars[1]
+
+
+    keyboard = [
+
+        [
+
+            InlineKeyboardButton(
+                f"🏎 {car1['name']}",
+                callback_data=f"vote_{car1['name']}"
+            )
+
+        ],
+
+        [
+
+            InlineKeyboardButton(
+                f"🏎 {car2['name']}",
+                callback_data=f"vote_{car2['name']}"
+            )
+
+        ]
+
+    ]
+
+
+    await message.reply_text(
+
+        battle_text(
+            car1,
+            car2
+        ),
+
+        parse_mode="HTML",
+
+        reply_markup=InlineKeyboardMarkup(
+            keyboard
+        )
+
+    )
