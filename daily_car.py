@@ -1,5 +1,6 @@
 import json
 import os
+
 from datetime import date
 
 
@@ -24,14 +25,25 @@ def load_daily():
         return None
 
 
-    with open(
-        DAILY_FILE,
-        "r",
-        encoding="utf-8"
-    ) as file:
+    try:
 
-        return json.load(file)
+        with open(
+            DAILY_FILE,
+            "r",
+            encoding="utf-8"
+        ) as file:
 
+            return json.load(file)
+
+
+    except Exception as e:
+
+        print(
+            "Ошибка daily_car.json:",
+            e
+        )
+
+        return None
 
 
 
@@ -43,17 +55,33 @@ def load_daily():
 
 def save_daily(data):
 
-    with open(
-        DAILY_FILE,
-        "w",
-        encoding="utf-8"
-    ) as file:
+    try:
 
-        json.dump(
-            data,
-            file,
-            ensure_ascii=False,
-            indent=4
+        with open(
+            DAILY_FILE,
+            "w",
+            encoding="utf-8"
+        ) as file:
+
+
+            json.dump(
+
+                data,
+
+                file,
+
+                ensure_ascii=False,
+
+                indent=4
+
+            )
+
+
+    except Exception as e:
+
+        print(
+            "Ошибка сохранения машины дня:",
+            e
         )
 
 
@@ -77,19 +105,18 @@ def get_daily_car():
 
 
 
-    # если уже есть машина сегодня
-
     if daily:
+
 
         if daily.get("date") == today:
 
-            return daily.get("car")
+
+            return daily.get(
+                "car"
+            )
 
 
 
-
-
-    # создаём новую машину дня
 
     car = get_random_car()
 
@@ -98,7 +125,6 @@ def get_daily_car():
     if not car:
 
         return None
-
 
 
 
