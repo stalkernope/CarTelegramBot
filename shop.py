@@ -1,16 +1,26 @@
 import random
 
+
 from car_database import load_cars
+
+
 from database import (
     get_player,
     add_car,
     add_coins,
-    add_xp
+    add_xp,
+    has_car
 )
+
 
 
 CASE_PRICE = 500
 
+
+
+# =========================
+# ВЫБОР МАШИНЫ
+# =========================
 
 
 def get_case_car():
@@ -30,7 +40,6 @@ def get_case_car():
     )
 
 
-    # 10% Mythic
 
     if chance <= 10:
 
@@ -44,8 +53,6 @@ def get_case_car():
 
 
 
-    # 30% Legendary
-
     elif chance <= 40:
 
         pool = [
@@ -57,8 +64,6 @@ def get_case_car():
         ]
 
 
-
-    # 60% Rare
 
     else:
 
@@ -82,6 +87,10 @@ def get_case_car():
 
 
 
+# =========================
+# ОТКРЫТИЕ КЕЙСА
+# =========================
+
 
 def open_case(user_id):
 
@@ -89,6 +98,7 @@ def open_case(user_id):
     player = get_player(
         user_id
     )
+
 
 
     if player["coins"] < CASE_PRICE:
@@ -108,6 +118,7 @@ def open_case(user_id):
     )
 
 
+
     car = get_case_car()
 
 
@@ -115,8 +126,18 @@ def open_case(user_id):
     if not car:
 
         raise Exception(
-            "Нет машин"
+            "Машины отсутствуют"
         )
+
+
+
+    already_have = has_car(
+
+        user_id,
+
+        car["name"]
+
+    )
 
 
 
@@ -129,13 +150,30 @@ def open_case(user_id):
     )
 
 
-    add_xp(
 
-        user_id,
+    if already_have:
 
-        100
 
-    )
+        add_xp(
+
+            user_id,
+
+            20
+
+        )
+
+
+    else:
+
+
+        add_xp(
+
+            user_id,
+
+            100
+
+        )
+
 
 
     return car
