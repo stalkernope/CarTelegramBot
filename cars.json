@@ -1,0 +1,21 @@
+[
+    {
+        "name": "Bugatti Chiron Super Sport",
+        "brand": "Bugatti",
+        "power": "1600 л.с.",
+        "speed": "440 км/ч",
+        "price": "3.9 млн $",
+        "rarity": "MYTHIC",
+        "country": "France"
+    },
+
+    {
+        "name": "Ferrari LaFerrari",
+        "brand": "Ferrari",
+        "power": "963 л.с.",
+        "speed": "350 км/ч",
+        "price": "1.5 млн $",
+        "rarity": "LEGENDARY",
+        "country": "Italy"
+    }
+]
