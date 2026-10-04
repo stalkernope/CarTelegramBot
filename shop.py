@@ -8,19 +8,13 @@ from database import (
     get_player,
     add_car,
     add_coins,
-    add_xp,
-    has_car
+    add_xp
 )
 
 
 
 CASE_PRICE = 500
 
-
-
-# =========================
-# ВЫБОР МАШИНЫ
-# =========================
 
 
 def get_case_car():
@@ -40,17 +34,15 @@ def get_case_car():
     )
 
 
-
     if chance <= 10:
 
         pool = [
 
             car for car in cars
 
-            if "Mythic" in car["rarity"]
+            if "Mythic" in car.get("rarity","")
 
         ]
-
 
 
     elif chance <= 40:
@@ -59,10 +51,9 @@ def get_case_car():
 
             car for car in cars
 
-            if "Legendary" in car["rarity"]
+            if "Legendary" in car.get("rarity","")
 
         ]
-
 
 
     else:
@@ -71,7 +62,7 @@ def get_case_car():
 
             car for car in cars
 
-            if "Rare" in car["rarity"]
+            if "Rare" in car.get("rarity","")
 
         ]
 
@@ -87,9 +78,6 @@ def get_case_car():
 
 
 
-# =========================
-# ОТКРЫТИЕ КЕЙСА
-# =========================
 
 
 def open_case(user_id):
@@ -100,11 +88,10 @@ def open_case(user_id):
     )
 
 
-
     if player["coins"] < CASE_PRICE:
 
         raise Exception(
-            "Недостаточно монет"
+            "❌ Недостаточно монет"
         )
 
 
@@ -122,22 +109,11 @@ def open_case(user_id):
     car = get_case_car()
 
 
-
     if not car:
 
         raise Exception(
-            "Машины отсутствуют"
+            "❌ Нет машин в базе"
         )
-
-
-
-    already_have = has_car(
-
-        user_id,
-
-        car["name"]
-
-    )
 
 
 
@@ -150,30 +126,13 @@ def open_case(user_id):
     )
 
 
+    add_xp(
 
-    if already_have:
+        user_id,
 
+        100
 
-        add_xp(
-
-            user_id,
-
-            20
-
-        )
-
-
-    else:
-
-
-        add_xp(
-
-            user_id,
-
-            100
-
-        )
-
+    )
 
 
     return car
