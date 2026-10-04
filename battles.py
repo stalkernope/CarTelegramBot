@@ -13,27 +13,29 @@ from database import (
 
 
 
-BATTLES_FILE = "battle_stats.json"
-
+BATTLE_FILE = "battle_stats.json"
 
 
 
 # =========================
-# СТАТИСТИКА
+# СТАТИСТИКА МАШИН
 # =========================
 
 
 def load_stats():
 
-    if not os.path.exists(BATTLES_FILE):
+    if not os.path.exists(
+        BATTLE_FILE
+    ):
 
         return {}
+
 
 
     try:
 
         with open(
-            BATTLES_FILE,
+            BATTLE_FILE,
             "r",
             encoding="utf-8"
         ) as file:
@@ -46,18 +48,15 @@ def load_stats():
                 return data
 
 
-            return {}
-
-
     except Exception as e:
 
         print(
-            "Ошибка battle_stats:",
+            "Ошибка статистики:",
             e
         )
 
-        return {}
 
+    return {}
 
 
 
@@ -66,7 +65,7 @@ def save_stats(data):
     try:
 
         with open(
-            BATTLES_FILE,
+            BATTLE_FILE,
             "w",
             encoding="utf-8"
         ) as file:
@@ -93,7 +92,6 @@ def save_stats(data):
 
 
 
-
 # =========================
 # СОЗДАНИЕ БИТВЫ
 # =========================
@@ -101,58 +99,36 @@ def save_stats(data):
 
 def create_battle():
 
-    cars = []
+    car1 = get_random_car()
 
-
-    first = get_random_car()
-
-
-    if first:
-
-        cars.append(first)
+    car2 = get_random_car()
 
 
 
-    second = get_random_car()
-
-
-    if second:
-
-        cars.append(second)
-
-
-
-    if len(cars) < 2:
+    if not car1 or not car2:
 
         return None, None
 
 
-
-    # защита от одинаковых машин
 
     attempts = 0
 
 
     while (
 
-        cars[0]["name"]
+        car1["name"] == car2["name"]
 
-        ==
-
-        cars[1]["name"]
-
-        and attempts < 10
+        and attempts < 20
 
     ):
 
-        cars[1] = get_random_car()
+        car2 = get_random_car()
 
         attempts += 1
 
 
 
-    return cars[0], cars[1]
-
+    return car1, car2
 
 
 
@@ -187,22 +163,24 @@ def car_power(car):
     )
 
 
-    bonus = 0
+
+    rarity_bonus = 0
+
 
 
     if "Mythic" in rarity:
 
-        bonus = 500
+        rarity_bonus = 500
 
 
     elif "Legendary" in rarity:
 
-        bonus = 300
+        rarity_bonus = 300
 
 
     elif "Rare" in rarity:
 
-        bonus = 150
+        rarity_bonus = 150
 
 
 
@@ -212,9 +190,10 @@ def car_power(car):
     )
 
 
+
     return (
 
-        power * 0.5
+        power * 0.6
 
         +
 
@@ -222,14 +201,13 @@ def car_power(car):
 
         +
 
-        bonus
+        rarity_bonus
 
         +
 
         random_bonus
 
     )
-
 
 
 
@@ -272,27 +250,27 @@ def fight(car1, car2):
 
 
 
-
-    save_result(
+    save_car_win(
         winner
     )
+
 
 
     return winner, loser
 
 
 
-
 # =========================
-# СОХРАНЕНИЕ ПОБЕД МАШИН
+# ПОБЕДЫ МАШИН
 # =========================
 
 
-def save_result(car):
+def save_car_win(car):
 
     if not car:
 
         return
+
 
 
     data = load_stats()
@@ -322,9 +300,8 @@ def save_result(car):
 
 
 
-
 # =========================
-# ТЕКСТ
+# ТЕКСТ БИТВЫ
 # =========================
 
 
@@ -342,7 +319,9 @@ def battle_text(car1, car2):
 
         f"💎 {car1.get('rarity','')}\n\n"
 
+
         "🔥 VS 🔥\n\n"
+
 
         f"🏎 <b>{car2['name']}</b>\n"
 
@@ -352,22 +331,21 @@ def battle_text(car1, car2):
 
         f"💎 {car2.get('rarity','')}\n\n"
 
+
         "Выбирай победителя 👇"
 
     )
 
 
 
-
 # =========================
-# СТАРТ БИТВЫ
+# ЗАПУСК
 # =========================
 
 
 def start_battle():
 
     return create_battle()
-
 
 
 
