@@ -1,9 +1,9 @@
 import random
+import json
+import os
 
 
-from car_database import (
-    get_random_car
-)
+from car_database import get_random_car
 
 
 from database import (
@@ -12,18 +12,12 @@ from database import (
 )
 
 
-
 BATTLES_FILE = "battle_stats.json"
 
 
 
-import json
-import os
-
-
-
 # =========================
-# СТАТИСТИКА МАШИН
+# СТАТИСТИКА БИТВ
 # =========================
 
 
@@ -36,10 +30,12 @@ def load_stats():
 
     with open(
         BATTLES_FILE,
+        "r",
         encoding="utf-8"
     ) as file:
 
         return json.load(file)
+
 
 
 
@@ -60,8 +56,10 @@ def save_stats(data):
 
 
 
+
+
 # =========================
-# СОЗДАТЬ БИТВУ
+# СОЗДАНИЕ БИТВЫ
 # =========================
 
 
@@ -70,6 +68,12 @@ def create_battle():
     car1 = get_random_car()
 
     car2 = get_random_car()
+
+
+
+    if not car1 or not car2:
+
+        return None, None
 
 
 
@@ -83,6 +87,8 @@ def create_battle():
 
 
 
+
+
 # =========================
 # СИЛА МАШИНЫ
 # =========================
@@ -90,16 +96,14 @@ def create_battle():
 
 def car_power(car):
 
-    score = 0
 
-
-    score += car.get(
+    power = car.get(
         "power",
         0
     )
 
 
-    score += car.get(
+    speed = car.get(
         "speed",
         0
     )
@@ -111,77 +115,91 @@ def car_power(car):
     )
 
 
+    rarity_bonus = 0
+
+
+
     if "Mythic" in rarity:
 
-        score += 500
+        rarity_bonus = 500
 
 
     elif "Legendary" in rarity:
 
-        score += 300
+        rarity_bonus = 300
 
 
     elif "Rare" in rarity:
 
-        score += 100
+        rarity_bonus = 150
 
 
 
-    return score
+    random_bonus = random.randint(
+        -50,
+        50
+    )
+
+
+
+    return (
+
+        power * 0.5
+
+        +
+
+        speed * 2
+
+        +
+
+        rarity_bonus
+
+        +
+
+        random_bonus
+
+    )
+
+
 
 
 
 # =========================
-# РЕЗУЛЬТАТ
+# БИТВА
 # =========================
 
 
 def fight(car1, car2):
 
-    power1 = car_power(
+
+    score1 = car_power(
         car1
     )
 
 
-    power2 = car_power(
+    score2 = car_power(
         car2
     )
 
 
-    if power1 > power2:
+
+    if score1 >= score2:
 
         winner = car1
 
         loser = car2
 
 
-    elif power2 > power1:
+    else:
 
         winner = car2
 
         loser = car1
 
 
-    else:
-
-        winner = random.choice(
-            [
-                car1,
-                car2
-            ]
-        )
-
-        loser = (
-            car2
-            if winner == car1
-            else car1
-        )
-
-
 
     save_result(
-        winner,
-        loser
+        winner
     )
 
 
@@ -189,41 +207,35 @@ def fight(car1, car2):
 
 
 
+
+
 # =========================
-# СТАТИСТИКА
+# СОХРАНЕНИЕ ПОБЕД
 # =========================
 
 
-def save_result(
-    winner,
-    loser
-):
+def save_result(car):
+
 
     data = load_stats()
 
 
 
-    if winner["name"] not in data:
-
-        data[winner["name"]] = {
-
-            "wins":0
-
-        }
+    name = car["name"]
 
 
 
-    if loser["name"] not in data:
+    if name not in data:
 
-        data[loser["name"]] = {
+        data[name] = {
 
-            "wins":0
+            "wins": 0
 
         }
 
 
 
-    data[winner["name"]]["wins"] += 1
+    data[name]["wins"] += 1
 
 
 
@@ -233,21 +245,65 @@ def save_result(
 
 
 
+
+
 # =========================
-# ИГРОК ВЫИГРАЛ
+# ТЕКСТ БИТВЫ
 # =========================
 
 
-def player_win(user_id):
+def battle_text(car1, car2):
 
-    add_win(
-        user_id
+
+    return (
+
+        "⚔️ <b>LEGEND BATTLE</b>\n\n"
+
+
+        f"🏎 <b>{car1['name']}</b>\n"
+
+        f"⚡ {car1.get('power',0)} л.с.\n"
+
+        f"🚀 {car1.get('speed',0)} км/ч\n"
+
+        f"💎 {car1.get('rarity','')}\n\n"
+
+
+        "🔥 VS 🔥\n\n"
+
+
+        f"🏎 <b>{car2['name']}</b>\n"
+
+        f"⚡ {car2.get('power',0)} л.с.\n"
+
+        f"🚀 {car2.get('speed',0)} км/ч\n"
+
+        f"💎 {car2.get('rarity','')}\n\n"
+
+
+        "Выбирай победителя 👇"
+
     )
 
 
 
+
+
 # =========================
-# ИГРОК ВЫИГРАЛ
+# ЗАПУСК БИТВЫ
+# =========================
+
+
+def start_battle():
+
+    return create_battle()
+
+
+
+
+
+# =========================
+# НАГРАДЫ ИГРОКА
 # =========================
 
 
@@ -264,49 +320,3 @@ def player_loss(user_id):
     add_loss(
         user_id
     )
-
-
-
-# =========================
-# ТЕКСТ БИТВЫ
-# =========================
-
-
-def battle_text(car1, car2):
-
-    return (
-
-        "⚔️ <b>LEGEND BATTLE</b>\n\n"
-
-        f"🏎 <b>{car1['name']}</b>\n"
-
-        f"⚡ {car1['power']} л.с.\n"
-
-        f"🚀 {car1['speed']} км/ч\n"
-
-        f"💎 {car1['rarity']}\n\n"
-
-        "🔥 VS 🔥\n\n"
-
-        f"🏎 <b>{car2['name']}</b>\n"
-
-        f"⚡ {car2['power']} л.с.\n"
-
-        f"🚀 {car2['speed']} км/ч\n"
-
-        f"💎 {car2['rarity']}\n\n"
-
-        "Выбирай победителя 👇"
-
-    )
-
-
-
-# =========================
-# ЗАПУСК БИТВЫ
-# =========================
-
-
-def start_battle():
-
-    return create_battle()
