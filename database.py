@@ -7,7 +7,7 @@ DATABASE_FILE = "players.json"
 
 
 # =========================
-# БАЗА
+# СОЗДАНИЕ БАЗЫ
 # =========================
 
 
@@ -30,17 +30,28 @@ def create_database():
 
 
 
+# =========================
+# ЗАГРУЗКА
+# =========================
+
+
 def load_database():
 
     create_database()
 
     with open(
         DATABASE_FILE,
+        "r",
         encoding="utf-8"
     ) as file:
 
         return json.load(file)
 
+
+
+# =========================
+# СОХРАНЕНИЕ
+# =========================
 
 
 def save_database(data):
@@ -72,6 +83,7 @@ def get_player(user_id):
     uid = str(user_id)
 
 
+
     if uid not in data:
 
         data[uid] = {
@@ -96,12 +108,13 @@ def get_player(user_id):
         save_database(data)
 
 
+
     return data[uid]
 
 
 
 # =========================
-# ТИТУЛЫ
+# ТИТУЛ
 # =========================
 
 
@@ -128,6 +141,7 @@ def update_title(player):
     else:
 
         player["title"] = "🚗 Новичок"
+
 
 
 
@@ -163,9 +177,12 @@ def add_xp(user_id, amount):
     update_title(player)
 
 
+
     data[uid] = player
 
+
     save_database(data)
+
 
 
 
@@ -187,10 +204,12 @@ def add_coins(user_id, amount):
     player["coins"] += amount
 
 
+
     data[uid] = player
 
 
     save_database(data)
+
 
 
 
@@ -209,19 +228,41 @@ def add_car(user_id, car_name):
     player = get_player(user_id)
 
 
+
+    # защита:
+    # можно передать машину целиком
+    # или только название
+
+    if isinstance(car_name, dict):
+
+        car_name = car_name.get(
+            "name"
+        )
+
+
+
+    if not car_name:
+
+        return
+
+
+
     if car_name not in player["garage"]:
 
-        player["garage"].append(car_name)
-
-        add_xp(
-            user_id,
-            50
+        player["garage"].append(
+            car_name
         )
+
+
+        player["xp"] += 50
+
 
 
     data[uid] = player
 
+
     save_database(data)
+
 
 
 
@@ -233,6 +274,7 @@ def has_car(user_id, car_name):
 
 
     return car_name in player["garage"]
+
 
 
 
@@ -257,6 +299,7 @@ def add_win(user_id):
     player["coins"] += 100
 
 
+
     data[uid] = player
 
 
@@ -267,6 +310,7 @@ def add_win(user_id):
         user_id,
         100
     )
+
 
 
 
@@ -281,6 +325,7 @@ def add_loss(user_id):
 
 
     player["losses"] += 1
+
 
 
     data[uid] = player
