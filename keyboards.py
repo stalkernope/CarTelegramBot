@@ -5,11 +5,18 @@ from telegram import (
 
 
 
+# =========================
+# ГЛАВНОЕ МЕНЮ
+# =========================
+
+
 def main_menu():
+
 
     keyboard = [
 
         [
+
             InlineKeyboardButton(
                 "🔥 Машина дня",
                 callback_data="daily"
@@ -19,10 +26,12 @@ def main_menu():
                 "⚔️ Битва машин",
                 callback_data="battle"
             )
+
         ],
 
 
         [
+
             InlineKeyboardButton(
                 "🎲 Моя машина",
                 callback_data="match"
@@ -32,10 +41,12 @@ def main_menu():
                 "🎁 Открыть кейс",
                 callback_data="case"
             )
+
         ],
 
 
         [
+
             InlineKeyboardButton(
                 "🏆 Мой гараж",
                 callback_data="garage"
@@ -45,14 +56,17 @@ def main_menu():
                 "🛒 Магазин",
                 callback_data="shop"
             )
+
         ],
 
 
         [
+
             InlineKeyboardButton(
                 "👤 Профиль",
                 callback_data="profile"
             )
+
         ]
 
     ]
@@ -64,7 +78,15 @@ def main_menu():
 
 
 
+
+
+# =========================
+# НАЗАД
+# =========================
+
+
 def back_button():
+
 
     return InlineKeyboardMarkup(
 
