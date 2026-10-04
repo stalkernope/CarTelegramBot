@@ -532,7 +532,45 @@ async def button_handler(
 
 
     await query.answer()
+# ⚔️ Битва машин
 
+if query.data == "battle":
+
+    from battles import start_battle
+
+    await start_battle(
+
+        query.message,
+
+        ctx
+
+    )
+
+    return
+
+# 🏆 Голосование
+
+if query.data.startswith("vote_"):
+
+    winner = query.data.replace(
+
+        "vote_",
+
+        ""
+
+    )
+
+    from battles import save_vote
+
+    save_vote(winner)
+
+    await query.edit_message_text(
+
+        f"🏆 Победитель: {winner}\n\nСпасибо за голос 🔥"
+
+    )
+
+    return
 
     user_id = query.from_user.id
 
