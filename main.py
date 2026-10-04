@@ -742,10 +742,13 @@ def main():
     )
 
 
-    app.add_error_handler(
-        lambda update, ctx:
-        logging.error(ctx.error)
+    async def error_handler(update, ctx):
+
+    logging.error(
+        "Ошибка:",
+        exc_info=ctx.error
     )
+    app.add_error_handler(error_handler)
 
 
     print(
