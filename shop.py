@@ -27,54 +27,7 @@ def get_case_car():
         return None
 
 
-
-    chance = random.randint(
-        1,
-        100
-    )
-
-
-    if chance <= 10:
-
-        pool = [
-
-            car for car in cars
-
-            if "Mythic" in car.get("rarity","")
-
-        ]
-
-
-    elif chance <= 40:
-
-        pool = [
-
-            car for car in cars
-
-            if "Legendary" in car.get("rarity","")
-
-        ]
-
-
-    else:
-
-        pool = [
-
-            car for car in cars
-
-            if "Rare" in car.get("rarity","")
-
-        ]
-
-
-
-    if not pool:
-
-        pool = cars
-
-
-
-    return random.choice(pool)
+    return random.choice(cars)
 
 
 
@@ -91,7 +44,18 @@ def open_case(user_id):
     if player["coins"] < CASE_PRICE:
 
         raise Exception(
-            "❌ Недостаточно монет"
+            "Недостаточно монет"
+        )
+
+
+
+    car = get_case_car()
+
+
+    if not car:
+
+        raise Exception(
+            "Нет машин в базе"
         )
 
 
@@ -103,18 +67,6 @@ def open_case(user_id):
         -CASE_PRICE
 
     )
-
-
-
-    car = get_case_car()
-
-
-    if not car:
-
-        raise Exception(
-            "❌ Нет машин в базе"
-        )
-
 
 
     add_car(
