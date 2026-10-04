@@ -39,7 +39,6 @@ def load_database():
 
     create_database()
 
-
     try:
 
         with open(
@@ -48,18 +47,23 @@ def load_database():
             encoding="utf-8"
         ) as file:
 
-            return json.load(file)
+            data = json.load(file)
+
+
+            if isinstance(data, dict):
+
+                return data
 
 
     except Exception as e:
 
         print(
-            "Ошибка players.json:",
+            "Ошибка базы игроков:",
             e
         )
 
 
-        return {}
+    return {}
 
 
 
@@ -79,29 +83,50 @@ def save_database(data):
         ) as file:
 
             json.dump(
-
                 data,
-
                 file,
-
                 ensure_ascii=False,
-
                 indent=4
-
             )
-
 
     except Exception as e:
 
         print(
-            "Ошибка сохранения базы:",
+            "Ошибка сохранения:",
             e
         )
 
 
 
 # =========================
-# ИГРОК
+# НОВЫЙ ИГРОК
+# =========================
+
+
+def default_player():
+
+    return {
+
+        "level": 1,
+
+        "xp": 0,
+
+        "coins": 1000,
+
+        "garage": [],
+
+        "wins": 0,
+
+        "losses": 0,
+
+        "title": "🚗 Новичок"
+
+    }
+
+
+
+# =========================
+# ПОЛУЧИТЬ ИГРОКА
 # =========================
 
 
@@ -115,23 +140,7 @@ def get_player(user_id):
 
     if uid not in data:
 
-
-        data[uid] = {
-
-            "level": 1,
-
-            "xp": 0,
-
-            "coins": 1000,
-
-            "garage": [],
-
-            "wins": 0,
-
-            "losses": 0
-
-        }
-
+        data[uid] = default_player()
 
         save_database(data)
 
@@ -142,7 +151,7 @@ def get_player(user_id):
 
 
 # =========================
-# ТИТУЛ
+# ТИТУЛЫ
 # =========================
 
 
@@ -156,25 +165,27 @@ def update_title(player):
 
     if level >= 50:
 
-        return "👑 Автомобильный Бог"
+        player["title"] = "👑 Автомобильный Бог"
 
 
-    if level >= 30:
+    elif level >= 30:
 
-        return "🔥 Легенда дорог"
-
-
-    if level >= 15:
-
-        return "💎 Коллекционер легенд"
+        player["title"] = "🔥 Легенда дорог"
 
 
-    if level >= 5:
+    elif level >= 15:
 
-        return "🏆 Опытный владелец"
+        player["title"] = "💎 Коллекционер легенд"
 
 
-    return "🚗 Новичок"
+    elif level >= 5:
+
+        player["title"] = "🏆 Опытный владелец"
+
+
+    else:
+
+        player["title"] = "🚗 Новичок"
 
 
 
@@ -203,15 +214,19 @@ def add_xp(user_id, amount):
     while player["xp"] >= player["level"] * 200:
 
 
-        player["xp"] -= player["level"] * 200
+        player["xp"] -= (
+            player["level"] * 200
+        )
+
 
         player["level"] += 1
+
 
         player["coins"] += 500
 
 
 
-    player["title"] = update_title(
+    update_title(
         player
     )
 
@@ -219,8 +234,9 @@ def add_xp(user_id, amount):
     data[uid] = player
 
 
-    save_database(data)
-
+    save_database(
+        data
+    )
 
 
 
@@ -244,11 +260,18 @@ def add_coins(user_id, amount):
     player["coins"] += amount
 
 
+    if player["coins"] < 0:
+
+        player["coins"] = 0
+
+
+
     data[uid] = player
 
 
-    save_database(data)
-
+    save_database(
+        data
+    )
 
 
 
@@ -257,53 +280,53 @@ def add_coins(user_id, amount):
 # =========================
 
 
-def add_car(user_id, car_name):
-
-    data = load_database()
-
-    uid = str(user_id)
-
+def add_car(user_id, car):
 
     player = get_player(
         user_id
     )
 
 
-    if isinstance(car_name, dict):
+    if isinstance(car, dict):
 
-        car_name = car_name.get(
+        car = car.get(
             "name"
         )
 
 
-    if not car_name:
+    if not car:
 
         return
 
 
 
-    if car_name not in player["garage"]:
+    if car not in player["garage"]:
 
         player["garage"].append(
-            car_name
+            car
         )
 
 
-        player["xp"] += 50
+        add_xp(
+            user_id,
+            50
+        )
 
 
+    data = load_database()
 
-    player["title"] = update_title(
-        player
+    data[str(user_id)] = player
+
+
+    save_database(
+        data
     )
 
 
-    data[uid] = player
 
-
-    save_database(data)
-
-
+# =========================
+# ПРОВЕРКА МАШИНЫ
+# =========================
 
 
 def has_car(user_id, car_name):
@@ -314,7 +337,6 @@ def has_car(user_id, car_name):
 
 
     return car_name in player["garage"]
-
 
 
 
@@ -343,14 +365,15 @@ def add_win(user_id):
     data[uid] = player
 
 
-    save_database(data)
+    save_database(
+        data
+    )
 
 
     add_xp(
         user_id,
         100
     )
-
 
 
 
@@ -372,4 +395,6 @@ def add_loss(user_id):
     data[uid] = player
 
 
-    save_database(data)
+    save_database(
+        data
+    )
