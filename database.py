@@ -1,184 +1,252 @@
 import json
 import os
 
-from config import (
-    USERS_FILE,
-    GARAGE_FILE,
-    VOTES_FILE
-)
+
+DATABASE_FILE = "players.json"
 
 
-def create_files():
 
-    os.makedirs("data", exist_ok=True)
-
-    files = [
-        USERS_FILE,
-        GARAGE_FILE,
-        VOTES_FILE
-    ]
-
-    for file in files:
-
-        if not os.path.exists(file):
-
-            with open(
-                file,
-                "w",
-                encoding="utf-8"
-            ) as f:
-
-                json.dump(
-                    {},
-                    f,
-                    ensure_ascii=False,
-                    indent=4
-                )
+# =========================
+# СОЗДАНИЕ БАЗЫ
+# =========================
 
 
-def load_data(file):
+def create_database():
 
-    try:
+    if not os.path.exists(DATABASE_FILE):
 
         with open(
-            file,
+            DATABASE_FILE,
+            "w",
             encoding="utf-8"
-        ) as f:
+        ) as file:
 
-            return json.load(f)
+            json.dump(
+                {},
+                file,
+                ensure_ascii=False,
+                indent=4
+            )
 
-    except:
-
-        return {}
 
 
+# =========================
+# ЗАГРУЗКА
+# =========================
 
-def save_data(file, data):
+
+def load_database():
+
+    create_database()
 
     with open(
-        file,
+        DATABASE_FILE,
+        encoding="utf-8"
+    ) as file:
+
+        return json.load(file)
+
+
+
+# =========================
+# СОХРАНЕНИЕ
+# =========================
+
+
+def save_database(data):
+
+    with open(
+        DATABASE_FILE,
         "w",
         encoding="utf-8"
-    ) as f:
+    ) as file:
 
         json.dump(
             data,
-            f,
+            file,
             ensure_ascii=False,
             indent=4
         )
 
 
 
-# 👤 Создание профиля пользователя
+# =========================
+# ИГРОК
+# =========================
 
-def get_user(user_id):
 
-    users = load_data(USERS_FILE)
+def get_player(user_id):
+
+    data = load_database()
 
     uid = str(user_id)
 
 
-    if uid not in users:
+    if uid not in data:
 
-        users[uid] = {
+        data[uid] = {
+
+            "level": 1,
 
             "xp": 0,
 
             "coins": 100,
 
-            "level": "🚘 Новичок",
+            "garage": [],
 
-            "votes": 0,
+            "wins": 0,
 
-            "cars": [],
+            "losses": 0,
 
-            "achievements": []
+            "title": "Новичок"
 
         }
 
 
-        save_data(
-            USERS_FILE,
-            users
-        )
-
-
-    return users[uid]
+        save_database(data)
 
 
 
-# ⭐ Добавление опыта
+    return data[uid]
+
+
+
+# =========================
+# XP
+# =========================
+
 
 def add_xp(user_id, amount):
 
-    users = load_data(USERS_FILE)
+    data = load_database()
 
     uid = str(user_id)
 
 
-    if uid in users:
-
-        users[uid]["xp"] += amount
+    player = get_player(user_id)
 
 
-        # повышение уровня
-
-        xp = users[uid]["xp"]
-
-
-        if xp >= 1000:
-
-            users[uid]["level"] = "👑 Car Legend"
-
-        elif xp >= 500:
-
-            users[uid]["level"] = "🔥 Auto Expert"
-
-        elif xp >= 100:
-
-            users[uid]["level"] = "🏎 Enthusiast"
-
-
-        save_data(
-            USERS_FILE,
-            users
-        )
+    player["xp"] += amount
 
 
 
-# 🚘 Добавить машину в гараж
+    needed = player["level"] * 200
 
-def add_car(user_id, car):
 
-    users = load_data(USERS_FILE)
+    if player["xp"] >= needed:
+
+        player["level"] += 1
+
+        player["coins"] += 500
+
+
+
+    data[uid] = player
+
+
+    save_database(data)
+
+
+
+# =========================
+# МОНЕТЫ
+# =========================
+
+
+def add_coins(user_id, amount):
+
+    data = load_database()
 
     uid = str(user_id)
 
 
-    if uid in users:
-
-        if car not in users[uid]["cars"]:
-
-            users[uid]["cars"].append(car)
-
-            users[uid]["xp"] += 50
+    player = get_player(user_id)
 
 
-    save_data(
-        USERS_FILE,
-        users
-    )
+    player["coins"] += amount
+
+
+    data[uid] = player
+
+
+    save_database(data)
 
 
 
-# 🏆 Получить профиль
+# =========================
+# ГАРАЖ
+# =========================
 
-def profile(user_id):
 
-    users = load_data(USERS_FILE)
+def add_car(user_id, car_name):
 
-    return users.get(
-        str(user_id),
-        None
-    )
+    data = load_database()
+
+    uid = str(user_id)
+
+
+    player = get_player(user_id)
+
+
+    if car_name not in player["garage"]:
+
+        player["garage"].append(car_name)
+
+        player["xp"] += 50
+
+
+
+    data[uid] = player
+
+
+    save_database(data)
+
+
+
+# =========================
+# БИТВЫ
+# =========================
+
+
+def add_win(user_id):
+
+    data = load_database()
+
+    uid = str(user_id)
+
+
+    player = get_player(user_id)
+
+
+    player["wins"] += 1
+
+    player["xp"] += 100
+
+    player["coins"] += 100
+
+
+
+    data[uid] = player
+
+
+    save_database(data)
+
+
+
+def add_loss(user_id):
+
+    data = load_database()
+
+    uid = str(user_id)
+
+
+    player = get_player(user_id)
+
+
+    player["losses"] += 1
+
+
+    data[uid] = player
+
+
+    save_database(data)
