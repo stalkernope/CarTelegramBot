@@ -1,8 +1,5 @@
 import os
 import logging
-import random
-
-from datetime import time
 
 
 from telegram import (
@@ -20,23 +17,24 @@ from telegram.ext import (
 )
 
 
-
 from keyboards import main_menu
 
 
 from database import (
     get_player,
-    add_car
+    add_car,
+    add_coins
 )
 
 
 from car_database import (
-    get_random_car
+    get_random_car,
+    get_car
 )
 
 
-from profiles import (
-    profile_text
+from daily_car import (
+    get_daily_car
 )
 
 
@@ -45,16 +43,24 @@ from shop import (
 )
 
 
+from shop_cars import (
+    get_shop_cars,
+    buy_car
+)
+
+
 from battles import (
     start_battle,
-    fight,
-    battle_text
+    battle_text,
+    fight
 )
 
 
-from images import (
-    get_car_image
+from profiles import (
+    profile_text
 )
+
+
 
 
 
@@ -68,10 +74,6 @@ TOKEN = os.environ["BOT_TOKEN"]
 
 
 
-CHANNEL = "@toway2m"
-
-
-
 
 
 # =========================
@@ -81,9 +83,15 @@ CHANNEL = "@toway2m"
 
 def car_text(car):
 
+    if not car:
+
+        return "❌ Машина не найдена"
+
+
+
     return (
 
-        f"🏎 <b>{car['name']}</b>\n\n"
+        f"🏎 <b>{car.get('name','')}</b>\n\n"
 
         f"🏭 Бренд: {car.get('brand','')}\n"
 
@@ -91,15 +99,15 @@ def car_text(car):
 
         f"📅 Год: {car.get('year','')}\n\n"
 
-        f"⚡ Мощность: {car.get('power','')} л.с.\n"
+        f"⚡ Мощность: {car.get('power',0)} л.с.\n"
 
-        f"🚀 Скорость: {car.get('speed','')} км/ч\n"
+        f"🚀 Скорость: {car.get('speed',0)} км/ч\n"
 
-        f"💰 Цена: {car.get('price','')} $\n"
+        f"💰 Цена: {car.get('price',0)}$\n"
 
         f"💎 Редкость: {car.get('rarity','')}\n\n"
 
-        f"📖 {car.get('description','')}"
+        f"📝 {car.get('description','')}"
 
     )
 
@@ -129,26 +137,26 @@ async def start(
 
         "🏎 <b>CAR LEGENDS CLUB</b>\n\n"
 
-        "Добро пожаловать в мир легендарных автомобилей 🔥\n\n"
+        "Добро пожаловать в мир автомобилей 🔥\n\n"
 
-        "🚗 Коллекция машин\n"
+        "Собирай машины\n"
 
-        "⚔️ Битвы легенд\n"
+        "Участвуй в битвах\n"
 
-        "🎁 Кейсы\n"
-
-        "🏆 Гараж\n\n"
-
-        "Выбирай раздел 👇",
+        "Создай легендарный гараж 🏆",
 
         parse_mode="HTML",
 
         reply_markup=main_menu()
 
     )
-    
-    # =========================
-# КОМАНДА МАШИНА
+
+
+
+
+
+# =========================
+# КОМАНДА /car
 # =========================
 
 
@@ -157,7 +165,7 @@ async def car_command(
     context: ContextTypes.DEFAULT_TYPE
 ):
 
-    user = update.effective_user
+    user_id = update.effective_user.id
 
 
     car = get_random_car()
@@ -166,7 +174,7 @@ async def car_command(
     if not car:
 
         await update.message.reply_text(
-            "❌ База машин пустая"
+            "❌ Нет машин в базе"
         )
 
         return
@@ -175,63 +183,7 @@ async def car_command(
 
     add_car(
 
-        user.id,
-
-        car["name"]
-
-    )
-
-
-    photo = get_car_image(
-        car
-    )
-
-
-    if photo:
-
-        await update.message.reply_photo(
-
-            photo=photo,
-
-            caption=car_text(car),
-
-            parse_mode="HTML"
-
-        )
-
-    else:
-
-        await update.message.reply_text(
-
-            car_text(car),
-
-            parse_mode="HTML"
-
-        )
-
-
-
-
-
-# =========================
-# MATCH
-# =========================
-
-
-async def match_command(
-    update: Update,
-    context: ContextTypes.DEFAULT_TYPE
-):
-
-    user = update.effective_user
-
-
-    car = get_random_car()
-
-
-    add_car(
-
-        user.id,
+        user_id,
 
         car["name"]
 
@@ -240,21 +192,13 @@ async def match_command(
 
     await update.message.reply_text(
 
-        "🎲 <b>ТВОЯ МАШИНА</b>\n\n"
-
-        "🔥 Тебе подходит эта легенда:\n\n"
-
-        + car_text(car),
+        car_text(car),
 
         parse_mode="HTML"
 
     )
-
-
-
-
-
-# =========================
+    
+    # =========================
 # ПРОФИЛЬ
 # =========================
 
@@ -307,6 +251,7 @@ async def garage_command(
     )
 
 
+
     if user["garage"]:
 
 
@@ -325,7 +270,7 @@ async def garage_command(
 
     else:
 
-        text += "Гараж пока пуст"
+        text += "Гараж пуст"
 
 
 
@@ -361,21 +306,34 @@ async def balance_command(
     await update.message.reply_text(
 
         f"""
-💰 <b>БАЛАНС</b>
+
+💰 <b>CAR LEGENDS</b>
+
 
 🪙 Монеты: {user['coins']}
 
 ⭐ Уровень: {user['level']}
 
 🔥 XP: {user['xp']}
+
+🏎 Машин: {len(user['garage'])}
+
+⚔️ Победы: {user['wins']}
+
+❌ Поражения: {user['losses']}
+
 """,
 
         parse_mode="HTML"
 
     )
-    
-    # =========================
-# КНОПКИ МЕНЮ
+
+
+
+
+
+# =========================
+# КНОПКИ
 # =========================
 
 
@@ -394,92 +352,32 @@ async def button_handler(
 
 
 
+
+
     # =====================
     # МАШИНА ДНЯ
     # =====================
 
+
     if query.data == "daily":
 
 
-        car = get_random_car()
+        car = get_daily_car()
 
 
-        add_car(
-
-            user_id,
-
-            car["name"]
-
-        )
-
-
-        photo = get_car_image(
-            car
-        )
-
-
-        if photo:
-
-
-            await query.message.reply_photo(
-
-                photo=photo,
-
-                caption=(
-
-                    "🔥 <b>МАШИНА ДНЯ</b>\n\n"
-
-                    + car_text(car)
-
-                ),
-
-                parse_mode="HTML"
-
-            )
-
-
-        else:
-
+        if not car:
 
             await query.message.reply_text(
-
-                "🔥 <b>МАШИНА ДНЯ</b>\n\n"
-
-                + car_text(car),
-
-                parse_mode="HTML"
-
+                "❌ Нет машины дня"
             )
 
+            return
 
-        return
-
-
-
-
-    # =====================
-    # МОЯ МАШИНА
-    # =====================
-
-
-    if query.data == "match":
-
-
-        car = get_random_car()
-
-
-        add_car(
-
-            user_id,
-
-            car["name"]
-
-        )
 
 
         await query.message.reply_text(
 
-            "🎲 <b>ТЕБЕ ПОДХОДИТ</b>\n\n"
+            "🔥 <b>МАШИНА ДНЯ</b>\n\n"
 
             + car_text(car),
 
@@ -495,6 +393,46 @@ async def button_handler(
 
 
     # =====================
+    # МОЯ МАШИНА
+    # =====================
+
+
+    if query.data == "match":
+
+
+        car = get_random_car()
+
+
+        if not car:
+
+            return
+
+
+
+        add_car(
+
+            user_id,
+
+            car["name"]
+
+        )
+
+
+
+        await query.message.reply_text(
+
+            "🎲 <b>ТВОЯ МАШИНА</b>\n\n"
+
+            + car_text(car),
+
+            parse_mode="HTML"
+
+        )
+
+
+        return
+        
+            # =====================
     # КЕЙС
     # =====================
 
@@ -503,7 +441,6 @@ async def button_handler(
 
 
         try:
-
 
             car = open_case(
 
@@ -514,7 +451,7 @@ async def button_handler(
 
             await query.message.reply_text(
 
-                "🎁 <b>ОТКРЫТ КЕЙС</b>\n\n"
+                "🎁 <b>КЕЙС ОТКРЫТ!</b>\n\n"
 
                 + car_text(car),
 
@@ -586,9 +523,10 @@ async def button_handler(
 
         text = (
 
-            "🏆 <b>ГАРАЖ</b>\n\n"
+            "🏆 <b>ТВОЙ ГАРАЖ</b>\n\n"
 
         )
+
 
 
         if user["garage"]:
@@ -623,60 +561,92 @@ async def button_handler(
 
 
         return
-        
-            # =====================
-    # БИТВА МАШИН
+
+
+
+
+
+    # =====================
+    # МАГАЗИН
     # =====================
 
 
-    if query.data == "battle":
+    if query.data == "shop":
 
 
-        car1, car2 = start_battle()
+        cars = get_shop_cars()
 
 
-        keyboard = [
+        if not cars:
 
-            [
 
-                InlineKeyboardButton(
+            await query.message.reply_text(
 
-                    car1["name"],
+                "❌ Магазин пуст"
 
-                    callback_data=f"battle_win:{car1['name']}"
+            )
 
-                )
+            return
 
-            ],
 
-            [
 
-                InlineKeyboardButton(
 
-                    car2["name"],
+        keyboard = []
 
-                    callback_data=f"battle_win:{car2['name']}"
 
-                )
 
-            ]
+        text = (
 
-        ]
+            "🛒 <b>МАГАЗИН</b>\n\n"
+
+        )
+
+
+
+        for car in cars:
+
+
+            text += (
+
+                f"🏎 {car['name']}\n"
+
+                f"💰 {car['price']}$\n"
+
+                f"💎 {car['rarity']}\n\n"
+
+            )
+
+
+
+            keyboard.append(
+
+                [
+
+                    InlineKeyboardButton(
+
+                        "Купить " + car["name"],
+
+                        callback_data=
+
+                        "buy:" + car["name"]
+
+                    )
+
+                ]
+
+            )
+
 
 
         await query.message.reply_text(
 
-            battle_text(
-
-                car1,
-
-                car2
-
-            ),
+            text,
 
             parse_mode="HTML",
 
-            reply_markup=InlineKeyboardMarkup(
+            reply_markup=
+
+            InlineKeyboardMarkup(
 
                 keyboard
 
@@ -692,16 +662,157 @@ async def button_handler(
 
 
     # =====================
-    # ГОЛОС ЗА БИТВУ
+    # ПОКУПКА
     # =====================
 
 
-    if query.data.startswith("battle_win:"):
+    if query.data.startswith("buy:"):
 
 
-        winner = query.data.replace(
+        car_name = query.data.replace(
 
-            "battle_win:",
+            "buy:",
+
+            ""
+
+        )
+
+
+
+        try:
+
+
+            car = buy_car(
+
+                user_id,
+
+                car_name
+
+            )
+
+
+            await query.message.reply_text(
+
+                "✅ Покупка успешна!\n\n"
+
+                + car_text(car),
+
+                parse_mode="HTML"
+
+            )
+
+
+        except Exception as e:
+
+
+            await query.message.reply_text(
+
+                "❌ " + str(e)
+
+            )
+
+
+        return
+        
+            # =====================
+    # БИТВА МАШИН
+    # =====================
+
+
+    if query.data == "battle":
+
+
+        try:
+
+            car1, car2 = start_battle()
+
+
+            keyboard = [
+
+                [
+
+                    InlineKeyboardButton(
+
+                        car1["name"],
+
+                        callback_data=
+
+                        "battle_choose:" + car1["name"]
+
+                    )
+
+                ],
+
+                [
+
+                    InlineKeyboardButton(
+
+                        car2["name"],
+
+                        callback_data=
+
+                        "battle_choose:" + car2["name"]
+
+                    )
+
+                ]
+
+            ]
+
+
+
+            await query.message.reply_text(
+
+                battle_text(
+
+                    car1,
+
+                    car2
+
+                ),
+
+                parse_mode="HTML",
+
+                reply_markup=
+
+                InlineKeyboardMarkup(
+
+                    keyboard
+
+                )
+
+            )
+
+
+        except Exception as e:
+
+
+            await query.message.reply_text(
+
+                "❌ Ошибка битвы: "
+
+                + str(e)
+
+            )
+
+
+        return
+
+
+
+
+
+    # =====================
+    # ВЫБОР В БИТВЕ
+    # =====================
+
+
+    if query.data.startswith("battle_choose:"):
+
+
+        name = query.data.replace(
+
+            "battle_choose:",
 
             ""
 
@@ -710,11 +821,11 @@ async def button_handler(
 
         await query.message.reply_text(
 
-            "🏆 Победитель выбран:\n\n"
+            "🏆 Ты выбрал:\n\n"
 
-            + winner
+            + name
 
-            + "\n\n🔥 Спасибо за голос!"
+            + "\n\n🔥 Победа засчитана!"
 
         )
 
@@ -737,7 +848,7 @@ async def error_handler(
 
     logging.error(
 
-        "Ошибка:",
+        "Ошибка",
 
         exc_info=context.error
 
@@ -769,9 +880,6 @@ def main():
 
 
 
-    # Команды
-
-
     app.add_handler(
 
         CommandHandler(
@@ -792,19 +900,6 @@ def main():
             "car",
 
             car_command
-
-        )
-
-    )
-
-
-    app.add_handler(
-
-        CommandHandler(
-
-            "match",
-
-            match_command
 
         )
 
@@ -851,9 +946,6 @@ def main():
 
 
 
-    # Кнопки
-
-
     app.add_handler(
 
         CallbackQueryHandler(
@@ -864,9 +956,6 @@ def main():
 
     )
 
-
-
-    # Ошибки
 
 
     app.add_error_handler(
@@ -882,6 +971,7 @@ def main():
         "🏎 CAR LEGENDS CLUB запущен!"
 
     )
+
 
 
     app.run_polling()
