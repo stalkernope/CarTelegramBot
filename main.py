@@ -4,7 +4,13 @@ import random
 
 from datetime import time
 
-from telegram import Update
+
+from telegram import (
+    Update,
+    InlineKeyboardButton,
+    InlineKeyboardMarkup
+)
+
 
 from telegram.ext import (
     Application,
@@ -14,21 +20,42 @@ from telegram.ext import (
 )
 
 
+
 from keyboards import main_menu
+
+
+from database import (
+    get_player,
+    add_car
+)
+
 
 from car_database import (
     get_random_car
 )
 
-from database import (
-    get_player,
-    add_car,
-    add_coins
-)
 
 from profiles import (
     profile_text
 )
+
+
+from shop import (
+    open_case
+)
+
+
+from battles import (
+    start_battle,
+    fight,
+    battle_text
+)
+
+
+from images import (
+    get_car_image
+)
+
 
 
 logging.basicConfig(
@@ -36,26 +63,20 @@ logging.basicConfig(
 )
 
 
+
 TOKEN = os.environ["BOT_TOKEN"]
+
+
 
 CHANNEL = "@toway2m"
 
 
 
-MATCH_TEXT = [
 
-    "🔥 Ты создан для скорости.",
 
-    "🏁 Тебе нужна машина с характером.",
-
-    "💎 Твой стиль — редкие автомобили.",
-
-    "🌙 Ночной город и мощный мотор.",
-
-    "👑 Ты выбираешь легенды."
-
-]
-
+# =========================
+# ТЕКСТ МАШИНЫ
+# =========================
 
 
 def car_text(car):
@@ -84,12 +105,20 @@ def car_text(car):
 
 
 
+
+
+# =========================
+# START
+# =========================
+
+
 async def start(
     update: Update,
     context: ContextTypes.DEFAULT_TYPE
 ):
 
     user = update.effective_user
+
 
     get_player(
         user.id
@@ -98,30 +127,28 @@ async def start(
 
     await update.message.reply_text(
 
-        """
-🏎 <b>CAR LEGENDS CLUB</b>
+        "🏎 <b>CAR LEGENDS CLUB</b>\n\n"
 
+        "Добро пожаловать в мир легендарных автомобилей 🔥\n\n"
 
-Добро пожаловать в клуб легендарных машин 🔥
+        "🚗 Коллекция машин\n"
 
+        "⚔️ Битвы легенд\n"
 
-🔥 Машины
-🎲 Подбор
-🎁 Кейсы
-🏆 Коллекция
-💰 Экономика
+        "🎁 Кейсы\n"
 
+        "🏆 Гараж\n\n"
 
-Выбирай 👇
-""",
+        "Выбирай раздел 👇",
 
         parse_mode="HTML",
 
         reply_markup=main_menu()
 
     )
+    
     # =========================
-# МАШИНА ДНЯ
+# КОМАНДА МАШИНА
 # =========================
 
 
@@ -155,15 +182,34 @@ async def car_command(
     )
 
 
-    await update.message.reply_text(
-
-        "🔥 <b>ТЕБЕ ВЫПАЛА МАШИНА</b>\n\n"
-
-        + car_text(car),
-
-        parse_mode="HTML"
-
+    photo = get_car_image(
+        car
     )
+
+
+    if photo:
+
+        await update.message.reply_photo(
+
+            photo=photo,
+
+            caption=car_text(car),
+
+            parse_mode="HTML"
+
+        )
+
+    else:
+
+        await update.message.reply_text(
+
+            car_text(car),
+
+            parse_mode="HTML"
+
+        )
+
+
 
 
 
@@ -194,17 +240,17 @@ async def match_command(
 
     await update.message.reply_text(
 
-        "🎲 <b>ТВОЯ МАШИНА ПО ХАРАКТЕРУ</b>\n\n"
+        "🎲 <b>ТВОЯ МАШИНА</b>\n\n"
 
-        + random.choice(MATCH_TEXT)
-
-        + "\n\n"
+        "🔥 Тебе подходит эта легенда:\n\n"
 
         + car_text(car),
 
         parse_mode="HTML"
 
     )
+
+
 
 
 
@@ -234,39 +280,6 @@ async def profile_command(
     )
 
 
-
-# =========================
-# БАЛАНС
-# =========================
-
-
-async def balance_command(
-    update: Update,
-    context: ContextTypes.DEFAULT_TYPE
-):
-
-    user = get_player(
-
-        update.effective_user.id
-
-    )
-
-
-    await update.message.reply_text(
-
-        f"""
-💰 <b>БАЛАНС</b>
-
-🪙 Монеты: {user['coins']}
-
-⭐ Уровень: {user['level']}
-
-🔥 XP: {user['xp']}
-""",
-
-        parse_mode="HTML"
-
-    )
 
 
 
@@ -312,7 +325,7 @@ async def garage_command(
 
     else:
 
-        text += "Пока пусто 😢"
+        text += "Гараж пока пуст"
 
 
 
@@ -323,8 +336,46 @@ async def garage_command(
         parse_mode="HTML"
 
     )
+
+
+
+
+
+# =========================
+# БАЛАНС
+# =========================
+
+
+async def balance_command(
+    update: Update,
+    context: ContextTypes.DEFAULT_TYPE
+):
+
+    user = get_player(
+
+        update.effective_user.id
+
+    )
+
+
+    await update.message.reply_text(
+
+        f"""
+💰 <b>БАЛАНС</b>
+
+🪙 Монеты: {user['coins']}
+
+⭐ Уровень: {user['level']}
+
+🔥 XP: {user['xp']}
+""",
+
+        parse_mode="HTML"
+
+    )
+    
     # =========================
-# ОБРАБОТКА КНОПОК
+# КНОПКИ МЕНЮ
 # =========================
 
 
@@ -349,6 +400,7 @@ async def button_handler(
 
     if query.data == "daily":
 
+
         car = get_random_car()
 
 
@@ -361,18 +413,47 @@ async def button_handler(
         )
 
 
-        await query.message.reply_text(
-
-            "🔥 <b>МАШИНА ДНЯ</b>\n\n"
-
-            + car_text(car),
-
-            parse_mode="HTML"
-
+        photo = get_car_image(
+            car
         )
 
 
+        if photo:
+
+
+            await query.message.reply_photo(
+
+                photo=photo,
+
+                caption=(
+
+                    "🔥 <b>МАШИНА ДНЯ</b>\n\n"
+
+                    + car_text(car)
+
+                ),
+
+                parse_mode="HTML"
+
+            )
+
+
+        else:
+
+
+            await query.message.reply_text(
+
+                "🔥 <b>МАШИНА ДНЯ</b>\n\n"
+
+                + car_text(car),
+
+                parse_mode="HTML"
+
+            )
+
+
         return
+
 
 
 
@@ -380,7 +461,9 @@ async def button_handler(
     # МОЯ МАШИНА
     # =====================
 
+
     if query.data == "match":
+
 
         car = get_random_car()
 
@@ -396,11 +479,7 @@ async def button_handler(
 
         await query.message.reply_text(
 
-            "🎲 <b>ТЕБЕ ПОДХОДИТ:</b>\n\n"
-
-            + random.choice(MATCH_TEXT)
-
-            + "\n\n"
+            "🎲 <b>ТЕБЕ ПОДХОДИТ</b>\n\n"
 
             + car_text(car),
 
@@ -413,11 +492,60 @@ async def button_handler(
 
 
 
+
+
+    # =====================
+    # КЕЙС
+    # =====================
+
+
+    if query.data == "case":
+
+
+        try:
+
+
+            car = open_case(
+
+                user_id
+
+            )
+
+
+            await query.message.reply_text(
+
+                "🎁 <b>ОТКРЫТ КЕЙС</b>\n\n"
+
+                + car_text(car),
+
+                parse_mode="HTML"
+
+            )
+
+
+        except Exception as e:
+
+
+            await query.message.reply_text(
+
+                f"❌ {e}"
+
+            )
+
+
+        return
+
+
+
+
+
     # =====================
     # ПРОФИЛЬ
     # =====================
 
+
     if query.data == "profile":
+
 
         user = get_player(
 
@@ -439,11 +567,15 @@ async def button_handler(
 
 
 
+
+
     # =====================
     # ГАРАЖ
     # =====================
 
+
     if query.data == "garage":
+
 
         user = get_player(
 
@@ -454,7 +586,7 @@ async def button_handler(
 
         text = (
 
-            "🏆 <b>ТВОЙ ГАРАЖ</b>\n\n"
+            "🏆 <b>ГАРАЖ</b>\n\n"
 
         )
 
@@ -477,7 +609,7 @@ async def button_handler(
 
         else:
 
-            text += "Гараж пуст"
+            text += "Пусто"
 
 
 
@@ -491,143 +623,105 @@ async def button_handler(
 
 
         return
-
-
-
-    # =====================
-    # КЕЙС
-    # =====================
-
-    if query.data == "case":
-
-
-        try:
-
-            from shop import open_case
-
-
-            car = open_case(
-
-                user_id
-
-            )
-
-
-            await query.message.reply_text(
-
-                "🎁 <b>LEGEND CASE</b>\n\n"
-
-                "🔥 Тебе выпало:\n\n"
-
-                + car_text(car),
-
-                parse_mode="HTML"
-
-            )
-
-
-        except Exception as e:
-
-            logging.error(e)
-
-
-            await query.message.reply_text(
-
-                "❌ Ошибка открытия кейса"
-
-            )
-
-
-        return
-
-
-
-    # =====================
-    # МАГАЗИН
-    # =====================
-
-    if query.data == "shop":
-
-
-        user = get_player(
-
-            user_id
-
-        )
-
-
-        await query.message.reply_text(
-
-            f"""
-
-🛒 <b>МАГАЗИН</b>
-
-
-Твои монеты:
-
-🪙 {user['coins']}
-
-
-🎁 Открывай кейсы и собирай легенды!
-
-/balance
-
-""",
-
-            parse_mode="HTML"
-
-        )
-
-
-        return
-
-
-
-    # =====================
-    # НАЗАД
-    # =====================
-
-    if query.data == "menu":
-
-
-        await query.message.reply_text(
-
-            "Главное меню 👇",
-
-            reply_markup=main_menu()
-
-        )
-
-
-        return
         
-        # =========================
-# АВТОПОСТ
-# =========================
+            # =====================
+    # БИТВА МАШИН
+    # =====================
 
 
-async def daily_post(
-    context: ContextTypes.DEFAULT_TYPE
-):
-
-    car = get_random_car()
+    if query.data == "battle":
 
 
-    await context.bot.send_message(
+        car1, car2 = start_battle()
 
-        chat_id=CHANNEL,
 
-        text=(
+        keyboard = [
 
-            "🔥 <b>МАШИНА ДНЯ</b>\n\n"
+            [
 
-            + car_text(car)
+                InlineKeyboardButton(
 
-        ),
+                    car1["name"],
 
-        parse_mode="HTML"
+                    callback_data=f"battle_win:{car1['name']}"
 
-    )
+                )
+
+            ],
+
+            [
+
+                InlineKeyboardButton(
+
+                    car2["name"],
+
+                    callback_data=f"battle_win:{car2['name']}"
+
+                )
+
+            ]
+
+        ]
+
+
+        await query.message.reply_text(
+
+            battle_text(
+
+                car1,
+
+                car2
+
+            ),
+
+            parse_mode="HTML",
+
+            reply_markup=InlineKeyboardMarkup(
+
+                keyboard
+
+            )
+
+        )
+
+
+        return
+
+
+
+
+
+    # =====================
+    # ГОЛОС ЗА БИТВУ
+    # =====================
+
+
+    if query.data.startswith("battle_win:"):
+
+
+        winner = query.data.replace(
+
+            "battle_win:",
+
+            ""
+
+        )
+
+
+        await query.message.reply_text(
+
+            "🏆 Победитель выбран:\n\n"
+
+            + winner
+
+            + "\n\n🔥 Спасибо за голос!"
+
+        )
+
+
+        return
+
+
 
 
 
@@ -643,11 +737,13 @@ async def error_handler(
 
     logging.error(
 
-        "Ошибка бота",
+        "Ошибка:",
 
         exc_info=context.error
 
     )
+
+
 
 
 
@@ -657,6 +753,7 @@ async def error_handler(
 
 
 def main():
+
 
     app = (
 
@@ -672,16 +769,17 @@ def main():
 
 
 
-    # =====================
-    # КОМАНДЫ
-    # =====================
+    # Команды
 
 
     app.add_handler(
 
         CommandHandler(
+
             "start",
+
             start
+
         )
 
     )
@@ -690,8 +788,11 @@ def main():
     app.add_handler(
 
         CommandHandler(
+
             "car",
+
             car_command
+
         )
 
     )
@@ -700,8 +801,11 @@ def main():
     app.add_handler(
 
         CommandHandler(
+
             "match",
+
             match_command
+
         )
 
     )
@@ -710,8 +814,11 @@ def main():
     app.add_handler(
 
         CommandHandler(
+
             "profile",
+
             profile_command
+
         )
 
     )
@@ -720,42 +827,46 @@ def main():
     app.add_handler(
 
         CommandHandler(
-            "balance",
-            balance_command
-        )
 
-    )
-
-
-    app.add_handler(
-
-        CommandHandler(
             "garage",
+
             garage_command
+
+        )
+
+    )
+
+
+    app.add_handler(
+
+        CommandHandler(
+
+            "balance",
+
+            balance_command
+
         )
 
     )
 
 
 
-    # =====================
-    # КНОПКИ
-    # =====================
+    # Кнопки
 
 
     app.add_handler(
 
         CallbackQueryHandler(
+
             button_handler
+
         )
 
     )
 
 
 
-    # =====================
-    # ОШИБКИ
-    # =====================
+    # Ошибки
 
 
     app.add_error_handler(
@@ -766,30 +877,16 @@ def main():
 
 
 
-    # =====================
-    # АВТОПОСТ
-    # =====================
-
-
-    app.job_queue.run_daily(
-
-        daily_post,
-
-        time=time(
-            12,
-            0
-        )
-
-    )
-
-
-
     print(
+
         "🏎 CAR LEGENDS CLUB запущен!"
+
     )
 
 
     app.run_polling()
+
+
 
 
 
