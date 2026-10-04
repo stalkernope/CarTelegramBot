@@ -1,7 +1,7 @@
 import random
 import json
 import os
-
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from cars import CARS
 from config import VOTES_FILE
 
@@ -124,7 +124,6 @@ def top_battles():
 
     return result[:10]
     
-    from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
 
 async def start_battle(message, ctx):
