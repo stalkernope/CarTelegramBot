@@ -8,29 +8,52 @@ from database import (
     get_player,
     add_car,
     add_coins,
+    add_xp,
     has_car
 )
 
 
 
-
 # =========================
-# ЦЕНА
+# ЦЕНА МАШИНЫ
 # =========================
 
 
 def get_buy_price(car):
 
+    if "Mythic" in car.get("rarity", ""):
+
+        return car.get(
+            "price",
+            1000000
+        )
+
+
+    if "Legendary" in car.get("rarity", ""):
+
+        return car.get(
+            "price",
+            500000
+        )
+
+
+    if "Rare" in car.get("rarity", ""):
+
+        return car.get(
+            "price",
+            150000
+        )
+
+
     return car.get(
         "price",
-        100000
+        50000
     )
 
 
 
-
 # =========================
-# МАШИНЫ МАГАЗИНА
+# МАШИНЫ В МАГАЗИНЕ
 # =========================
 
 
@@ -61,28 +84,25 @@ def get_shop_cars(count=3):
 
 
 
-
 # =========================
-# ПОИСК МАШИНЫ
+# НАЙТИ МАШИНУ
 # =========================
 
 
-def find_shop_car(name):
+def find_car(car_name):
 
     cars = load_cars()
 
 
     for car in cars:
 
-
-        if car.get("name") == name:
+        if car.get("name") == car_name:
 
             return car
 
 
 
     return None
-
 
 
 
@@ -99,8 +119,7 @@ def buy_car(user_id, car_name):
     )
 
 
-
-    car = find_shop_car(
+    car = find_car(
         car_name
     )
 
@@ -108,13 +127,9 @@ def buy_car(user_id, car_name):
 
     if not car:
 
-
         raise Exception(
-
-            "Машина не найдена"
-
+            "❌ Машина не найдена"
         )
-
 
 
 
@@ -126,13 +141,9 @@ def buy_car(user_id, car_name):
 
     ):
 
-
         raise Exception(
-
-            "Эта машина уже есть в гараже 🏎"
-
+            "❌ Эта машина уже есть в гараже"
         )
-
 
 
 
@@ -144,10 +155,9 @@ def buy_car(user_id, car_name):
 
     if player["coins"] < price:
 
-
         raise Exception(
 
-            "Недостаточно монет 💰"
+            f"❌ Нужно {price} 🪙"
 
         )
 
@@ -162,7 +172,6 @@ def buy_car(user_id, car_name):
     )
 
 
-
     add_car(
 
         user_id,
@@ -172,5 +181,37 @@ def buy_car(user_id, car_name):
     )
 
 
+    add_xp(
+
+        user_id,
+
+        200
+
+    )
+
+
 
     return car
+
+
+
+# =========================
+# ТЕКСТ МАГАЗИНА
+# =========================
+
+
+def shop_text():
+
+    return (
+
+        "🛒 <b>CAR LEGENDS SHOP</b>\n\n"
+
+        "Покупай легендарные машины 🚗\n\n"
+
+        "🔵 Rare\n"
+
+        "💎 Legendary\n"
+
+        "🔥 Mythic\n"
+
+    )
