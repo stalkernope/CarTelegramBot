@@ -285,3 +285,156 @@ def add_new_car(car):
     save_cars(
         cars
     )
+    
+    # =========================
+# ГАРАЖ ИГРОКА
+# =========================
+
+
+def player_has_car(
+    player,
+    car_name
+):
+
+    return car_name in player.get(
+        "garage",
+        []
+    )
+
+
+
+
+# =========================
+# КУПИТЬ МАШИНУ
+# =========================
+
+
+def buy_car(
+    player,
+    car_name
+):
+
+    car = get_car(
+        car_name
+    )
+
+
+    if not car:
+
+        return False
+
+
+
+    if player_has_car(
+        player,
+        car_name
+    ):
+
+        return False
+
+
+
+    player["garage"].append(
+
+        car_name
+
+    )
+
+
+
+    if player["main_car"] is None:
+
+        player["main_car"] = car_name
+
+
+
+    return True
+
+
+
+
+# =========================
+# ПРОДАТЬ МАШИНУ
+# =========================
+
+
+def sell_car(
+
+    player,
+
+    car_name
+
+):
+
+
+    if not player_has_car(
+
+        player,
+
+        car_name
+
+    ):
+
+        return False
+
+
+
+    player["garage"].remove(
+
+        car_name
+
+    )
+
+
+
+    if player["main_car"] == car_name:
+
+
+        player["main_car"] = (
+
+            player["garage"][0]
+
+            if player["garage"]
+
+            else None
+
+        )
+
+
+
+    return True
+
+
+
+
+# =========================
+# ВЫБОР ОСНОВНОЙ
+# =========================
+
+
+def set_main_car(
+
+    player,
+
+    car_name
+
+):
+
+
+    if not player_has_car(
+
+        player,
+
+        car_name
+
+    ):
+
+        return False
+
+
+
+    player["main_car"] = car_name
+
+
+
+    return True
