@@ -1,4 +1,5 @@
 from telegram import Update
+
 from telegram.ext import (
     ContextTypes,
     CommandHandler,
@@ -49,6 +50,11 @@ from garage_system import (
 from car_shop_system import (
     shop_text,
     buy_shop_car
+)
+
+
+from upgrade_system import (
+    upgrade_car
 )
 
 
@@ -121,6 +127,7 @@ def rewards_text(reward):
 
         for mission in reward["missions"]:
 
+
             text += (
 
                 f"✅ {mission['name']}\n"
@@ -136,6 +143,7 @@ def rewards_text(reward):
 
 
         for achievement in reward["achievements"]:
+
 
             text += (
 
@@ -245,18 +253,16 @@ async def buttons(
 
         await query.edit_message_text(
 
-            "👑 Выбери главную машину:",
+            "👑 Выбери машину:",
 
             reply_markup=garage_cars_menu(cars),
 
             parse_mode="HTML"
 
         )
-
-
-
-
-    elif action.startswith("set_main_"):
+     
+           
+            elif action.startswith("set_main_"):
 
 
         car_id = action.replace(
@@ -282,7 +288,7 @@ async def buttons(
         for car in cars:
 
 
-            if car.get("id") == car_id:
+            if str(car.get("id")) == car_id:
 
                 selected = car["name"]
 
@@ -314,7 +320,11 @@ async def buttons(
         else:
 
 
-            text = "❌ Машина не найдена"
+            text = (
+
+                "❌ Машина не найдена"
+
+            )
 
 
 
@@ -327,9 +337,132 @@ async def buttons(
             parse_mode="HTML"
 
         )
-        
-        
-            # =====================
+
+
+
+
+    # =====================
+    # ПРОКАЧКА
+    # =====================
+
+
+    elif action.startswith("upgrade_"):
+
+
+        car_id = action.replace(
+
+            "upgrade_",
+
+            ""
+
+        )
+
+
+        cars = get_garage_cars(
+
+            user_id
+
+        )
+
+
+        car_name = None
+
+
+
+        for car in cars:
+
+
+            if str(car.get("id")) == car_id:
+
+                car_name = car["name"]
+
+                break
+
+
+
+        if not car_name:
+
+
+            await query.edit_message_text(
+
+                "❌ Машина не найдена",
+
+                reply_markup=main_menu()
+
+            )
+
+            return
+
+
+
+        player = get_player(
+
+            user_id
+
+        )
+
+
+
+        result = upgrade_car(
+
+            user_id,
+
+            player,
+
+            car_name
+
+        )
+
+
+
+        if result["success"]:
+
+
+            update_player(
+
+                user_id,
+
+                player
+
+            )
+
+
+            text = (
+
+                "🔧 <b>МАШИНА УЛУЧШЕНА!</b>\n\n"
+
+                f"🚗 {car_name}\n"
+
+                f"⭐ Новый уровень: {result['level']}/10\n\n"
+
+                f"⚡ Бонус мощности: +{result['power']}\n"
+
+                f"🚀 Бонус скорости: +{result['speed']}"
+
+            )
+
+
+        else:
+
+
+            text = result["message"]
+
+
+
+        await query.edit_message_text(
+
+            text,
+
+            reply_markup=main_menu(),
+
+            parse_mode="HTML"
+
+        )
+
+
+
+
+    # =====================
     # ГОНКИ
     # =====================
 
@@ -374,7 +507,7 @@ async def buttons(
 
 
     # =====================
-    # ПОКУПКА МАШИН
+    # ПОКУПКА
     # =====================
 
 
@@ -463,11 +596,7 @@ async def buttons(
 
                 f"🚗 {car_name}\n\n"
 
-                f"💰 Осталось: "
-
-                f"{player.get('money',0)}\n\n"
-
-                "✅ Добавлено в гараж"
+                "✅ Машина добавлена в гараж"
 
             )
 
@@ -477,13 +606,9 @@ async def buttons(
 
             text = (
 
-                "❌ <b>Покупка невозможна</b>\n\n"
+                "❌ Покупка невозможна\n\n"
 
-                "Причины:\n"
-
-                "• не хватает денег\n"
-
-                "• машина уже есть"
+                "Нет денег или машина уже есть"
 
             )
 
@@ -498,11 +623,8 @@ async def buttons(
             parse_mode="HTML"
 
         )
-
-
-
-
-    # =====================
+        
+            # =====================
     # NPC
     # =====================
 
@@ -645,9 +767,11 @@ async def buttons(
             parse_mode="HTML"
 
         )
-        
-        
-            # =====================
+
+
+
+
+    # =====================
     # БОСС
     # =====================
 
