@@ -1,52 +1,47 @@
 import random
 
 
-from car_database import load_cars
+from car_database import (
+    get_all_cars
+)
 
 
 from database import (
-    get_player,
-    add_car,
-    add_coins,
-    add_xp
+    add_car
 )
 
 
 
 # =========================
-# НАСТРОЙКИ
+# ВЕСА КЕЙСА
 # =========================
 
 
-CASE_PRICE = 500
+RARITY_CHANCE = {
 
 
-
-# =========================
-# ШАНСЫ РЕДКОСТИ
-# =========================
+    "🔵 Rare": 70,
 
 
-RARITY_CHANCES = [
+    "💎 Legendary": 25,
 
-    ("🔵 Rare", 60),
 
-    ("💎 Legendary", 30),
+    "🔥 Mythic": 5
 
-    ("🔥 Mythic", 10)
-
-]
+}
 
 
 
 # =========================
-# ПОЛУЧЕНИЕ МАШИНЫ ИЗ КЕЙСА
+# ВЫБОР ИЗ КЕЙСА
 # =========================
 
 
-def get_case_car():
+def open_case(user_id):
 
-    cars = load_cars()
+
+    cars = get_all_cars()
+
 
 
     if not cars:
@@ -55,94 +50,46 @@ def get_case_car():
 
 
 
-    rarity_roll = random.randint(
-        1,
-        100
-    )
+    weighted = []
 
-
-    if rarity_roll <= 10:
-
-        rarity = "🔥 Mythic"
-
-
-    elif rarity_roll <= 40:
-
-        rarity = "💎 Legendary"
-
-
-    else:
-
-        rarity = "🔵 Rare"
-
-
-
-    filtered = []
 
 
     for car in cars:
 
-        if car.get("rarity") == rarity:
 
-            filtered.append(
-                car
-            )
+        rarity = car.get(
 
+            "rarity",
 
+            "🔵 Rare"
 
-    if not filtered:
-
-        filtered = cars
+        )
 
 
+        chance = RARITY_CHANCE.get(
 
-    return random.choice(
-        filtered
-    )
+            rarity,
 
+            10
 
-
-# =========================
-# ОТКРЫТИЕ КЕЙСА
-# =========================
-
-
-def open_case(user_id):
-
-
-    player = get_player(
-        user_id
-    )
-
-
-
-    if player["coins"] < CASE_PRICE:
-
-        raise Exception(
-            "❌ Нужно 500 🪙 монет"
         )
 
 
 
-    car = get_case_car()
+        weighted.extend(
 
+            [car] * chance
 
-
-    if not car:
-
-        raise Exception(
-            "❌ Машины не найдены"
         )
 
 
 
-    add_coins(
+    car = random.choice(
 
-        user_id,
-
-        -CASE_PRICE
+        weighted
 
     )
+
 
 
     add_car(
@@ -154,53 +101,29 @@ def open_case(user_id):
     )
 
 
-    add_xp(
-
-        user_id,
-
-        100
-
-    )
-
-
 
     return car
 
 
 
 # =========================
-# ИНФОРМАЦИЯ КЕЙСА
+# ИНФОРМАЦИЯ О КЕЙСЕ
 # =========================
 
 
 def case_info():
 
+
     return (
 
         "🎁 <b>LEGEND CASE</b>\n\n"
 
-        "💰 Цена: 500 🪙\n\n"
+        "🔵 Rare — 70%\n"
 
-        "🔵 Rare — 60%\n"
+        "💎 Legendary — 25%\n"
 
-        "💎 Legendary — 30%\n"
+        "🔥 Mythic — 5%\n\n"
 
-        "🔥 Mythic — 10%\n\n"
+        "Открывай и собирай коллекцию!"
 
-        "Открой и получи легендарную машину!"
-
-    )
-
-
-
-# =========================
-# ЦЕНА
-# =========================
-
-
-def get_car_price(car):
-
-    return car.get(
-        "price",
-        100000
     )
