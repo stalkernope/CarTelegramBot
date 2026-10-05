@@ -38,8 +38,7 @@ from case_system import (
 
 
 from garage_system import (
-    garage_text,
-    get_garage_cars
+    garage_text
 )
 
 
@@ -58,27 +57,21 @@ from boss_race_system import (
 
 
 
-
 # =========================
 # START
 # =========================
 
 
 async def start(
-
     update: Update,
-
     context: ContextTypes.DEFAULT_TYPE
-
 ):
 
     user = update.effective_user
 
 
     get_player(
-
         user.id
-
     )
 
 
@@ -90,12 +83,59 @@ async def start(
 
         "Твой путь начинается!",
 
-
         reply_markup=main_menu(),
 
         parse_mode="HTML"
 
     )
+
+
+
+
+# =========================
+# НАГРАДЫ ТЕКСТ
+# =========================
+
+
+def rewards_text(reward):
+
+
+    text = ""
+
+
+
+    if reward.get("missions"):
+
+
+        text += "\n\n🎯 <b>МИССИИ:</b>\n"
+
+
+        for mission in reward["missions"]:
+
+            text += (
+
+                f"✅ {mission['name']}\n"
+
+            )
+
+
+
+    if reward.get("achievements"):
+
+
+        text += "\n\n🏆 <b>ДОСТИЖЕНИЯ:</b>\n"
+
+
+        for achievement in reward["achievements"]:
+
+            text += (
+
+                f"🏅 {achievement['name']}\n"
+
+            )
+
+
+    return text
 
 
 
@@ -172,7 +212,7 @@ async def buttons(
 
             "🏁 <b>ГОНКИ</b>\n\n"
 
-            "Выбирай соперника:",
+            "Выбери режим:",
 
             reply_markup=race_menu(),
 
@@ -183,7 +223,7 @@ async def buttons(
 
 
 
-    # NPC БОЙ
+    # NPC
 
     elif action == "npc":
 
@@ -200,7 +240,7 @@ async def buttons(
 
             await query.edit_message_text(
 
-                "❌ Сначала выбери главную машину",
+                "❌ У тебя нет главной машины",
 
                 reply_markup=main_menu()
 
@@ -226,6 +266,7 @@ async def buttons(
 
         for car in cars:
 
+
             if car["name"] != player_car["name"]:
 
                 enemy = car
@@ -239,12 +280,13 @@ async def buttons(
 
             await query.edit_message_text(
 
-                "❌ Нет соперников"
+                "❌ Нет соперников",
+
+                reply_markup=main_menu()
 
             )
 
             return
-
 
 
 
@@ -255,6 +297,7 @@ async def buttons(
             enemy
 
         )
+
 
 
         if result["winner"]["name"] == player_car["name"]:
@@ -273,13 +316,21 @@ async def buttons(
 
                 +
 
-                "\n\n🏆 ПОБЕДА!"
+                "\n\n🏆 <b>ПОБЕДА!</b>\n"
 
                 +
 
-                f"\n💰 +{reward['coins']}"
+                f"💰 +{reward['coins']}"
 
             )
+
+
+            text += rewards_text(
+
+                reward
+
+            )
+
 
 
         else:
@@ -298,7 +349,7 @@ async def buttons(
 
                 +
 
-                "\n\n❌ ПОРАЖЕНИЕ"
+                "\n\n❌ <b>ПОРАЖЕНИЕ</b>"
 
             )
 
@@ -313,11 +364,7 @@ async def buttons(
             parse_mode="HTML"
 
         )
-
-
-
-
-    # БОСС
+            # БОСС
 
     elif action == "boss":
 
@@ -334,7 +381,9 @@ async def buttons(
 
             await query.edit_message_text(
 
-                "❌ Нет главной машины"
+                "❌ Сначала выбери главную машину",
+
+                reply_markup=main_menu()
 
             )
 
@@ -357,7 +406,13 @@ async def buttons(
 
             user_id,
 
-            car.get("power",0),
+            car.get(
+
+                "power",
+
+                0
+
+            ),
 
             boss["id"]
 
@@ -372,7 +427,7 @@ async def buttons(
 
                 "👑 <b>БОСС ПОБЕЖДЕН!</b>\n\n"
 
-                f"{result['boss']}\n\n"
+                f"⚔️ {result['boss']}\n\n"
 
                 f"🎁 Награда:\n"
 
@@ -388,7 +443,9 @@ async def buttons(
 
                 "❌ <b>ПОРАЖЕНИЕ</b>\n\n"
 
-                f"Босс: {result['boss']}"
+                f"👑 Босс:\n"
+
+                f"{result['boss']}"
 
             )
 
@@ -425,7 +482,7 @@ async def buttons(
 
 
 
-    # ОТКРЫТИЕ КЕЙСА
+    # ОТКРЫТЬ КЕЙС
 
     elif action == "open_normal_case":
 
@@ -450,6 +507,7 @@ async def buttons(
         )
 
 
+
         if result["success"]:
 
 
@@ -460,6 +518,7 @@ async def buttons(
                 player
 
             )
+
 
 
         await query.edit_message_text(
@@ -482,7 +541,9 @@ async def buttons(
 
         await query.edit_message_text(
 
-            "⚔️ <b>КЛАНЫ</b>",
+            "⚔️ <b>КЛАНЫ</b>\n\n"
+
+            "Раздел в разработке",
 
             reply_markup=clan_menu(),
 
@@ -514,7 +575,7 @@ async def buttons(
 
         await query.edit_message_text(
 
-            "🔥 Раздел в разработке",
+            "🔥 Раздел пока недоступен",
 
             reply_markup=main_menu()
 
