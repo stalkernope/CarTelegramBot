@@ -5,7 +5,6 @@ from telegram import (
 
 
 
-
 # =========================
 # ГЛАВНОЕ МЕНЮ
 # =========================
@@ -13,24 +12,19 @@ from telegram import (
 
 def main_menu():
 
+
     keyboard = [
 
         [
 
             InlineKeyboardButton(
-
                 "🚗 Гараж",
-
                 callback_data="garage"
-
             ),
 
             InlineKeyboardButton(
-
                 "🏁 Гонки",
-
                 callback_data="race"
-
             )
 
         ],
@@ -39,19 +33,13 @@ def main_menu():
         [
 
             InlineKeyboardButton(
-
                 "👤 Профиль",
-
                 callback_data="profile"
-
             ),
 
             InlineKeyboardButton(
-
-                "🏆 Рейтинг",
-
-                callback_data="rating"
-
+                "🎁 Кейсы",
+                callback_data="cases"
             )
 
         ],
@@ -60,40 +48,8 @@ def main_menu():
         [
 
             InlineKeyboardButton(
-
-                "🛒 Магазин",
-
-                callback_data="shop"
-
-            ),
-
-            InlineKeyboardButton(
-
-                "🌍 Карта",
-
-                callback_data="world"
-
-            )
-
-        ],
-
-
-        [
-
-            InlineKeyboardButton(
-
                 "⚔️ Клан",
-
                 callback_data="clan"
-
-            ),
-
-            InlineKeyboardButton(
-
-                "🎁 Награды",
-
-                callback_data="reward"
-
             )
 
         ]
@@ -117,16 +73,14 @@ def main_menu():
 
 def garage_menu():
 
+
     keyboard = [
 
         [
 
             InlineKeyboardButton(
-
                 "🚗 Машины",
-
                 callback_data="cars"
-
             )
 
         ],
@@ -135,37 +89,8 @@ def garage_menu():
         [
 
             InlineKeyboardButton(
-
-                "⚙️ Тюнинг",
-
-                callback_data="tuning"
-
-            )
-
-        ],
-
-
-        [
-
-            InlineKeyboardButton(
-
-                "🎨 Кастом",
-
-                callback_data="custom"
-
-            )
-
-        ],
-
-
-        [
-
-            InlineKeyboardButton(
-
                 "⬅️ Назад",
-
                 callback_data="back"
-
             )
 
         ]
@@ -189,16 +114,14 @@ def garage_menu():
 
 def race_menu():
 
+
     keyboard = [
 
         [
 
             InlineKeyboardButton(
-
-                "🤖 NPC гонка",
-
-                callback_data="npc_race"
-
+                "🤖 NPC",
+                callback_data="npc"
             )
 
         ],
@@ -207,11 +130,8 @@ def race_menu():
         [
 
             InlineKeyboardButton(
-
                 "👑 Босс",
-
                 callback_data="boss"
-
             )
 
         ],
@@ -220,24 +140,8 @@ def race_menu():
         [
 
             InlineKeyboardButton(
-
-                "🏆 Чемпионат",
-
-                callback_data="champ"
-
-            )
-
-        ],
-
-
-        [
-
-            InlineKeyboardButton(
-
                 "⬅️ Назад",
-
                 callback_data="back"
-
             )
 
         ]
@@ -261,55 +165,14 @@ def race_menu():
 
 def profile_menu():
 
+
     keyboard = [
 
         [
 
             InlineKeyboardButton(
-
-                "🏅 Титулы",
-
-                callback_data="titles"
-
-            )
-
-        ],
-
-
-        [
-
-            InlineKeyboardButton(
-
-                "🎟 Battle Pass",
-
-                callback_data="pass"
-
-            )
-
-        ],
-
-
-        [
-
-            InlineKeyboardButton(
-
-                "🎁 Ежедневный бонус",
-
-                callback_data="daily"
-
-            )
-
-        ],
-
-
-        [
-
-            InlineKeyboardButton(
-
                 "⬅️ Назад",
-
                 callback_data="back"
-
             )
 
         ]
@@ -333,16 +196,14 @@ def profile_menu():
 
 def clan_menu():
 
+
     keyboard = [
 
         [
 
             InlineKeyboardButton(
-
                 "⚔️ Война",
-
                 callback_data="clan_war"
-
             )
 
         ],
@@ -351,37 +212,49 @@ def clan_menu():
         [
 
             InlineKeyboardButton(
-
-                "👥 Участники",
-
-                callback_data="members"
-
-            )
-
-        ],
-
-
-        [
-
-            InlineKeyboardButton(
-
-                "🏆 Рейтинг",
-
-                callback_data="clan_rating"
-
-            )
-
-        ],
-
-
-        [
-
-            InlineKeyboardButton(
-
                 "⬅️ Назад",
-
                 callback_data="back"
+            )
 
+        ]
+
+    ]
+
+
+    return InlineKeyboardMarkup(
+
+        keyboard
+
+    )
+
+
+
+
+# =========================
+# КЕЙСЫ
+# =========================
+
+
+def cases_menu():
+
+
+    keyboard = [
+
+        [
+
+            InlineKeyboardButton(
+                "📦 Открыть обычный",
+                callback_data="open_normal_case"
+            )
+
+        ],
+
+
+        [
+
+            InlineKeyboardButton(
+                "⬅️ Назад",
+                callback_data="back"
             )
 
         ]
