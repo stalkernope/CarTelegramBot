@@ -2,96 +2,123 @@ import json
 import os
 
 
+
 DATABASE_FILE = "players.json"
 
-
-DEFAULT_PLAYER = {
-
-    "coins": 1000,
-
-    "level": 1,
-
-    "xp": 0,
-
-    "rep": 0,
-
-    "title": "Новичок",
-
-    "league": "🥉 Bronze",
-
-    "wins": 0,
-
-    "losses": 0,
-
-    "win_streak": 0,
-
-    "best_streak": 0,
-
-    "garage": [],
-
-    "main_car": None,
-
-    "achievements": [],
-
-    "created": ""
-
-}
 
 
 
 # =========================
-# ЗАГРУЗКА
+# СОЗДАНИЕ ИГРОКА
+# =========================
+
+
+def create_player(user_id):
+
+    return {
+
+        "id": user_id,
+
+        "coins": 5000,
+
+        "gems": 0,
+
+
+        "level": 1,
+
+        "xp": 0,
+
+
+        "garage": [],
+
+        "main_car": None,
+
+
+        "pets": [],
+
+        "active_pet": None,
+
+
+        "tuning_parts": [],
+
+
+        "wins": 0,
+
+        "losses": 0,
+
+
+        "clan": None,
+
+
+        "achievements": [],
+
+        "titles": [],
+
+
+        "premium": False
+
+    }
+
+
+
+
+# =========================
+# ЗАГРУЗКА БАЗЫ
 # =========================
 
 
 def load_database():
+
 
     if not os.path.exists(DATABASE_FILE):
 
         return {}
 
 
+
     try:
 
         with open(
+
             DATABASE_FILE,
+
             "r",
+
             encoding="utf-8"
+
         ) as file:
 
-            data = json.load(file)
+
+            return json.load(file)
 
 
-            if isinstance(data, dict):
 
-                return data
-
-
-    except Exception as e:
-
-        print(
-            "Ошибка базы:",
-            e
-        )
+    except:
 
 
-    return {}
+        return {}
 
 
 
 
 # =========================
-# СОХРАНЕНИЕ
+# СОХРАНЕНИЕ БАЗЫ
 # =========================
 
 
 def save_database(data):
 
+
     with open(
+
         DATABASE_FILE,
+
         "w",
+
         encoding="utf-8"
+
     ) as file:
+
 
         json.dump(
 
@@ -109,11 +136,12 @@ def save_database(data):
 
 
 # =========================
-# ПОЛУЧЕНИЕ ИГРОКА
+# ПОЛУЧИТЬ ИГРОКА
 # =========================
 
 
 def get_player(user_id):
+
 
     data = load_database()
 
@@ -125,37 +153,18 @@ def get_player(user_id):
     if uid not in data:
 
 
-        data[uid] = DEFAULT_PLAYER.copy()
+        data[uid] = create_player(
 
+            user_id
 
-        save_database(
-            data
         )
 
 
-    else:
+        save_database(
 
+            data
 
-        # добавляем новые поля старым игрокам
-
-        changed = False
-
-
-        for key, value in DEFAULT_PLAYER.items():
-
-            if key not in data[uid]:
-
-                data[uid][key] = value
-
-                changed = True
-
-
-
-        if changed:
-
-            save_database(
-                data
-            )
+        )
 
 
 
@@ -165,14 +174,18 @@ def get_player(user_id):
 
 
 # =========================
-# СОХРАНИТЬ ИГРОКА
+# ОБНОВИТЬ ИГРОКА
 # =========================
 
 
 def update_player(
+
     user_id,
+
     player
+
 ):
+
 
     data = load_database()
 
@@ -180,46 +193,10 @@ def update_player(
     data[str(user_id)] = player
 
 
+
     save_database(
+
         data
-    )
-
-
-
-
-# =========================
-# ДОБАВИТЬ МАШИНУ
-# =========================
-
-
-def add_car(
-    user_id,
-    car_name
-):
-
-    player = get_player(
-        user_id
-    )
-
-
-    if car_name not in player["garage"]:
-
-        player["garage"].append(
-            car_name
-        )
-
-
-    if player["main_car"] is None:
-
-        player["main_car"] = car_name
-
-
-
-    update_player(
-
-        user_id,
-
-        player
 
     )
 
@@ -232,16 +209,23 @@ def add_car(
 
 
 def add_coins(
+
     user_id,
+
     amount
+
 ):
 
+
     player = get_player(
+
         user_id
+
     )
 
 
     player["coins"] += amount
+
 
 
     update_player(
@@ -255,18 +239,64 @@ def add_coins(
 
 
 
+def remove_coins(
+
+    user_id,
+
+    amount
+
+):
+
+
+    player = get_player(
+
+        user_id
+
+    )
+
+
+    if player["coins"] < amount:
+
+        return False
+
+
+
+    player["coins"] -= amount
+
+
+
+    update_player(
+
+        user_id,
+
+        player
+
+    )
+
+
+    return True
+
+
+
+
 # =========================
-# XP
+# ОПЫТ
 # =========================
 
 
 def add_xp(
+
     user_id,
+
     amount
+
 ):
 
+
     player = get_player(
+
         user_id
+
     )
 
 
@@ -279,6 +309,7 @@ def add_xp(
 
 
     if player["xp"] >= need:
+
 
         player["xp"] -= need
 
@@ -298,38 +329,46 @@ def add_xp(
 
 
 # =========================
-# ПОБЕДА
+# ПОБЕДЫ
 # =========================
 
 
-def add_win(
-    user_id
-):
+def add_win(user_id):
+
 
     player = get_player(
+
         user_id
+
     )
 
 
     player["wins"] += 1
 
-    player["win_streak"] += 1
 
 
+    update_player(
 
-    if player["win_streak"] > player["best_streak"]:
-
-        player["best_streak"] = player["win_streak"]
-
-
-
-    player["rep"] += 50
-
-
-    add_xp(
         user_id,
-        200
+
+        player
+
     )
+
+
+
+
+def add_loss(user_id):
+
+
+    player = get_player(
+
+        user_id
+
+    )
+
+
+    player["losses"] += 1
 
 
 
@@ -345,22 +384,85 @@ def add_win(
 
 
 # =========================
-# ПОРАЖЕНИЕ
+# ДОБАВИТЬ МАШИНУ
 # =========================
 
 
-def add_loss(
-    user_id
+def add_car(
+
+    user_id,
+
+    car
+
 ):
 
+
     player = get_player(
+
         user_id
+
     )
 
 
-    player["losses"] += 1
+    if car not in player["garage"]:
 
-    player["win_streak"] = 0
+
+        player["garage"].append(
+
+            car
+
+        )
+
+
+
+    if player["main_car"] is None:
+
+
+        player["main_car"] = car
+
+
+
+    update_player(
+
+        user_id,
+
+        player
+
+    )
+
+
+
+
+# =========================
+# ДОБАВИТЬ ПИТОМЦА
+# =========================
+
+
+def add_pet(
+
+    user_id,
+
+    pet
+
+):
+
+
+    player = get_player(
+
+        user_id
+
+    )
+
+
+    if pet not in player["pets"]:
+
+
+        player["pets"].append(
+
+            pet
+
+        )
+
 
 
     update_player(
