@@ -967,17 +967,14 @@ def main():
 
 
 
-        print(
+            print(
         "🏎 CAR LEGENDS CLUB запущен!"
     )
-
 
     app.run_polling()
 
 
-
 if __name__ == "__main__":
-
     main()
 
     except Exception as e:
