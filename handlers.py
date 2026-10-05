@@ -11,11 +11,27 @@ from menu_system import (
     garage_menu,
     race_menu,
     profile_menu,
-    clan_menu
+    clan_menu,
+    cases_menu
 )
 
 
 from game_core import profile_text
+
+
+from database import (
+    get_player,
+    update_player
+)
+
+
+from car_database import get_all_cars
+
+
+from case_system import (
+    cases_text,
+    buy_and_open_case
+)
 
 
 
@@ -34,6 +50,12 @@ async def start(
 
     user = update.effective_user
 
+
+    get_player(
+
+        user.id
+
+    )
 
 
     await update.message.reply_text(
@@ -75,17 +97,13 @@ async def buttons(
     await query.answer()
 
 
-
     user_id = query.from_user.id
-
 
 
     action = query.data
 
 
 
-
-    # ПРОФИЛЬ
 
     if action == "profile":
 
@@ -105,8 +123,6 @@ async def buttons(
 
 
 
-    # ГАРАЖ
-
     elif action == "garage":
 
 
@@ -114,7 +130,7 @@ async def buttons(
 
             "🚗 <b>ГАРАЖ</b>\n\n"
 
-            "Выбери действие:",
+            "Твой автопарк готов",
 
             reply_markup=
 
@@ -127,8 +143,6 @@ async def buttons(
 
 
 
-    # ГОНКИ
-
     elif action == "race":
 
 
@@ -136,7 +150,7 @@ async def buttons(
 
             "🏁 <b>ГОНКИ</b>\n\n"
 
-            "Выбери режим:",
+            "Выбери режим",
 
             reply_markup=
 
@@ -149,14 +163,12 @@ async def buttons(
 
 
 
-    # КЛАН
-
     elif action == "clan":
 
 
         await query.edit_message_text(
 
-            "⚔️ <b>КЛАН</b>",
+            "⚔️ <b>КЛАНЫ</b>",
 
             reply_markup=
 
@@ -169,7 +181,83 @@ async def buttons(
 
 
 
-    # НАЗАД
+    elif action == "cases":
+
+
+        await query.edit_message_text(
+
+            cases_text(),
+
+            reply_markup=
+
+            cases_menu(),
+
+            parse_mode="HTML"
+
+        )
+
+
+
+
+    elif action == "open_normal_case":
+
+
+        player = get_player(
+
+            user_id
+
+        )
+
+
+        result = buy_and_open_case(
+
+            user_id,
+
+            player,
+
+            "normal",
+
+            get_all_cars()
+
+        )
+
+
+        if result["success"]:
+
+
+            update_player(
+
+                user_id,
+
+                player
+
+            )
+
+
+            text = result["message"]
+
+
+        else:
+
+
+            text = result["message"]
+
+
+
+        await query.edit_message_text(
+
+            text,
+
+            reply_markup=
+
+            main_menu(),
+
+            parse_mode="HTML"
+
+        )
+
+
+
 
     elif action == "back":
 
@@ -187,14 +275,16 @@ async def buttons(
 
 
 
-    # В РАЗРАБОТКЕ
-
     else:
 
 
         await query.edit_message_text(
 
-            "🔥 Раздел подключается..."
+            "🔥 Раздел скоро будет доступен",
+
+            reply_markup=
+
+            main_menu()
 
         )
 
@@ -202,7 +292,7 @@ async def buttons(
 
 
 # =========================
-# РЕГИСТРАЦИЯ
+# ПОДКЛЮЧЕНИЕ
 # =========================
 
 
