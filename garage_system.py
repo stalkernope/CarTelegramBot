@@ -9,6 +9,11 @@ from car_database import (
 )
 
 
+from upgrade_system import (
+    get_car_upgrade
+)
+
+
 
 
 # =========================
@@ -41,29 +46,40 @@ RARITY_POINTS = {
 def get_garage_cars(user_id):
 
     player = get_player(
+
         user_id
+
     )
 
 
     cars = []
 
 
+
     for name in player.get(
+
         "garage",
+
         []
+
     ):
 
 
         car = get_car(
+
             name
+
         )
 
 
         if car:
 
             cars.append(
+
                 car
+
             )
+
 
 
     return cars
@@ -72,26 +88,121 @@ def get_garage_cars(user_id):
 
 
 # =========================
-# СТОИМОСТЬ
+# ХАРАКТЕРИСТИКИ С ПРОКАЧКОЙ
+# =========================
+
+
+def get_car_stats(
+
+    user_id,
+
+    car
+
+):
+
+
+    upgrade = get_car_upgrade(
+
+        user_id,
+
+        car["name"]
+
+    )
+
+
+
+    return {
+
+
+        "power":
+
+        car.get(
+
+            "power",
+
+            0
+
+        )
+
+        +
+
+        upgrade.get(
+
+            "power",
+
+            0
+
+        ),
+
+
+
+        "speed":
+
+        car.get(
+
+            "speed",
+
+            0
+
+        )
+
+        +
+
+        upgrade.get(
+
+            "speed",
+
+            0
+
+        ),
+
+
+
+        "level":
+
+        upgrade.get(
+
+            "level",
+
+            1
+
+        )
+
+    }
+
+
+
+
+# =========================
+# СТОИМОСТЬ ГАРАЖА
 # =========================
 
 
 def garage_value(user_id):
 
+
     cars = get_garage_cars(
+
         user_id
+
     )
 
 
     total = 0
 
 
+
     for car in cars:
 
+
         total += car.get(
+
             "price",
+
             0
+
         )
+
 
 
     return total
@@ -100,15 +211,19 @@ def garage_value(user_id):
 
 
 # =========================
-# РЕЙТИНГ ГАРАЖА
+# РЕЙТИНГ
 # =========================
 
 
 def garage_rating(user_id):
 
+
     cars = get_garage_cars(
+
         user_id
+
     )
+
 
 
     if not cars:
@@ -124,22 +239,23 @@ def garage_rating(user_id):
     for car in cars:
 
 
-        power = car.get(
-            "power",
-            0
-        )
+        stats = get_car_stats(
 
+            user_id,
 
-        speed = car.get(
-            "speed",
-            0
+            car
+
         )
 
 
         rarity = car.get(
+
             "rarity",
+
             ""
+
         )
+
 
 
         rarity_score = RARITY_POINTS.get(
@@ -154,11 +270,11 @@ def garage_rating(user_id):
 
         score += (
 
-            power / 20
+            stats["power"] / 20
 
             +
 
-            speed / 5
+            stats["speed"] / 5
 
             +
 
@@ -179,13 +295,12 @@ def garage_rating(user_id):
 
 
     return round(
+
         rating
+
     )
-
-
-
-
-# =========================
+    
+    # =========================
 # СДЕЛАТЬ ГЛАВНОЙ
 # =========================
 
@@ -244,6 +359,7 @@ def set_main_car(
 
 def garage_stats(user_id):
 
+
     player = get_player(
 
         user_id
@@ -260,9 +376,11 @@ def garage_stats(user_id):
 
     return {
 
+
         "count":
 
         len(cars),
+
 
 
         "value":
@@ -274,6 +392,7 @@ def garage_stats(user_id):
         ),
 
 
+
         "rating":
 
         garage_rating(
@@ -281,6 +400,7 @@ def garage_stats(user_id):
             user_id
 
         ),
+
 
 
         "main":
@@ -292,6 +412,83 @@ def garage_stats(user_id):
         )
 
     }
+
+
+
+
+# =========================
+# КАРТОЧКА МАШИНЫ
+# =========================
+
+
+def car_card_text(
+
+    user_id,
+
+    car
+
+):
+
+
+    player = get_player(
+
+        user_id
+
+    )
+
+
+    stats = get_car_stats(
+
+        user_id,
+
+        car
+
+    )
+
+
+
+    if player.get(
+
+        "main_car"
+
+    ) == car["name"]:
+
+
+        main = "👑 Главная машина"
+
+
+    else:
+
+
+        main = "🚗 Не выбрана"
+
+
+
+    return (
+
+        f"{car['name']}\n\n"
+
+        f"💎 Редкость: {car.get('rarity','')}\n\n"
+
+        f"⭐ Уровень: "
+
+        f"{stats['level']}/10\n\n"
+
+        f"⚡ Мощность: "
+
+        f"{stats['power']}\n"
+
+        f"🚀 Скорость: "
+
+        f"{stats['speed']}\n\n"
+
+        f"💰 Цена: "
+
+        f"{car.get('price',0)}$\n\n"
+
+        f"{main}"
+
+    )
 
 
 
@@ -340,7 +537,7 @@ def garage_text(user_id):
 
             "🚗 Гараж пуст\n\n"
 
-            "Купи первую машину в автосалоне"
+            "Купи машину в автосалоне"
 
         )
 
@@ -350,44 +547,51 @@ def garage_text(user_id):
 
 
 
-    text += "🚘 <b>ТВОИ МАШИНЫ:</b>\n\n"
+    text += (
+
+        "🚘 <b>АВТОПАРК:</b>\n\n"
+
+    )
 
 
 
     for car in cars:
 
 
-        if car["name"] == stats["main"]:
+        stats_car = get_car_stats(
 
-            mark = "👑"
+            user_id,
 
-        else:
-
-            mark = "🚗"
-
-
-
-        text += (
-
-            f"{mark} {car['name']}\n"
-
-            f"⚡ Мощность: {car.get('power',0)}\n"
-
-            f"🚀 Скорость: {car.get('speed',0)}\n"
-
-            f"💎 {car.get('rarity','')}\n\n"
+            car
 
         )
 
 
 
-    text += (
+        if car["name"] == stats["main"]:
 
-        "👑 Главная машина:\n"
 
-        f"{stats['main'] or 'Не выбрана'}"
+            icon = "👑"
 
-    )
+
+        else:
+
+
+            icon = "🚗"
+
+
+
+        text += (
+
+            f"{icon} {car['name']}\n"
+
+            f"⭐ Ур. {stats_car['level']}/10\n"
+
+            f"⚡ {stats_car['power']} "
+
+            f"🚀 {stats_car['speed']}\n\n"
+
+        )
 
 
 
