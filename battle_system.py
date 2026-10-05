@@ -10,8 +10,8 @@ from database import (
 )
 
 
-from car_database import (
-    get_car
+from missions_system import (
+    check_all_missions
 )
 
 
@@ -25,30 +25,22 @@ TRACKS = [
 
     {
         "name": "🌆 Город",
-
         "bonus": "speed"
-
     },
 
     {
         "name": "🏔 Горы",
-
         "bonus": "power"
-
     },
 
     {
         "name": "🏁 Трек",
-
         "bonus": "balance"
-
     },
 
     {
         "name": "🏜 Пустыня",
-
         "bonus": "random"
-
     }
 
 ]
@@ -77,22 +69,18 @@ WEATHER = [
 
 
 # =========================
-# ВЫБОР УСЛОВИЙ
+# УСЛОВИЯ ГОНКИ
 # =========================
 
 
 def get_race_conditions():
 
-
     return {
 
         "track":
-
         random.choice(TRACKS),
 
-
         "weather":
-
         random.choice(WEATHER)
 
     }
@@ -106,7 +94,6 @@ def get_race_conditions():
 
 
 def car_strength(car):
-
 
     if not car:
 
@@ -162,7 +149,6 @@ def car_strength(car):
 
 
 
-
     return (
 
         power * 0.5
@@ -194,19 +180,13 @@ def car_strength(car):
 
 def battle(car1, car2):
 
-
     conditions = get_race_conditions()
 
 
-
-    score1 = car_strength(
-        car1
-    )
+    score1 = car_strength(car1)
 
 
-    score2 = car_strength(
-        car2
-    )
+    score2 = car_strength(car2)
 
 
 
@@ -249,25 +229,24 @@ def battle(car1, car2):
         }
 
 
-    else:
 
-        return {
+    return {
 
-            "winner": car2,
+        "winner": car2,
 
-            "loser": car1,
+        "loser": car1,
 
-            "conditions": conditions,
+        "conditions": conditions,
 
-            "critical": critical <= 10
+        "critical": critical <= 10
 
-        }
+    }
 
 
 
 
 # =========================
-# НАГРАДА
+# НАГРАДА ПОБЕДА
 # =========================
 
 
@@ -275,16 +254,27 @@ def reward_win(user_id):
 
 
     player = get_player(
-        user_id
-    )
 
+        user_id
+
+    )
 
 
     coins = 500
 
 
 
-    if player["win_streak"] >= 5:
+    streak = player.get(
+
+        "win_streak",
+
+        0
+
+    )
+
+
+
+    if streak >= 5:
 
         coins += 500
 
@@ -315,18 +305,43 @@ def reward_win(user_id):
     )
 
 
-    return coins
+
+    # ПРОВЕРКА МИССИЙ
+
+    updated_player = get_player(
+
+        user_id
+
+    )
+
+
+    completed = check_all_missions(
+
+        user_id,
+
+        updated_player
+
+    )
+
+
+
+    return {
+
+        "coins": coins,
+
+        "missions": completed
+
+    }
 
 
 
 
 # =========================
-# ПОРАЖЕНИЕ
+# НАГРАДА ПОРАЖЕНИЕ
 # =========================
 
 
 def reward_loss(user_id):
-
 
     add_loss(
 
@@ -336,9 +351,19 @@ def reward_loss(user_id):
 
 
 
+    return {
+
+        "coins": 0,
+
+        "missions": []
+
+    }
+
+
+
 
 # =========================
-# ТЕКСТ
+# ТЕКСТ БОЯ
 # =========================
 
 
