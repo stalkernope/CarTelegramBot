@@ -1,6 +1,7 @@
 import json
-import random
 import os
+import random
+
 
 
 CARS_FILE = "cars.json"
@@ -30,24 +31,23 @@ def load_cars():
             cars = json.load(file)
 
 
+
             if isinstance(cars, list):
 
                 return cars
 
 
-            return []
-
 
     except Exception as e:
 
         print(
-            "Ошибка cars.json:",
+            "Ошибка загрузки машин:",
             e
         )
 
 
-        return []
 
+    return []
 
 
 
@@ -58,38 +58,136 @@ def load_cars():
 
 def save_cars(cars):
 
-    try:
+    with open(
+        CARS_FILE,
+        "w",
+        encoding="utf-8"
+    ) as file:
 
-        with open(
-            CARS_FILE,
-            "w",
-            encoding="utf-8"
-        ) as file:
+        json.dump(
 
+            cars,
 
-            json.dump(
+            file,
 
-                cars,
+            ensure_ascii=False,
 
-                file,
-
-                ensure_ascii=False,
-
-                indent=4
-
-            )
-
-
-    except Exception as e:
-
-        print(
-
-            "Ошибка сохранения машин:",
-
-            e
+            indent=4
 
         )
 
+
+
+# =========================
+# РЕЙТИНГ
+# =========================
+
+
+RARITY_POINTS = {
+
+
+    "🔥 Mythic": 100,
+
+
+    "💎 Legendary": 80,
+
+
+    "🟣 Rare": 60,
+
+
+    "🔵 Rare": 50
+
+
+}
+
+
+
+def calculate_rating(car):
+
+
+    power = car.get(
+
+        "power",
+
+        0
+
+    )
+
+
+    speed = car.get(
+
+        "speed",
+
+        0
+
+    )
+
+
+    rarity = car.get(
+
+        "rarity",
+
+        ""
+
+    )
+
+
+
+    rarity_score = RARITY_POINTS.get(
+
+        rarity,
+
+        40
+
+    )
+
+
+
+    rating = (
+
+        power / 20
+
+        +
+
+        speed / 5
+
+        +
+
+        rarity_score
+
+    ) / 3
+
+
+
+    if rating > 100:
+
+        rating = 100
+
+
+
+    return round(
+        rating
+    )
+
+
+
+# =========================
+# ДОПОЛНИТЬ ДАННЫЕ
+# =========================
+
+
+def prepare_car(car):
+
+
+    if "rating" not in car:
+
+        car["rating"] = calculate_rating(
+            car
+        )
+
+
+
+    return car
 
 
 
@@ -108,21 +206,28 @@ def get_random_car():
         return None
 
 
-    return random.choice(
+
+    car = random.choice(
         cars
     )
 
 
+    return prepare_car(
+        car
+    )
+
 
 
 # =========================
-# ПОИСК МАШИНЫ
+# НАЙТИ МАШИНУ
 # =========================
 
 
 def get_car(name):
 
+
     cars = load_cars()
+
 
 
     for car in cars:
@@ -130,7 +235,10 @@ def get_car(name):
 
         if car.get("name") == name:
 
-            return car
+
+            return prepare_car(
+                car
+            )
 
 
 
@@ -138,25 +246,39 @@ def get_car(name):
 
 
 
+# =========================
+# ВСЕ МАШИНЫ
+# =========================
+
+
+def get_all_cars():
+
+    cars = load_cars()
+
+
+    return [
+
+        prepare_car(car)
+
+        for car in cars
+
+    ]
+
+
 
 # =========================
-# ДОБАВЛЕНИЕ МАШИНЫ
+# ДОБАВИТЬ НОВУЮ
 # =========================
 
 
 def add_new_car(car):
-
-    if not car:
-
-        return
-
 
 
     cars = load_cars()
 
 
     cars.append(
-        car
+        prepare_car(car)
     )
 
 
