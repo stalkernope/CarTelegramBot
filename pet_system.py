@@ -1,6 +1,6 @@
 import json
 import os
-import random
+
 
 
 
@@ -10,45 +10,83 @@ PET_FILE = "pets.json"
 
 
 # =========================
-# ПИТОМЦЫ
+# БАЗА ПИТОМЦЕВ
 # =========================
 
 
 PETS = [
 
     {
-        "name": "🐕 Гоночный пёс",
+
+        "id": "drift_dog",
+
+        "name": "🐺 Дрифт-пёс",
+
+        "rarity": "⚪ Common",
+
+        "bonus": {
+
+            "control": 10,
+
+            "critical": 5
+
+        }
+
+    },
+
+
+    {
+
+        "id": "speed_hawk",
+
+        "name": "🦅 Сокол скорости",
 
         "rarity": "🔵 Rare",
 
-        "bonus": 5
+        "bonus": {
+
+            "speed": 20
+
+        }
+
     },
 
 
     {
-        "name": "🐺 Волк трассы",
+
+        "id": "turbo_bot",
+
+        "name": "🤖 Турбо-бот",
 
         "rarity": "💎 Legendary",
 
-        "bonus": 10
+        "bonus": {
+
+            "power": 50
+
+        }
+
     },
 
 
     {
-        "name": "🦅 Орёл скорости",
 
-        "rarity": "💎 Legendary",
+        "id": "fire_dragon",
 
-        "bonus": 15
-    },
-
-
-    {
-        "name": "🐉 Дракон мотора",
+        "name": "🐉 Огненный дракон",
 
         "rarity": "🔥 Mythic",
 
-        "bonus": 30
+        "bonus": {
+
+            "power": 100,
+
+            "speed": 50,
+
+            "critical": 10
+
+        }
+
     }
 
 ]
@@ -63,23 +101,32 @@ PETS = [
 
 def load_pets():
 
+
     if not os.path.exists(PET_FILE):
 
         return {}
 
 
+
     try:
 
         with open(
+
             PET_FILE,
+
             "r",
+
             encoding="utf-8"
+
         ) as file:
+
 
             return json.load(file)
 
 
+
     except:
+
 
         return {}
 
@@ -93,11 +140,17 @@ def load_pets():
 
 def save_pets(data):
 
+
     with open(
+
         PET_FILE,
+
         "w",
+
         encoding="utf-8"
+
     ) as file:
+
 
         json.dump(
 
@@ -119,106 +172,15 @@ def save_pets(data):
 # =========================
 
 
-def get_player_pet(user_id):
+def add_pet(
 
-    data = load_pets()
-
-
-    uid = str(user_id)
-
-
-
-    if uid not in data:
-
-
-        data[uid] = {
-
-            "pet": None,
-
-            "level": 1,
-
-            "xp": 0
-
-        }
-
-
-        save_pets(data)
-
-
-
-    return data[uid]
-
-
-
-
-# =========================
-# ВЫПАДЕНИЕ ПИТОМЦА
-# =========================
-
-
-def open_pet_box(user_id):
-
-    data = load_pets()
-
-
-    uid = str(user_id)
-
-
-
-    pet = random.choice(
-
-        PETS
-
-    )
-
-
-
-    data[uid] = {
-
-        "pet":
-
-        pet["name"],
-
-        "rarity":
-
-        pet["rarity"],
-
-        "bonus":
-
-        pet["bonus"],
-
-        "level":
-
-        1,
-
-        "xp":
-
-        0
-
-    }
-
-
-
-    save_pets(
-        data
-    )
-
-
-    return pet
-
-
-
-
-# =========================
-# ОПЫТ ПИТОМЦА
-# =========================
-
-
-def add_pet_xp(
     user_id,
-    amount
+
+    pet_id
+
 ):
 
+
     data = load_pets()
 
 
@@ -228,75 +190,150 @@ def add_pet_xp(
 
     if uid not in data:
 
-        return
+
+        data[uid] = []
 
 
 
-    data[uid]["xp"] += amount
+    if pet_id not in data[uid]:
+
+
+        data[uid].append(
+
+            {
+
+                "id": pet_id,
+
+                "level": 1
+
+            }
+
+        )
+
+
+    save_pets(data)
 
 
 
-    need = (
-
-        data[uid]["level"]
-
-        *
-
-        100
-
-    )
+    return True
 
 
 
-    if data[uid]["xp"] >= need:
+
+# =========================
+# СПИСОК ИГРОКА
+# =========================
 
 
-        data[uid]["xp"] = 0
-
-        data[uid]["level"] += 1
+def get_player_pets(user_id):
 
 
-
-        data[uid]["bonus"] += 5
+    data = load_pets()
 
 
 
-    save_pets(
-        data
+    return data.get(
+
+        str(user_id),
+
+        []
+
     )
 
 
 
 
 # =========================
-# БОНУС
+# НАЙТИ ПИТОМЦА
 # =========================
 
 
-def pet_bonus(user_id):
+def get_pet(
 
-    pet = get_player_pet(
+    pet_id
+
+):
+
+
+    for pet in PETS:
+
+
+        if pet["id"] == pet_id:
+
+
+            return pet
+
+
+
+    return None
+
+
+
+
+# =========================
+# БОНУСЫ
+# =========================
+
+
+def get_pet_bonus(user_id):
+
+
+    pets = get_player_pets(
 
         user_id
 
     )
 
 
-    if not pet["pet"]:
+    bonus = {
 
-        return 0
+        "power": 0,
+
+        "speed": 0,
+
+        "critical": 0,
+
+        "control": 0
+
+    }
 
 
 
-    return (
+    for player_pet in pets:
 
-        pet["bonus"]
 
-        *
+        pet = get_pet(
 
-        pet["level"]
+            player_pet["id"]
 
-    )
+        )
+
+
+
+        if not pet:
+
+            continue
+
+
+
+        level = player_pet.get(
+
+            "level",
+
+            1
+
+        )
+
+
+
+        for key,value in pet["bonus"].items():
+
+
+            bonus[key] += value * level
+
+
+
+    return bonus
 
 
 
@@ -306,37 +343,62 @@ def pet_bonus(user_id):
 # =========================
 
 
-def pet_text(user_id):
+def pets_text(user_id):
 
-    pet = get_player_pet(
+
+    pets = get_player_pets(
 
         user_id
 
     )
 
 
-    if not pet["pet"]:
+    text = (
+
+        "🐾 <b>ПИТОМЦЫ</b>\n\n"
+
+    )
+
+
+
+    if not pets:
+
 
         return (
 
-            "🐾 У тебя нет питомца"
+            text +
+
+            "У тебя пока нет питомцев"
 
         )
 
 
 
-    return (
+    for player_pet in pets:
 
-        "🐾 <b>ПИТОМЕЦ</b>\n\n"
 
-        f"{pet['pet']}\n"
+        pet = get_pet(
 
-        f"💎 Редкость: {pet['rarity']}\n"
+            player_pet["id"]
 
-        f"⭐ Уровень: {pet['level']}\n"
+        )
 
-        f"✨ Опыт: {pet['xp']}\n"
 
-        f"🔥 Бонус: +{pet['bonus']}"
+        if pet:
 
-    )
+
+            text += (
+
+                f"{pet['name']}\n"
+
+                f"💎 {pet['rarity']}\n"
+
+                f"⭐ Уровень: "
+
+                f"{player_pet['level']}\n\n"
+
+            )
+
+
+
+    return text
