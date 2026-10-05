@@ -1,6 +1,6 @@
 import os
 import logging
-
+from server import keep_alive
 
 from telegram import (
     Update,
@@ -973,8 +973,9 @@ def main():
 
     )
 
+    keep_alive()
 
-    app.run_polling()
+      app.run_polling()
 
 
 
