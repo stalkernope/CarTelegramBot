@@ -69,8 +69,8 @@ def main_menu():
             ),
 
             InlineKeyboardButton(
-                "🔧 ТЮНИНГ",
-                callback_data="tuning"
+                "🌐 СОЦИАЛЬНОЕ",
+                callback_data="social"
             )
 
         ]
@@ -100,6 +100,56 @@ def garage_menu():
             InlineKeyboardButton(
                 "🚘 Мои машины",
                 callback_data="garage_select"
+            )
+
+        ],
+
+
+        [
+
+            InlineKeyboardButton(
+                "🔧 Тюнинг",
+                callback_data="tuning"
+            )
+
+        ],
+
+
+        [
+
+            InlineKeyboardButton(
+                "🐾 Питомцы",
+                callback_data="pets"
+            )
+
+        ],
+
+
+        [
+
+            InlineKeyboardButton(
+                "🎨 Скины",
+                callback_data="skins"
+            )
+
+        ],
+
+
+        [
+
+            InlineKeyboardButton(
+                "🧩 Детали",
+                callback_data="parts"
+            )
+
+        ],
+
+
+        [
+
+            InlineKeyboardButton(
+                "🏠 Расширить гараж",
+                callback_data="garage_upgrade"
             )
 
         ],
@@ -145,7 +195,7 @@ def garage_cars_menu(cars):
 
                 InlineKeyboardButton(
 
-                    f"{car['name']}",
+                    car["name"],
 
                     callback_data=
 
@@ -246,53 +296,6 @@ def car_card_menu(car_id):
 
 
 # =========================
-# ПРОКАЧКА
-# =========================
-
-
-def upgrade_menu(car_id):
-
-
-    keyboard = [
-
-        [
-
-            InlineKeyboardButton(
-
-                "🔧 Улучшить",
-
-                callback_data=
-
-                f"upgrade_{car_id}"
-
-            )
-
-        ],
-
-
-        [
-
-            InlineKeyboardButton(
-
-                "⬅️ Назад",
-
-                callback_data=f"car_{car_id}"
-
-            )
-
-        ]
-
-    ]
-
-
-    return InlineKeyboardMarkup(
-        keyboard
-    )
-
-
-
-
-# =========================
 # ГОНКИ
 # =========================
 
@@ -315,7 +318,7 @@ def race_menu():
         [
 
             InlineKeyboardButton(
-                "👑 БОСС",
+                "👑 БОССЫ",
                 callback_data="boss"
             )
 
@@ -325,8 +328,8 @@ def race_menu():
         [
 
             InlineKeyboardButton(
-                "🌎 ОНЛАЙН",
-                callback_data="online"
+                "🌎 PvP",
+                callback_data="pvp"
             )
 
         ],
@@ -335,8 +338,18 @@ def race_menu():
         [
 
             InlineKeyboardButton(
-                "🏆 ЧЕМПИОНАТ",
+                "🏆 Чемпионаты",
                 callback_data="championship"
+            )
+
+        ],
+
+
+        [
+
+            InlineKeyboardButton(
+                "🔥 Сезоны",
+                callback_data="seasons"
             )
 
         ],
@@ -374,11 +387,107 @@ def profile_menu():
         [
 
             InlineKeyboardButton(
+                "📊 Статистика",
+                callback_data="stats"
+            )
 
+        ],
+
+
+        [
+
+            InlineKeyboardButton(
+                "🏆 Достижения",
+                callback_data="achievements"
+            )
+
+        ],
+
+
+        [
+
+            InlineKeyboardButton(
+                "🎖 Титулы",
+                callback_data="titles"
+            )
+
+        ],
+
+
+        [
+
+            InlineKeyboardButton(
+                "📜 История",
+                callback_data="history"
+            )
+
+        ],
+
+
+        [
+
+            InlineKeyboardButton(
                 "⬅️ Назад",
-
                 callback_data="back"
+            )
 
+        ]
+
+    ]
+
+
+    return InlineKeyboardMarkup(
+        keyboard
+    )
+
+
+
+
+# =========================
+# КАРЬЕРА
+# =========================
+
+
+def career_menu():
+
+
+    keyboard = [
+
+        [
+
+            InlineKeyboardButton(
+                "⭐ Уровень",
+                callback_data="level"
+            )
+
+        ],
+
+
+        [
+
+            InlineKeyboardButton(
+                "🎁 Награды",
+                callback_data="rewards"
+            )
+
+        ],
+
+
+        [
+
+            InlineKeyboardButton(
+                "🎫 Боевой пропуск",
+                callback_data="battle_pass"
+            )
+
+        ],
+
+
+        [
+
+            InlineKeyboardButton(
+                "⬅️ Назад",
+                callback_data="back"
             )
 
         ]
@@ -406,11 +515,8 @@ def cases_menu():
         [
 
             InlineKeyboardButton(
-
                 "📦 Обычный кейс",
-
                 callback_data="open_normal_case"
-
             )
 
         ],
@@ -419,11 +525,28 @@ def cases_menu():
         [
 
             InlineKeyboardButton(
+                "💎 Премиум",
+                callback_data="premium_case"
+            )
 
+        ],
+
+
+        [
+
+            InlineKeyboardButton(
+                "🔥 Легендарный",
+                callback_data="legend_case"
+            )
+
+        ],
+
+
+        [
+
+            InlineKeyboardButton(
                 "⬅️ Назад",
-
                 callback_data="back"
-
             )
 
         ]
@@ -451,11 +574,8 @@ def shop_menu():
         [
 
             InlineKeyboardButton(
-
-                "🚗 Honda Civic",
-
-                callback_data="buy_honda"
-
+                "🚗 Купить машину",
+                callback_data="buy_car"
             )
 
         ],
@@ -464,11 +584,8 @@ def shop_menu():
         [
 
             InlineKeyboardButton(
-
-                "🏎 BMW M3",
-
-                callback_data="buy_bmw"
-
+                "💎 Эксклюзивы",
+                callback_data="exclusive"
             )
 
         ],
@@ -477,11 +594,8 @@ def shop_menu():
         [
 
             InlineKeyboardButton(
-
-                "🔥 Supra MK5",
-
-                callback_data="buy_supra"
-
+                "🔄 Рынок",
+                callback_data="market"
             )
 
         ],
@@ -490,11 +604,8 @@ def shop_menu():
         [
 
             InlineKeyboardButton(
-
-                "👑 Bugatti X",
-
-                callback_data="buy_bugatti"
-
+                "🔥 Машина дня",
+                callback_data="daily_car"
             )
 
         ],
@@ -503,11 +614,8 @@ def shop_menu():
         [
 
             InlineKeyboardButton(
-
                 "⬅️ Назад",
-
                 callback_data="back"
-
             )
 
         ]
@@ -535,11 +643,18 @@ def clan_menu():
         [
 
             InlineKeyboardButton(
+                "🏰 Мой клан",
+                callback_data="my_clan"
+            )
 
-                "⚔️ Война",
+        ],
 
+
+        [
+
+            InlineKeyboardButton(
+                "⚔️ Война кланов",
                 callback_data="clan_war"
-
             )
 
         ],
@@ -548,11 +663,8 @@ def clan_menu():
         [
 
             InlineKeyboardButton(
-
-                "👥 Участники",
-
-                callback_data="clan_members"
-
+                "🏆 Рейтинг",
+                callback_data="clan_rating"
             )
 
         ],
@@ -561,11 +673,67 @@ def clan_menu():
         [
 
             InlineKeyboardButton(
-
                 "⬅️ Назад",
-
                 callback_data="back"
+            )
 
+        ]
+
+    ]
+
+
+    return InlineKeyboardMarkup(
+        keyboard
+    )
+
+
+
+
+# =========================
+# СОЦИАЛЬНОЕ
+# =========================
+
+
+def social_menu():
+
+
+    keyboard = [
+
+        [
+
+            InlineKeyboardButton(
+                "👥 Друзья",
+                callback_data="friends"
+            )
+
+        ],
+
+
+        [
+
+            InlineKeyboardButton(
+                "🎁 Рефералы",
+                callback_data="referrals"
+            )
+
+        ],
+
+
+        [
+
+            InlineKeyboardButton(
+                "🏆 Рейтинг игроков",
+                callback_data="players_rating"
+            )
+
+        ],
+
+
+        [
+
+            InlineKeyboardButton(
+                "⬅️ Назад",
+                callback_data="back"
             )
 
         ]
