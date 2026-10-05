@@ -13,17 +13,18 @@ from telegram import (
 
 def main_menu():
 
+
     keyboard = [
 
         [
 
             InlineKeyboardButton(
-                "🚗 Гараж",
+                "🚗 ГАРАЖ",
                 callback_data="garage"
             ),
 
             InlineKeyboardButton(
-                "🏁 Гонки",
+                "🏁 ГОНКИ",
                 callback_data="race"
             )
 
@@ -33,12 +34,12 @@ def main_menu():
         [
 
             InlineKeyboardButton(
-                "👤 Профиль",
-                callback_data="profile"
+                "🛒 АВТОСАЛОН",
+                callback_data="shop"
             ),
 
             InlineKeyboardButton(
-                "🎁 Кейсы",
+                "🎁 КЕЙСЫ",
                 callback_data="cases"
             )
 
@@ -48,8 +49,13 @@ def main_menu():
         [
 
             InlineKeyboardButton(
-                "🛒 Автосалон",
-                callback_data="shop"
+                "👤 ПРОФИЛЬ",
+                callback_data="profile"
+            ),
+
+            InlineKeyboardButton(
+                "🏆 КАРЬЕРА",
+                callback_data="career"
             )
 
         ],
@@ -58,8 +64,13 @@ def main_menu():
         [
 
             InlineKeyboardButton(
-                "⚔️ Клан",
+                "⚔️ КЛАН",
                 callback_data="clan"
+            ),
+
+            InlineKeyboardButton(
+                "🔧 ТЮНИНГ",
+                callback_data="tuning"
             )
 
         ]
@@ -68,7 +79,9 @@ def main_menu():
 
 
     return InlineKeyboardMarkup(
+
         keyboard
+
     )
 
 
@@ -87,8 +100,18 @@ def garage_menu():
         [
 
             InlineKeyboardButton(
-                "👑 Выбрать главную машину",
+                "🚘 Мои машины",
                 callback_data="garage_select"
+            )
+
+        ],
+
+
+        [
+
+            InlineKeyboardButton(
+                "🔧 Улучшения",
+                callback_data="tuning"
             )
 
         ],
@@ -107,14 +130,16 @@ def garage_menu():
 
 
     return InlineKeyboardMarkup(
+
         keyboard
+
     )
 
 
 
 
 # =========================
-# СПИСОК МАШИН
+# ВЫБОР МАШИНЫ
 # =========================
 
 
@@ -122,7 +147,6 @@ def garage_cars_menu(cars):
 
 
     keyboard = []
-
 
 
     for car in cars:
@@ -153,7 +177,7 @@ def garage_cars_menu(cars):
 
                 InlineKeyboardButton(
 
-                    f"🔧 Улучшить {car['name']}",
+                    f"🔧 Улучшить",
 
                     callback_data=
 
@@ -185,52 +209,9 @@ def garage_cars_menu(cars):
 
 
     return InlineKeyboardMarkup(
+
         keyboard
-    )
 
-
-
-
-# =========================
-# ПРОКАЧКА
-# =========================
-
-
-def upgrade_menu(car_id):
-
-
-    keyboard = [
-
-        [
-
-            InlineKeyboardButton(
-
-                "🔧 Улучшить",
-
-                callback_data=f"upgrade_{car_id}"
-
-            )
-
-        ],
-
-
-        [
-
-            InlineKeyboardButton(
-
-                "⬅️ Назад",
-
-                callback_data="garage"
-
-            )
-
-        ]
-
-    ]
-
-
-    return InlineKeyboardMarkup(
-        keyboard
     )
 
 
@@ -259,8 +240,28 @@ def race_menu():
         [
 
             InlineKeyboardButton(
-                "👑 Босс",
+                "👑 БОСС",
                 callback_data="boss"
+            )
+
+        ],
+
+
+        [
+
+            InlineKeyboardButton(
+                "🌎 Онлайн",
+                callback_data="online"
+            )
+
+        ],
+
+
+        [
+
+            InlineKeyboardButton(
+                "🏆 Чемпионат",
+                callback_data="championship"
             )
 
         ],
@@ -279,7 +280,9 @@ def race_menu():
 
 
     return InlineKeyboardMarkup(
+
         keyboard
+
     )
 
 
@@ -298,8 +301,11 @@ def profile_menu():
         [
 
             InlineKeyboardButton(
+
                 "⬅️ Назад",
+
                 callback_data="back"
+
             )
 
         ]
@@ -308,46 +314,9 @@ def profile_menu():
 
 
     return InlineKeyboardMarkup(
+
         keyboard
-    )
 
-
-
-
-# =========================
-# КЛАН
-# =========================
-
-
-def clan_menu():
-
-
-    keyboard = [
-
-        [
-
-            InlineKeyboardButton(
-                "⚔️ Война",
-                callback_data="clan_war"
-            )
-
-        ],
-
-
-        [
-
-            InlineKeyboardButton(
-                "⬅️ Назад",
-                callback_data="back"
-            )
-
-        ]
-
-    ]
-
-
-    return InlineKeyboardMarkup(
-        keyboard
     )
 
 
@@ -366,8 +335,11 @@ def cases_menu():
         [
 
             InlineKeyboardButton(
-                "📦 Открыть обычный",
+
+                "📦 Обычный кейс",
+
                 callback_data="open_normal_case"
+
             )
 
         ],
@@ -376,8 +348,11 @@ def cases_menu():
         [
 
             InlineKeyboardButton(
+
                 "⬅️ Назад",
+
                 callback_data="back"
+
             )
 
         ]
@@ -386,7 +361,9 @@ def cases_menu():
 
 
     return InlineKeyboardMarkup(
+
         keyboard
+
     )
 
 
@@ -405,8 +382,11 @@ def shop_menu():
         [
 
             InlineKeyboardButton(
+
                 "🚗 Honda Civic",
+
                 callback_data="buy_honda"
+
             )
 
         ],
@@ -415,8 +395,11 @@ def shop_menu():
         [
 
             InlineKeyboardButton(
+
                 "🏎 BMW M3",
+
                 callback_data="buy_bmw"
+
             )
 
         ],
@@ -425,8 +408,11 @@ def shop_menu():
         [
 
             InlineKeyboardButton(
+
                 "🔥 Supra MK5",
+
                 callback_data="buy_supra"
+
             )
 
         ],
@@ -435,8 +421,11 @@ def shop_menu():
         [
 
             InlineKeyboardButton(
+
                 "👑 Bugatti X",
+
                 callback_data="buy_bugatti"
+
             )
 
         ],
@@ -445,8 +434,11 @@ def shop_menu():
         [
 
             InlineKeyboardButton(
+
                 "⬅️ Назад",
+
                 callback_data="back"
+
             )
 
         ]
@@ -455,5 +447,67 @@ def shop_menu():
 
 
     return InlineKeyboardMarkup(
+
         keyboard
+
+    )
+
+
+
+
+# =========================
+# КЛАН
+# =========================
+
+
+def clan_menu():
+
+
+    keyboard = [
+
+        [
+
+            InlineKeyboardButton(
+
+                "⚔️ Война",
+
+                callback_data="clan_war"
+
+            )
+
+        ],
+
+
+        [
+
+            InlineKeyboardButton(
+
+                "👥 Участники",
+
+                callback_data="clan_members"
+
+            )
+
+        ],
+
+
+        [
+
+            InlineKeyboardButton(
+
+                "⬅️ Назад",
+
+                callback_data="back"
+
+            )
+
+        ]
+
+    ]
+
+
+    return InlineKeyboardMarkup(
+
+        keyboard
+
     )
