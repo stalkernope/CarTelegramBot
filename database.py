@@ -5,28 +5,37 @@ import os
 DATABASE_FILE = "players.json"
 
 
+DEFAULT_PLAYER = {
 
-# =========================
-# СОЗДАНИЕ БАЗЫ
-# =========================
+    "coins": 1000,
 
+    "level": 1,
 
-def create_database():
+    "xp": 0,
 
-    if not os.path.exists(DATABASE_FILE):
+    "rep": 0,
 
-        with open(
-            DATABASE_FILE,
-            "w",
-            encoding="utf-8"
-        ) as file:
+    "title": "Новичок",
 
-            json.dump(
-                {},
-                file,
-                ensure_ascii=False,
-                indent=4
-            )
+    "league": "🥉 Bronze",
+
+    "wins": 0,
+
+    "losses": 0,
+
+    "win_streak": 0,
+
+    "best_streak": 0,
+
+    "garage": [],
+
+    "main_car": None,
+
+    "achievements": [],
+
+    "created": ""
+
+}
 
 
 
@@ -37,7 +46,10 @@ def create_database():
 
 def load_database():
 
-    create_database()
+    if not os.path.exists(DATABASE_FILE):
+
+        return {}
+
 
     try:
 
@@ -47,12 +59,24 @@ def load_database():
             encoding="utf-8"
         ) as file:
 
-            return json.load(file)
+            data = json.load(file)
 
 
-    except Exception:
+            if isinstance(data, dict):
 
-        return {}
+                return data
+
+
+    except Exception as e:
+
+        print(
+            "Ошибка базы:",
+            e
+        )
+
+
+    return {}
+
 
 
 
@@ -70,49 +94,22 @@ def save_database(data):
     ) as file:
 
         json.dump(
+
             data,
+
             file,
+
             ensure_ascii=False,
+
             indent=4
+
         )
 
 
 
-# =========================
-# НОВЫЙ ИГРОК
-# =========================
-
-
-def create_player():
-
-    return {
-
-        "level": 1,
-
-        "xp": 0,
-
-        "coins": 1000,
-
-        "garage": [],
-
-        "wins": 0,
-
-        "losses": 0,
-
-        "title": "🚗 Новичок",
-
-        "daily_streak": 0,
-
-        "last_daily": "",
-
-        "collection_value": 0
-
-    }
-
-
 
 # =========================
-# ПОЛУЧИТЬ ИГРОКА
+# ПОЛУЧЕНИЕ ИГРОКА
 # =========================
 
 
@@ -120,19 +117,50 @@ def get_player(user_id):
 
     data = load_database()
 
+
     uid = str(user_id)
 
 
 
     if uid not in data:
 
-        data[uid] = create_player()
 
-        save_database(data)
+        data[uid] = DEFAULT_PLAYER.copy()
+
+
+        save_database(
+            data
+        )
+
+
+    else:
+
+
+        # добавляем новые поля старым игрокам
+
+        changed = False
+
+
+        for key, value in DEFAULT_PLAYER.items():
+
+            if key not in data[uid]:
+
+                data[uid][key] = value
+
+                changed = True
+
+
+
+        if changed:
+
+            save_database(
+                data
+            )
 
 
 
     return data[uid]
+
 
 
 
@@ -148,40 +176,82 @@ def update_player(
 
     data = load_database()
 
+
     data[str(user_id)] = player
 
-    save_database(data)
+
+    save_database(
+        data
+    )
+
 
 
 
 # =========================
-# ТИТУЛЫ
+# ДОБАВИТЬ МАШИНУ
 # =========================
 
 
-def get_title(level):
+def add_car(
+    user_id,
+    car_name
+):
 
-    if level >= 50:
-
-        return "👑 Автомобильный Бог"
-
-
-    if level >= 25:
-
-        return "🔥 Легенда дорог"
+    player = get_player(
+        user_id
+    )
 
 
-    if level >= 10:
+    if car_name not in player["garage"]:
 
-        return "💎 Коллекционер"
-
-
-    if level >= 5:
-
-        return "🏆 Опытный владелец"
+        player["garage"].append(
+            car_name
+        )
 
 
-    return "🚗 Новичок"
+    if player["main_car"] is None:
+
+        player["main_car"] = car_name
+
+
+
+    update_player(
+
+        user_id,
+
+        player
+
+    )
+
+
+
+
+# =========================
+# МОНЕТЫ
+# =========================
+
+
+def add_coins(
+    user_id,
+    amount
+):
+
+    player = get_player(
+        user_id
+    )
+
+
+    player["coins"] += amount
+
+
+    update_player(
+
+        user_id,
+
+        player
+
+    )
+
 
 
 
@@ -204,23 +274,16 @@ def add_xp(
 
 
 
-    while player["xp"] >= player["level"] * 200:
+    need = player["level"] * 1000
 
 
-        player["xp"] -= player["level"] * 200
+
+    if player["xp"] >= need:
+
+        player["xp"] -= need
 
         player["level"] += 1
 
-        player["coins"] += 500
-
-
-
-    player["title"] = get_title(
-
-        player["level"]
-
-    )
-
 
 
     update_player(
@@ -231,113 +294,6 @@ def add_xp(
 
     )
 
-
-
-# =========================
-# МОНЕТЫ
-# =========================
-
-
-def add_coins(
-    user_id,
-    amount
-):
-
-    player = get_player(
-        user_id
-    )
-
-
-    player["coins"] += amount
-
-
-
-    if player["coins"] < 0:
-
-        player["coins"] = 0
-
-
-
-    update_player(
-
-        user_id,
-
-        player
-
-    )
-
-
-
-# =========================
-# ДОБАВИТЬ МАШИНУ
-# =========================
-
-
-def add_car(
-    user_id,
-    car_name
-):
-
-    player = get_player(
-        user_id
-    )
-
-
-    if isinstance(car_name, dict):
-
-        car_name = car_name.get(
-            "name"
-        )
-
-
-
-    if not car_name:
-
-        return
-
-
-
-    if car_name not in player["garage"]:
-
-
-        player["garage"].append(
-            car_name
-        )
-
-
-        add_xp(
-            user_id,
-            50
-        )
-
-
-
-    update_player(
-
-        user_id,
-
-        player
-
-    )
-
-
-
-# =========================
-# ПРОВЕРКА МАШИНЫ
-# =========================
-
-
-def has_car(
-    user_id,
-    car_name
-):
-
-    player = get_player(
-        user_id
-    )
-
-
-    return car_name in player["garage"]
 
 
 
@@ -357,7 +313,23 @@ def add_win(
 
     player["wins"] += 1
 
-    player["coins"] += 200
+    player["win_streak"] += 1
+
+
+
+    if player["win_streak"] > player["best_streak"]:
+
+        player["best_streak"] = player["win_streak"]
+
+
+
+    player["rep"] += 50
+
+
+    add_xp(
+        user_id,
+        200
+    )
 
 
 
@@ -369,14 +341,6 @@ def add_win(
 
     )
 
-
-    add_xp(
-
-        user_id,
-
-        100
-
-    )
 
 
 
@@ -396,6 +360,7 @@ def add_loss(
 
     player["losses"] += 1
 
+    player["win_streak"] = 0
 
 
     update_player(
