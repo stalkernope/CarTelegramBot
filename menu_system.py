@@ -68,9 +68,7 @@ def main_menu():
 
 
     return InlineKeyboardMarkup(
-
         keyboard
-
     )
 
 
@@ -109,9 +107,7 @@ def garage_menu():
 
 
     return InlineKeyboardMarkup(
-
         keyboard
-
     )
 
 
@@ -160,9 +156,7 @@ def race_menu():
 
 
     return InlineKeyboardMarkup(
-
         keyboard
-
     )
 
 
@@ -191,9 +185,7 @@ def profile_menu():
 
 
     return InlineKeyboardMarkup(
-
         keyboard
-
     )
 
 
@@ -232,9 +224,7 @@ def clan_menu():
 
 
     return InlineKeyboardMarkup(
-
         keyboard
-
     )
 
 
@@ -273,9 +263,7 @@ def cases_menu():
 
 
     return InlineKeyboardMarkup(
-
         keyboard
-
     )
 
 
@@ -294,8 +282,38 @@ def shop_menu():
         [
 
             InlineKeyboardButton(
-                "🚗 Купить машину",
-                callback_data="buy_car"
+                "🚗 Honda Civic",
+                callback_data="buy_honda"
+            )
+
+        ],
+
+
+        [
+
+            InlineKeyboardButton(
+                "🏎 BMW M3",
+                callback_data="buy_bmw"
+            )
+
+        ],
+
+
+        [
+
+            InlineKeyboardButton(
+                "🔥 Supra MK5",
+                callback_data="buy_supra"
+            )
+
+        ],
+
+
+        [
+
+            InlineKeyboardButton(
+                "👑 Bugatti X",
+                callback_data="buy_bugatti"
             )
 
         ],
@@ -314,7 +332,5 @@ def shop_menu():
 
 
     return InlineKeyboardMarkup(
-
         keyboard
-
     )
