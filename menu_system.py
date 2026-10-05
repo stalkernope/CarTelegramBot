@@ -5,13 +5,13 @@ from telegram import (
 
 
 
+
 # =========================
 # ГЛАВНОЕ МЕНЮ
 # =========================
 
 
 def main_menu():
-
 
     keyboard = [
 
@@ -87,8 +87,8 @@ def garage_menu():
         [
 
             InlineKeyboardButton(
-                "🚗 Машины",
-                callback_data="cars"
+                "👑 Выбрать главную машину",
+                callback_data="garage_select"
             )
 
         ],
@@ -108,6 +108,67 @@ def garage_menu():
 
     return InlineKeyboardMarkup(
         keyboard
+    )
+
+
+
+
+# =========================
+# ВЫБОР МАШИНЫ
+# =========================
+
+
+def garage_cars_menu(cars):
+
+
+    keyboard = []
+
+
+
+    for car in cars:
+
+
+        keyboard.append(
+
+            [
+
+                InlineKeyboardButton(
+
+                    f"👑 {car['name']}",
+
+                    callback_data=
+
+                    f"set_main_{car['id']}"
+
+                )
+
+            ]
+
+        )
+
+
+
+    keyboard.append(
+
+        [
+
+            InlineKeyboardButton(
+
+                "⬅️ Назад",
+
+                callback_data="garage"
+
+            )
+
+        ]
+
+    )
+
+
+    return InlineKeyboardMarkup(
+
+        keyboard
+
     )
 
 
