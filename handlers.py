@@ -1,4 +1,4 @@
-from telegram import Update
+эfrom telegram import Update
 from telegram.ext import (
     ContextTypes,
     CommandHandler,
@@ -110,7 +110,6 @@ def rewards_text(reward):
     text = ""
 
 
-
     if reward.get("missions"):
 
 
@@ -142,7 +141,6 @@ def rewards_text(reward):
                 f"🏅 {achievement['name']}\n"
 
             )
-
 
 
     return text
@@ -254,29 +252,130 @@ async def buttons(
 
 
 
-    # ПОКУПКА
+    # =====================
+    # ПОКУПКА МАШИН
+    # =====================
 
-    elif action == "buy_car":
+
+    elif action.startswith("buy_"):
+
+
+        cars = {
+
+            "buy_honda":
+            "🚗 Honda Civic",
+
+
+            "buy_bmw":
+            "🏎 BMW M3",
+
+
+            "buy_supra":
+            "🔥 Supra MK5",
+
+
+            "buy_bugatti":
+            "👑 Bugatti X"
+
+        }
+
+
+        car_name = cars.get(
+            action
+        )
+
+
+
+        if not car_name:
+
+
+            await query.edit_message_text(
+
+                "❌ Машина не найдена",
+
+                reply_markup=main_menu()
+
+            )
+
+            return
+
+
+
+        player = get_player(
+
+            user_id
+
+        )
+
+
+
+        result = buy_shop_car(
+
+            user_id,
+
+            player,
+
+            car_name
+
+        )
+
+
+
+        if result:
+
+
+            update_player(
+
+                user_id,
+
+                player
+
+            )
+
+
+            text = (
+
+                "🛒 <b>ПОКУПКА УСПЕШНА!</b>\n\n"
+
+                f"🚗 {car_name}\n\n"
+
+                f"💰 Осталось денег: "
+
+                f"{player.get('coins',0)}\n\n"
+
+                "✅ Машина добавлена в гараж"
+
+            )
+
+
+        else:
+
+
+            text = (
+
+                "❌ <b>Покупка невозможна</b>\n\n"
+
+                "Возможно:\n"
+
+                "• не хватает денег\n"
+
+                "• машина уже есть"
+
+            )
+
 
 
         await query.edit_message_text(
 
-            "🚗 Напиши название машины для покупки\n\n"
-
-            "Пример:\n"
-
-            "🔥 Supra MK5",
+            text,
 
             reply_markup=main_menu(),
 
             parse_mode="HTML"
 
         )
-
-
-
-
-    # =====================
+        
+            # =====================
     # NPC
     # =====================
 
@@ -343,9 +442,10 @@ async def buttons(
             )
 
             return
-            
-            
-                    result = battle(
+
+
+
+        result = battle(
 
             player_car,
 
@@ -385,7 +485,6 @@ async def buttons(
                 reward
 
             )
-
 
 
         else:
