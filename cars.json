@@ -12,7 +12,6 @@
         "photo": "",
         "description": "Легендарная японская машина, ставшая иконой тюнинга."
     },
-
     {
         "name": "Nissan Skyline GT-R R34",
         "brand": "Nissan",
@@ -26,7 +25,6 @@
         "photo": "",
         "description": "Один из самых известных японских автомобилей в истории."
     },
-
     {
         "name": "Honda NSX Type R",
         "brand": "Honda",
@@ -40,7 +38,6 @@
         "photo": "",
         "description": "Японский суперкар с идеальной управляемостью."
     },
-
     {
         "name": "Mazda RX-7 FD",
         "brand": "Mazda",
@@ -54,7 +51,6 @@
         "photo": "",
         "description": "Легендарный роторный спорткар."
     },
-
     {
         "name": "Subaru Impreza WRX STI",
         "brand": "Subaru",
@@ -68,7 +64,6 @@
         "photo": "",
         "description": "Один из символов раллийной культуры."
     },
-
     {
         "name": "Mitsubishi Lancer Evolution IX",
         "brand": "Mitsubishi",
@@ -82,7 +77,6 @@
         "photo": "",
         "description": "Легендарный автомобиль для дорог и трасс."
     },
-
     {
         "name": "BMW M3 E46",
         "brand": "BMW",
@@ -96,7 +90,6 @@
         "photo": "",
         "description": "Один из лучших BMW M в истории."
     },
-
     {
         "name": "Audi R8 V10",
         "brand": "Audi",
@@ -110,7 +103,6 @@
         "photo": "",
         "description": "Немецкий суперкар с атмосферным V10."
     },
-
     {
         "name": "Mercedes-AMG GT Black Series",
         "brand": "Mercedes",
@@ -124,7 +116,6 @@
         "photo": "",
         "description": "Экстремальная версия AMG GT."
     },
-
     {
         "name": "Porsche 918 Spyder",
         "brand": "Porsche",
@@ -136,10 +127,9 @@
         "rarity": "🔥 Mythic",
         "type": "Гибридный гиперкар",
         "photo": "",
-        "description": "Один из священной тройки гибридных гиперкаров."
+        "description": "Один из самых известных гибридных гиперкаров."
     },
-    
-        {
+    {
         "name": "Ferrari 488 Pista",
         "brand": "Ferrari",
         "country": "Italy",
@@ -152,7 +142,6 @@
         "photo": "",
         "description": "Трековая версия Ferrari 488 с максимальной динамикой."
     },
-
     {
         "name": "Ferrari SF90 Stradale",
         "brand": "Ferrari",
@@ -166,7 +155,6 @@
         "photo": "",
         "description": "Один из самых мощных серийных Ferrari."
     },
-
     {
         "name": "Lamborghini Huracan STO",
         "brand": "Lamborghini",
@@ -178,9 +166,8 @@
         "rarity": "💎 Legendary",
         "type": "Трековый суперкар",
         "photo": "",
-        "description": "Гоночная технология Lamborghini для дорог."
+        "description": "Гоночные технологии Lamborghini для дорог."
     },
-
     {
         "name": "Lamborghini Revuelto",
         "brand": "Lamborghini",
@@ -194,7 +181,6 @@
         "photo": "",
         "description": "Новая эра Lamborghini с V12 и электромоторами."
     },
-
     {
         "name": "McLaren 765LT",
         "brand": "McLaren",
@@ -208,7 +194,6 @@
         "photo": "",
         "description": "Лёгкий и быстрый McLaren для трассы."
     },
-
     {
         "name": "McLaren P1",
         "brand": "McLaren",
@@ -222,7 +207,6 @@
         "photo": "",
         "description": "Легенда гибридной эпохи McLaren."
     },
-
     {
         "name": "Aston Martin DBS Superleggera",
         "brand": "Aston Martin",
@@ -236,7 +220,6 @@
         "photo": "",
         "description": "Роскошный британский автомобиль с огромной мощностью."
     },
-
     {
         "name": "Lotus Evija",
         "brand": "Lotus",
@@ -250,7 +233,6 @@
         "photo": "",
         "description": "Один из самых мощных электромобилей мира."
     },
-
     {
         "name": "Chevrolet Corvette Z06",
         "brand": "Chevrolet",
@@ -264,7 +246,6 @@
         "photo": "",
         "description": "Американский спорткар с гоночным характером."
     },
-
     {
         "name": "Ford Mustang Shelby GT500",
         "brand": "Ford",
@@ -278,7 +259,6 @@
         "photo": "",
         "description": "Один из самых мощных Mustang."
     },
-
     {
         "name": "Bugatti Veyron Super Sport",
         "brand": "Bugatti",
@@ -292,7 +272,6 @@
         "photo": "",
         "description": "Легендарный гиперкар, бывший рекордсмен скорости."
     },
-
     {
         "name": "Bugatti Divo",
         "brand": "Bugatti",
@@ -306,22 +285,7 @@
         "photo": "",
         "description": "Очень редкий Bugatti с улучшенной аэродинамикой."
     },
-
     {
-        "name": "Bugatti Mistral",
-        "brand": "Bugatti",
-        "country": "France",
-        "year": 2024,
-        "power": 1600,
-        "speed": 420,
-        "price": 6000000,
-        "rarity": "🔥 Mythic",
-        "type": "Роудстер",
-        "photo": "",
-        "description": "Последний Bugatti с легендарным W16."
-    },
-    
-        {
         "name": "Koenigsegg Agera RS",
         "brand": "Koenigsegg",
         "country": "Sweden",
@@ -334,7 +298,6 @@
         "photo": "",
         "description": "Один из самых быстрых автомобилей своего времени."
     },
-
     {
         "name": "Koenigsegg Regera",
         "brand": "Koenigsegg",
@@ -346,9 +309,8 @@
         "rarity": "🔥 Mythic",
         "type": "Гибридный гиперкар",
         "photo": "",
-        "description": "Гиперкар с уникальной трансмиссией Direct Drive."
+        "description": "Гиперкар с уникальной системой Direct Drive."
     },
-
     {
         "name": "Pagani Zonda F",
         "brand": "Pagani",
@@ -362,7 +324,6 @@
         "photo": "",
         "description": "Один из самых культовых Pagani."
     },
-
     {
         "name": "Pagani Utopia",
         "brand": "Pagani",
@@ -376,21 +337,19 @@
         "photo": "",
         "description": "Новейшая модель Pagani ручной сборки."
     },
-
     {
-        "name": "Rimac Concept Two",
+        "name": "Rimac Nevera",
         "brand": "Rimac",
         "country": "Croatia",
-        "year": 2020,
+        "year": 2022,
         "power": 1914,
         "speed": 412,
         "price": 2200000,
         "rarity": "🔥 Mythic",
         "type": "Электрический гиперкар",
         "photo": "",
-        "description": "Предшественник легендарного Rimac Nevera."
+        "description": "Один из самых быстрых электромобилей мира."
     },
-
     {
         "name": "Tesla Roadster 2.0",
         "brand": "Tesla",
@@ -404,7 +363,6 @@
         "photo": "",
         "description": "Электромобиль с заявкой на рекорды."
     },
-
     {
         "name": "Nissan GT-R Nismo",
         "brand": "Nissan",
@@ -418,7 +376,6 @@
         "photo": "",
         "description": "Самый мощный серийный GT-R."
     },
-
     {
         "name": "BMW M5 CS",
         "brand": "BMW",
@@ -432,63 +389,6 @@
         "photo": "",
         "description": "Самый мощный серийный BMW M."
     },
-
-    {
-        "name": "BMW XM Label Red",
-        "brand": "BMW",
-        "country": "Germany",
-        "year": 2024,
-        "power": 748,
-        "speed": 290,
-        "price": 160000,
-        "rarity": "💎 Legendary",
-        "type": "Спортивный SUV",
-        "photo": "",
-        "description": "Самый мощный SUV BMW."
-    },
-
-    {
-        "name": "Mercedes-AMG GT 63 S",
-        "brand": "Mercedes",
-        "country": "Germany",
-        "year": 2024,
-        "power": 843,
-        "speed": 315,
-        "price": 200000,
-        "rarity": "💎 Legendary",
-        "type": "Гран Туризмо",
-        "photo": "",
-        "description": "Мощный AMG с характером суперкара."
-    },
-
-    {
-        "name": "Mercedes-Benz SLS AMG",
-        "brand": "Mercedes",
-        "country": "Germany",
-        "year": 2012,
-        "power": 571,
-        "speed": 317,
-        "price": 250000,
-        "rarity": "💎 Legendary",
-        "type": "Классический суперкар",
-        "photo": "",
-        "description": "Легендарный Mercedes с дверями-крыльями."
-    },
-
-    {
-        "name": "Audi RS7 Performance",
-        "brand": "Audi",
-        "country": "Germany",
-        "year": 2024,
-        "power": 630,
-        "speed": 305,
-        "price": 150000,
-        "rarity": "🔵 Rare",
-        "type": "Спортбек",
-        "photo": "",
-        "description": "Быстрый и роскошный Audi."
-    },
-
     {
         "name": "Lexus LFA",
         "brand": "Lexus",
@@ -502,7 +402,6 @@
         "photo": "",
         "description": "Редчайший японский суперкар с V10."
     },
-
     {
         "name": "Maserati MC20",
         "brand": "Maserati",
@@ -516,7 +415,6 @@
         "photo": "",
         "description": "Новая глава спортивных Maserati."
     },
-
     {
         "name": "Dodge Challenger SRT Demon 170",
         "brand": "Dodge",
@@ -530,7 +428,6 @@
         "photo": "",
         "description": "Один из самых мощных маслкаров."
     },
-
     {
         "name": "Ford GT",
         "brand": "Ford",
@@ -544,91 +441,6 @@
         "photo": "",
         "description": "Современная легенда Ford."
     },
-
-    {
-        "name": "Shelby Cobra 427",
-        "brand": "Shelby",
-        "country": "USA",
-        "year": 1967,
-        "power": 485,
-        "speed": 266,
-        "price": 1000000,
-        "rarity": "🔥 Mythic",
-        "type": "Классика",
-        "photo": "",
-        "description": "Один из самых известных автомобилей Америки."
-    },
-
-    {
-        "name": "Toyota GR Supra A90",
-        "brand": "Toyota",
-        "country": "Japan",
-        "year": 2023,
-        "power": 382,
-        "speed": 250,
-        "price": 70000,
-        "rarity": "🔵 Rare",
-        "type": "Спорткар",
-        "photo": "",
-        "description": "Современное продолжение легенды Supra."
-    },
-
-    {
-        "name": "Honda Civic Type R",
-        "brand": "Honda",
-        "country": "Japan",
-        "year": 2023,
-        "power": 329,
-        "speed": 275,
-        "price": 50000,
-        "rarity": "🔵 Rare",
-        "type": "Хот-хэтч",
-        "photo": "",
-        "description": "Один из лучших переднеприводных спорткаров."
-    },
-
-    {
-        "name": "Porsche 911 Turbo S",
-        "brand": "Porsche",
-        "country": "Germany",
-        "year": 2023,
-        "power": 650,
-        "speed": 330,
-        "price": 250000,
-        "rarity": "💎 Legendary",
-        "type": "Спорткар",
-        "photo": "",
-        "description": "Один из самых быстрых Porsche."
-    },
-
-    {
-        "name": "Porsche Carrera GT",
-        "brand": "Porsche",
-        "country": "Germany",
-        "year": 2005,
-        "power": 612,
-        "speed": 334,
-        "price": 1500000,
-        "rarity": "🔥 Mythic",
-        "type": "Гиперкар",
-        "photo": "",
-        "description": "Легендарный Porsche с атмосферным V10."
-    },
-
-    {
-        "name": "Lamborghini Diablo SV",
-        "brand": "Lamborghini",
-        "country": "Italy",
-        "year": 1999,
-        "power": 530,
-        "speed": 325,
-        "price": 700000,
-        "rarity": "🔥 Mythic",
-        "type": "Классический суперкар",
-        "photo": "",
-        "description": "Одна из самых культовых Lamborghini."
-    },
-
     {
         "name": "Ferrari F40",
         "brand": "Ferrari",
@@ -641,19 +453,5 @@
         "type": "Классический гиперкар",
         "photo": "",
         "description": "Последний Ferrari под руководством Энцо Феррари."
-    },
-
-    {
-        "name": "Ferrari Enzo",
-        "brand": "Ferrari",
-        "country": "Italy",
-        "year": 2004,
-        "power": 660,
-        "speed": 350,
-        "price": 3000000,
-        "rarity": "🔥 Mythic",
-        "type": "Гиперкар",
-        "photo": "",
-        "description": "Посвящён основателю Ferrari."
     }
 ]
