@@ -967,7 +967,7 @@ def main():
 
 
 
-            print(
+        print(
         "🏎 CAR LEGENDS CLUB запущен!"
     )
 
