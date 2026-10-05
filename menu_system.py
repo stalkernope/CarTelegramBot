@@ -114,7 +114,7 @@ def garage_menu():
 
 
 # =========================
-# ВЫБОР МАШИНЫ
+# СПИСОК МАШИН
 # =========================
 
 
@@ -138,7 +138,26 @@ def garage_cars_menu(cars):
 
                     callback_data=
 
-                    f"set_main_{car['id']}"
+                    f"set_main_{car.get('id')}"
+
+                )
+
+            ]
+
+        )
+
+
+        keyboard.append(
+
+            [
+
+                InlineKeyboardButton(
+
+                    f"🔧 Улучшить {car['name']}",
+
+                    callback_data=
+
+                    f"upgrade_{car.get('id')}"
 
                 )
 
@@ -166,9 +185,52 @@ def garage_cars_menu(cars):
 
 
     return InlineKeyboardMarkup(
-
         keyboard
+    )
 
+
+
+
+# =========================
+# ПРОКАЧКА
+# =========================
+
+
+def upgrade_menu(car_id):
+
+
+    keyboard = [
+
+        [
+
+            InlineKeyboardButton(
+
+                "🔧 Улучшить",
+
+                callback_data=f"upgrade_{car_id}"
+
+            )
+
+        ],
+
+
+        [
+
+            InlineKeyboardButton(
+
+                "⬅️ Назад",
+
+                callback_data="garage"
+
+            )
+
+        ]
+
+    ]
+
+
+    return InlineKeyboardMarkup(
+        keyboard
     )
 
 
@@ -331,7 +393,7 @@ def cases_menu():
 
 
 # =========================
-# МАГАЗИН
+# АВТОСАЛОН
 # =========================
 
 
