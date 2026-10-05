@@ -48,6 +48,16 @@ def main_menu():
         [
 
             InlineKeyboardButton(
+                "🛒 Автосалон",
+                callback_data="shop"
+            )
+
+        ],
+
+
+        [
+
+            InlineKeyboardButton(
                 "⚔️ Клан",
                 callback_data="clan"
             )
@@ -245,6 +255,47 @@ def cases_menu():
             InlineKeyboardButton(
                 "📦 Открыть обычный",
                 callback_data="open_normal_case"
+            )
+
+        ],
+
+
+        [
+
+            InlineKeyboardButton(
+                "⬅️ Назад",
+                callback_data="back"
+            )
+
+        ]
+
+    ]
+
+
+    return InlineKeyboardMarkup(
+
+        keyboard
+
+    )
+
+
+
+
+# =========================
+# МАГАЗИН
+# =========================
+
+
+def shop_menu():
+
+
+    keyboard = [
+
+        [
+
+            InlineKeyboardButton(
+                "🚗 Купить машину",
+                callback_data="buy_car"
             )
 
         ],
