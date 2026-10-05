@@ -1,56 +1,15 @@
 # =========================
-# CAR LEGENDS PROFILE
+# PROFILE SYSTEM 2.0
 # =========================
-
-
-
-def get_title(level):
-
-    if level >= 50:
-
-        return "👑 Автомобильный Бог"
-
-
-    if level >= 30:
-
-        return "🔥 Легенда дорог"
-
-
-    if level >= 15:
-
-        return "💎 Коллекционер легенд"
-
-
-    if level >= 5:
-
-        return "🏆 Опытный владелец"
-
-
-    return "🚗 Новичок"
-
-
-
 
 
 def profile_text(user):
 
 
-    level = user.get(
-        "level",
-        1
-    )
+    if not user:
 
+        return "❌ Профиль не найден"
 
-    xp = user.get(
-        "xp",
-        0
-    )
-
-
-    coins = user.get(
-        "coins",
-        0
-    )
 
 
     garage = user.get(
@@ -71,14 +30,28 @@ def profile_text(user):
     )
 
 
-
-    title = get_title(
-        level
+    coins = user.get(
+        "coins",
+        0
     )
 
 
+    level = user.get(
+        "level",
+        1
+    )
 
-    need_xp = level * 200
+
+    xp = user.get(
+        "xp",
+        0
+    )
+
+
+    title = user.get(
+        "title",
+        "🚗 Новичок"
+    )
 
 
 
@@ -86,18 +59,42 @@ def profile_text(user):
 
         "👤 <b>CAR LEGENDS PROFILE</b>\n\n"
 
-        f"🎖 Титул:\n{title}\n\n"
+        f"👑 Титул: {title}\n"
 
         f"⭐ Уровень: {level}\n"
 
-        f"🔥 XP: {xp}/{need_xp}\n\n"
+        f"🔥 XP: {xp}\n\n"
 
-        f"💰 Монеты: {coins}\n\n"
+        f"🪙 Монеты: {coins}\n\n"
 
-        f"🏎 Машин в гараже: {len(garage)}\n\n"
+        "🏆 Статистика:\n"
 
         f"⚔️ Победы: {wins}\n"
 
-        f"❌ Поражения: {losses}"
+        f"❌ Поражения: {losses}\n\n"
+
+        "🏎 Коллекция:\n"
+
+        f"🚘 Машин: {len(garage)}"
+
+    )
+
+
+
+# =========================
+# КОРОТКИЙ ПРОФИЛЬ
+# =========================
+
+
+def short_profile(user):
+
+
+    return (
+
+        f"👤 {user.get('title','')}\n"
+
+        f"⭐ LVL {user.get('level',1)}\n"
+
+        f"🏎 Машин: {len(user.get('garage',[]))}"
 
     )
