@@ -384,3 +384,102 @@ def cases_text():
 
 
     return text
+    
+    # =========================
+# ПОКУПКА И ОТКРЫТИЕ КЕЙСА
+# =========================
+
+
+def buy_and_open_case(
+
+    user_id,
+
+    player,
+
+    case_type,
+
+    cars
+
+):
+
+
+    if case_type not in CASES:
+
+        return False
+
+
+
+    price = CASES[case_type]["price"]
+
+
+
+    if player["coins"] < price:
+
+        return {
+
+            "success": False,
+
+            "message": "❌ Не хватает монет"
+
+        }
+
+
+
+    player["coins"] -= price
+
+
+
+    car = open_case_system(
+
+        user_id,
+
+        case_type,
+
+        cars
+
+    )
+
+
+
+    if not car:
+
+        return {
+
+            "success": False,
+
+            "message": "❌ Ошибка открытия"
+
+        }
+
+
+
+    if car["name"] not in player["garage"]:
+
+
+        player["garage"].append(
+
+            car["name"]
+
+        )
+
+
+
+    return {
+
+        "success": True,
+
+        "car": car,
+
+        "message":
+
+        f"🎉 Выпала машина:\n\n"
+
+        f"{car['name']}\n"
+
+        f"💎 {car['rarity']}\n"
+
+        f"⚡ Мощность: {car['power']}\n"
+
+        f"🚀 Скорость: {car['speed']}"
+
+    }
