@@ -1,6 +1,5 @@
 import json
 import os
-import time
 
 
 
@@ -17,7 +16,6 @@ SHOP_FILE = "car_shop.json"
 SHOP_CARS = [
 
     {
-
         "name": "🚗 Honda Civic",
 
         "price": 5000,
@@ -32,7 +30,6 @@ SHOP_CARS = [
 
 
     {
-
         "name": "🏎 BMW M3",
 
         "price": 50000,
@@ -47,7 +44,6 @@ SHOP_CARS = [
 
 
     {
-
         "name": "🔥 Supra MK5",
 
         "price": 120000,
@@ -62,7 +58,6 @@ SHOP_CARS = [
 
 
     {
-
         "name": "👑 Bugatti X",
 
         "price": 1000000,
@@ -89,6 +84,8 @@ def load_shop():
 
     if not os.path.exists(SHOP_FILE):
 
+        save_shop(SHOP_CARS)
+
         return SHOP_CARS
 
 
@@ -105,12 +102,22 @@ def load_shop():
 
         ) as file:
 
-            return json.load(file)
+            data = json.load(file)
 
 
-    except:
+            if isinstance(data, list):
 
-        return SHOP_CARS
+                return data
+
+
+
+    except Exception:
+
+        pass
+
+
+
+    return SHOP_CARS
 
 
 
@@ -149,14 +156,13 @@ def save_shop(data):
 
 
 # =========================
-# СПИСОК
+# ТЕКСТ МАГАЗИНА
 # =========================
 
 
 def shop_text():
 
     cars = load_shop()
-
 
 
     text = (
@@ -192,7 +198,7 @@ def shop_text():
 
 
 # =========================
-# НАЙТИ
+# НАЙТИ МАШИНУ
 # =========================
 
 
@@ -241,19 +247,37 @@ def buy_shop_car(
 
     if not car:
 
-        return False
+        return {
+
+            "success": False,
+
+            "message": "❌ Машина не найдена"
+
+        }
 
 
 
     if player["coins"] < car["price"]:
 
-        return False
+        return {
+
+            "success": False,
+
+            "message": "❌ Недостаточно денег"
+
+        }
 
 
 
     if car_name in player["garage"]:
 
-        return False
+        return {
+
+            "success": False,
+
+            "message": "❌ Машина уже есть в гараже"
+
+        }
 
 
 
@@ -276,7 +300,29 @@ def buy_shop_car(
 
 
 
-    return car
+    return {
+
+        "success": True,
+
+        "car": car,
+
+        "message":
+
+        (
+
+            "🛒 <b>ПОКУПКА УСПЕШНА!</b>\n\n"
+
+            f"🚗 {car['name']}\n"
+
+            f"💰 Потрачено: {car['price']}\n"
+
+            f"⚡ Мощность: {car['power']}\n"
+
+            f"🚀 Скорость: {car['speed']}"
+
+        )
+
+    }
 
 
 
@@ -329,3 +375,28 @@ def sell_shop_car(
 
 
     return True
+
+
+
+
+# =========================
+# ТЕКСТ ПОКУПКИ
+# =========================
+
+
+def purchase_text(car):
+
+
+    return (
+
+        "🛒 <b>НОВАЯ МАШИНА!</b>\n\n"
+
+        f"🚗 {car['name']}\n"
+
+        f"💎 {car['rarity']}\n"
+
+        f"⚡ {car['power']}\n"
+
+        f"🚀 {car['speed']}"
+
+    )
