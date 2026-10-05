@@ -4,7 +4,9 @@ import os
 from datetime import date
 
 
-from car_database import get_random_car
+from car_database import (
+    get_random_car
+)
 
 
 
@@ -19,11 +21,10 @@ DAILY_FILE = "daily_car.json"
 
 def load_daily():
 
-    if not os.path.exists(
-        DAILY_FILE
-    ):
+    if not os.path.exists(DAILY_FILE):
 
         return None
+
 
 
     try:
@@ -34,25 +35,13 @@ def load_daily():
             encoding="utf-8"
         ) as file:
 
-            data = json.load(file)
-
-
-            if isinstance(data, dict):
-
-                return data
+            return json.load(file)
 
 
 
-    except Exception as e:
+    except Exception:
 
-        print(
-            "Ошибка daily:",
-            e
-        )
-
-
-
-    return None
+        return None
 
 
 
@@ -63,33 +52,22 @@ def load_daily():
 
 def save_daily(data):
 
-    try:
+    with open(
+        DAILY_FILE,
+        "w",
+        encoding="utf-8"
+    ) as file:
 
-        with open(
-            DAILY_FILE,
-            "w",
-            encoding="utf-8"
-        ) as file:
+        json.dump(
 
+            data,
 
-            json.dump(
+            file,
 
-                data,
+            ensure_ascii=False,
 
-                file,
+            indent=4
 
-                ensure_ascii=False,
-
-                indent=4
-
-            )
-
-
-    except Exception as e:
-
-        print(
-            "Ошибка сохранения daily:",
-            e
         )
 
 
@@ -101,38 +79,26 @@ def save_daily(data):
 
 def get_daily_car():
 
+
     today = str(
         date.today()
     )
 
 
-    daily = load_daily()
+    data = load_daily()
 
 
 
-    # если уже есть сегодня
-
-    if daily:
+    if data:
 
 
-        if daily.get(
-            "date"
-        ) == today:
+        if data.get("date") == today:
 
 
-            car = daily.get(
+            return data.get(
                 "car"
             )
 
-
-            if car:
-
-                return car
-
-
-
-
-    # создаём новую
 
 
     car = get_random_car()
@@ -145,15 +111,17 @@ def get_daily_car():
 
 
 
+    save_daily(
 
-    save_daily({
+        {
 
-        "date": today,
+            "date": today,
 
-        "car": car
+            "car": car
 
-    })
+        }
 
+    )
 
 
     return car
