@@ -12,7 +12,8 @@ from menu_system import (
     race_menu,
     profile_menu,
     clan_menu,
-    cases_menu
+    cases_menu,
+    shop_menu
 )
 
 
@@ -42,6 +43,12 @@ from garage_system import (
 )
 
 
+from car_shop_system import (
+    shop_text,
+    buy_shop_car
+)
+
+
 from battle_system import (
     battle,
     battle_result_text,
@@ -54,6 +61,7 @@ from boss_race_system import (
     get_boss,
     fight_boss
 )
+
 
 
 
@@ -93,12 +101,11 @@ async def start(
 
 
 # =========================
-# НАГРАДЫ ТЕКСТ
+# НАГРАДЫ
 # =========================
 
 
 def rewards_text(reward):
-
 
     text = ""
 
@@ -111,6 +118,7 @@ def rewards_text(reward):
 
 
         for mission in reward["missions"]:
+
 
             text += (
 
@@ -128,11 +136,13 @@ def rewards_text(reward):
 
         for achievement in reward["achievements"]:
 
+
             text += (
 
                 f"🏅 {achievement['name']}\n"
 
             )
+
 
 
     return text
@@ -223,7 +233,53 @@ async def buttons(
 
 
 
+    # =====================
+    # АВТОСАЛОН
+    # =====================
+
+
+    elif action == "shop":
+
+
+        await query.edit_message_text(
+
+            shop_text(),
+
+            reply_markup=shop_menu(),
+
+            parse_mode="HTML"
+
+        )
+
+
+
+
+    # ПОКУПКА
+
+    elif action == "buy_car":
+
+
+        await query.edit_message_text(
+
+            "🚗 Напиши название машины для покупки\n\n"
+
+            "Пример:\n"
+
+            "🔥 Supra MK5",
+
+            reply_markup=main_menu(),
+
+            parse_mode="HTML"
+
+        )
+
+
+
+
+    # =====================
     # NPC
+    # =====================
+
 
     elif action == "npc":
 
@@ -287,10 +343,9 @@ async def buttons(
             )
 
             return
-
-
-
-        result = battle(
+            
+            
+                    result = battle(
 
             player_car,
 
@@ -364,7 +419,14 @@ async def buttons(
             parse_mode="HTML"
 
         )
-            # БОСС
+
+
+
+
+    # =====================
+    # БОСС
+    # =====================
+
 
     elif action == "boss":
 
@@ -464,7 +526,10 @@ async def buttons(
 
 
 
+    # =====================
     # КЕЙСЫ
+    # =====================
+
 
     elif action == "cases":
 
@@ -481,8 +546,6 @@ async def buttons(
 
 
 
-
-    # ОТКРЫТЬ КЕЙС
 
     elif action == "open_normal_case":
 
@@ -534,7 +597,10 @@ async def buttons(
 
 
 
+    # =====================
     # КЛАН
+    # =====================
+
 
     elif action == "clan":
 
@@ -554,7 +620,10 @@ async def buttons(
 
 
 
+    # =====================
     # НАЗАД
+    # =====================
+
 
     elif action == "back":
 
