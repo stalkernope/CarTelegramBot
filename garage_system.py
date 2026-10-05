@@ -1,5 +1,13 @@
-from database import get_player
-from car_database import get_car
+from database import (
+    get_player,
+    update_player
+)
+
+
+from car_database import (
+    get_car
+)
+
 
 
 
@@ -9,6 +17,8 @@ from car_database import get_car
 
 
 RARITY_POINTS = {
+
+    "⚪ Common": 20,
 
     "🔵 Rare": 50,
 
@@ -24,7 +34,7 @@ RARITY_POINTS = {
 
 
 # =========================
-# ПОЛУЧИТЬ МАШИНЫ
+# МАШИНЫ ИГРОКА
 # =========================
 
 
@@ -38,7 +48,11 @@ def get_garage_cars(user_id):
     cars = []
 
 
-    for name in player["garage"]:
+    for name in player.get(
+        "garage",
+        []
+    ):
+
 
         car = get_car(
             name
@@ -58,7 +72,7 @@ def get_garage_cars(user_id):
 
 
 # =========================
-# СТОИМОСТЬ ГАРАЖА
+# СТОИМОСТЬ
 # =========================
 
 
@@ -172,27 +186,41 @@ def garage_rating(user_id):
 
 
 # =========================
-# ГЛАВНАЯ МАШИНА
+# СДЕЛАТЬ ГЛАВНОЙ
 # =========================
 
 
 def set_main_car(
+
     user_id,
+
     car_name
+
 ):
 
+
     player = get_player(
+
         user_id
+
     )
 
 
-    if car_name in player["garage"]:
 
-        player["main_car"] = car_name
+    if car_name not in player.get(
+
+        "garage",
+
+        []
+
+    ):
+
+        return False
 
 
 
-    from database import update_player
+    player["main_car"] = car_name
+
 
 
     update_player(
@@ -202,6 +230,9 @@ def set_main_car(
         player
 
     )
+
+
+    return True
 
 
 
@@ -214,12 +245,16 @@ def set_main_car(
 def garage_stats(user_id):
 
     player = get_player(
+
         user_id
+
     )
 
 
     cars = get_garage_cars(
+
         user_id
+
     )
 
 
@@ -233,21 +268,27 @@ def garage_stats(user_id):
         "value":
 
         garage_value(
+
             user_id
+
         ),
 
 
         "rating":
 
         garage_rating(
+
             user_id
+
         ),
 
 
         "main":
 
         player.get(
+
             "main_car"
+
         )
 
     }
@@ -262,9 +303,20 @@ def garage_stats(user_id):
 
 def garage_text(user_id):
 
+
     stats = garage_stats(
+
         user_id
+
     )
+
+
+    cars = get_garage_cars(
+
+        user_id
+
+    )
+
 
 
     text = (
@@ -280,21 +332,62 @@ def garage_text(user_id):
     )
 
 
-    if stats["main"]:
+
+    if not cars:
+
 
         text += (
 
-            "👑 Главная машина:\n"
+            "🚗 Гараж пуст\n\n"
 
-            +
-
-            stats["main"]
+            "Купи первую машину в автосалоне"
 
         )
 
-    else:
 
-        text += "👑 Главная машина не выбрана"
+        return text
+
+
+
+
+    text += "🚘 <b>ТВОИ МАШИНЫ:</b>\n\n"
+
+
+
+    for car in cars:
+
+
+        if car["name"] == stats["main"]:
+
+            mark = "👑"
+
+        else:
+
+            mark = "🚗"
+
+
+
+        text += (
+
+            f"{mark} {car['name']}\n"
+
+            f"⚡ Мощность: {car.get('power',0)}\n"
+
+            f"🚀 Скорость: {car.get('speed',0)}\n"
+
+            f"💎 {car.get('rarity','')}\n\n"
+
+        )
+
+
+
+    text += (
+
+        "👑 Главная машина:\n"
+
+        f"{stats['main'] or 'Не выбрана'}"
+
+    )
 
 
 
