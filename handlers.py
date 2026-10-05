@@ -1,4 +1,4 @@
-эfrom telegram import Update
+from telegram import Update
 from telegram.ext import (
     ContextTypes,
     CommandHandler,
@@ -9,6 +9,7 @@ from telegram.ext import (
 from menu_system import (
     main_menu,
     garage_menu,
+    garage_cars_menu,
     race_menu,
     profile_menu,
     clan_menu,
@@ -39,7 +40,9 @@ from case_system import (
 
 
 from garage_system import (
-    garage_text
+    garage_text,
+    get_garage_cars,
+    set_main_car
 )
 
 
@@ -118,7 +121,6 @@ def rewards_text(reward):
 
         for mission in reward["missions"]:
 
-
             text += (
 
                 f"✅ {mission['name']}\n"
@@ -134,7 +136,6 @@ def rewards_text(reward):
 
 
         for achievement in reward["achievements"]:
-
 
             text += (
 
@@ -175,7 +176,10 @@ async def buttons(
 
 
 
+    # =====================
     # ПРОФИЛЬ
+    # =====================
+
 
     if action == "profile":
 
@@ -193,7 +197,10 @@ async def buttons(
 
 
 
+    # =====================
     # ГАРАЖ
+    # =====================
+
 
     elif action == "garage":
 
@@ -211,7 +218,121 @@ async def buttons(
 
 
 
+    elif action == "garage_select":
+
+
+        cars = get_garage_cars(
+
+            user_id
+
+        )
+
+
+        if not cars:
+
+
+            await query.edit_message_text(
+
+                "❌ Гараж пуст",
+
+                reply_markup=main_menu()
+
+            )
+
+            return
+
+
+
+        await query.edit_message_text(
+
+            "👑 Выбери главную машину:",
+
+            reply_markup=garage_cars_menu(cars),
+
+            parse_mode="HTML"
+
+        )
+
+
+
+
+    elif action.startswith("set_main_"):
+
+
+        car_id = action.replace(
+
+            "set_main_",
+
+            ""
+
+        )
+
+
+        cars = get_garage_cars(
+
+            user_id
+
+        )
+
+
+        selected = None
+
+
+
+        for car in cars:
+
+
+            if car.get("id") == car_id:
+
+                selected = car["name"]
+
+                break
+
+
+
+        if selected:
+
+
+            set_main_car(
+
+                user_id,
+
+                selected
+
+            )
+
+
+            text = (
+
+                "👑 <b>ГЛАВНАЯ МАШИНА</b>\n\n"
+
+                f"🚗 {selected}"
+
+            )
+
+
+        else:
+
+
+            text = "❌ Машина не найдена"
+
+
+
+        await query.edit_message_text(
+
+            text,
+
+            reply_markup=main_menu(),
+
+            parse_mode="HTML"
+
+        )
+        
+        
+            # =====================
     # ГОНКИ
+    # =====================
+
 
     elif action == "race":
 
@@ -280,8 +401,11 @@ async def buttons(
         }
 
 
+
         car_name = cars.get(
+
             action
+
         )
 
 
@@ -339,11 +463,11 @@ async def buttons(
 
                 f"🚗 {car_name}\n\n"
 
-                f"💰 Осталось денег: "
+                f"💰 Осталось: "
 
-                f"{player.get('coins',0)}\n\n"
+                f"{player.get('money',0)}\n\n"
 
-                "✅ Машина добавлена в гараж"
+                "✅ Добавлено в гараж"
 
             )
 
@@ -355,7 +479,7 @@ async def buttons(
 
                 "❌ <b>Покупка невозможна</b>\n\n"
 
-                "Возможно:\n"
+                "Причины:\n"
 
                 "• не хватает денег\n"
 
@@ -374,8 +498,11 @@ async def buttons(
             parse_mode="HTML"
 
         )
-        
-            # =====================
+
+
+
+
+    # =====================
     # NPC
     # =====================
 
@@ -518,11 +645,9 @@ async def buttons(
             parse_mode="HTML"
 
         )
-
-
-
-
-    # =====================
+        
+        
+            # =====================
     # БОСС
     # =====================
 
