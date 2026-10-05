@@ -457,3 +457,62 @@ def career_text(
 
 
     return text
+    
+    # =========================
+# НАГРАДА ЗА МИССИЮ
+# =========================
+
+
+def claim_mission_reward(
+    user_id,
+    mission_id,
+    player
+):
+
+    data = load_missions()
+
+    uid = str(user_id)
+
+
+    progress = get_progress(
+        user_id
+    )
+
+
+    if mission_id not in progress["completed"]:
+
+        return False
+
+
+
+    for chapter in CHAPTERS:
+
+        for mission in chapter["missions"]:
+
+            if mission["id"] == mission_id:
+
+
+                reward = mission["reward"]
+
+
+                player["money"] += reward
+
+
+                progress["completed"].remove(
+                    mission_id
+                )
+
+
+                data[uid] = progress
+
+
+                save_missions(
+                    data
+                )
+
+
+                return reward
+
+
+
+    return False
