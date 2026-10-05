@@ -15,6 +15,11 @@ from missions_system import (
 )
 
 
+from achievement_system import (
+    check_achievements
+)
+
+
 
 # =========================
 # ТРАССЫ
@@ -69,7 +74,7 @@ WEATHER = [
 
 
 # =========================
-# УСЛОВИЯ ГОНКИ
+# УСЛОВИЯ
 # =========================
 
 
@@ -100,37 +105,25 @@ def car_strength(car):
         return 0
 
 
-
     power = car.get(
-
         "power",
-
         0
-
     )
 
 
     speed = car.get(
-
         "speed",
-
         0
-
     )
 
 
     rarity = car.get(
-
         "rarity",
-
         ""
-
     )
 
 
-
     bonus = 0
-
 
 
     if "Mythic" in rarity:
@@ -185,17 +178,13 @@ def battle(car1, car2):
 
     score1 = car_strength(car1)
 
-
     score2 = car_strength(car2)
 
 
 
     critical = random.randint(
-
         1,
-
         100
-
     )
 
 
@@ -215,6 +204,7 @@ def battle(car1, car2):
 
 
     if score1 >= score2:
+
 
         return {
 
@@ -246,7 +236,7 @@ def battle(car1, car2):
 
 
 # =========================
-# НАГРАДА ПОБЕДА
+# ПОБЕДА
 # =========================
 
 
@@ -254,9 +244,7 @@ def reward_win(user_id):
 
 
     player = get_player(
-
         user_id
-
     )
 
 
@@ -265,13 +253,9 @@ def reward_win(user_id):
 
 
     streak = player.get(
-
         "win_streak",
-
         0
-
     )
-
 
 
     if streak >= 5:
@@ -306,8 +290,6 @@ def reward_win(user_id):
 
 
 
-    # ПРОВЕРКА МИССИЙ
-
     updated_player = get_player(
 
         user_id
@@ -315,7 +297,17 @@ def reward_win(user_id):
     )
 
 
-    completed = check_all_missions(
+
+    missions = check_all_missions(
+
+        user_id,
+
+        updated_player
+
+    )
+
+
+    achievements = check_achievements(
 
         user_id,
 
@@ -327,9 +319,19 @@ def reward_win(user_id):
 
     return {
 
-        "coins": coins,
+        "coins":
 
-        "missions": completed
+        coins,
+
+
+        "missions":
+
+        missions,
+
+
+        "achievements":
+
+        achievements
 
     }
 
@@ -337,11 +339,12 @@ def reward_win(user_id):
 
 
 # =========================
-# НАГРАДА ПОРАЖЕНИЕ
+# ПОРАЖЕНИЕ
 # =========================
 
 
 def reward_loss(user_id):
+
 
     add_loss(
 
@@ -350,12 +353,13 @@ def reward_loss(user_id):
     )
 
 
-
     return {
 
         "coins": 0,
 
-        "missions": []
+        "missions": [],
+
+        "achievements": []
 
     }
 
@@ -363,7 +367,7 @@ def reward_loss(user_id):
 
 
 # =========================
-# ТЕКСТ БОЯ
+# ТЕКСТ
 # =========================
 
 
