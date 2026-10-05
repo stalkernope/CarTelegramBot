@@ -85,7 +85,7 @@ def get_player(user_id):
 
             "xp": 0,
 
-            "money": 5000,
+            "money": 500000,
 
             "rating": 0,
 
