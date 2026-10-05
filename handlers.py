@@ -25,13 +25,37 @@ from database import (
 )
 
 
-from car_database import get_all_cars
+from car_database import (
+    get_all_cars,
+    get_car
+)
 
 
 from case_system import (
     cases_text,
     buy_and_open_case
 )
+
+
+from garage_system import (
+    garage_text,
+    get_garage_cars
+)
+
+
+from battle_system import (
+    battle,
+    battle_result_text,
+    reward_win,
+    reward_loss
+)
+
+
+from boss_race_system import (
+    get_boss,
+    fight_boss
+)
+
 
 
 
@@ -67,9 +91,7 @@ async def start(
         "Твой путь начинается!",
 
 
-        reply_markup=
-
-        main_menu(),
+        reply_markup=main_menu(),
 
         parse_mode="HTML"
 
@@ -105,6 +127,8 @@ async def buttons(
 
 
 
+    # ПРОФИЛЬ
+
     if action == "profile":
 
 
@@ -112,9 +136,7 @@ async def buttons(
 
             profile_text(user_id),
 
-            reply_markup=
-
-            profile_menu(),
+            reply_markup=profile_menu(),
 
             parse_mode="HTML"
 
@@ -122,19 +144,17 @@ async def buttons(
 
 
 
+
+    # ГАРАЖ
 
     elif action == "garage":
 
 
         await query.edit_message_text(
 
-            "🚗 <b>ГАРАЖ</b>\n\n"
+            garage_text(user_id),
 
-            "Твой автопарк готов",
-
-            reply_markup=
-
-            garage_menu(),
+            reply_markup=garage_menu(),
 
             parse_mode="HTML"
 
@@ -142,6 +162,8 @@ async def buttons(
 
 
 
+
+    # ГОНКИ
 
     elif action == "race":
 
@@ -150,11 +172,9 @@ async def buttons(
 
             "🏁 <b>ГОНКИ</b>\n\n"
 
-            "Выбери режим",
+            "Выбирай соперника:",
 
-            reply_markup=
-
-            race_menu(),
+            reply_markup=race_menu(),
 
             parse_mode="HTML"
 
@@ -163,16 +183,132 @@ async def buttons(
 
 
 
-    elif action == "clan":
+    # NPC БОЙ
+
+    elif action == "npc":
+
+
+        player = get_player(
+
+            user_id
+
+        )
+
+
+        if not player.get("main_car"):
+
+
+            await query.edit_message_text(
+
+                "❌ Сначала выбери главную машину",
+
+                reply_markup=main_menu()
+
+            )
+
+            return
+
+
+
+        player_car = get_car(
+
+            player["main_car"]
+
+        )
+
+
+        cars = get_all_cars()
+
+
+        enemy = None
+
+
+
+        for car in cars:
+
+            if car["name"] != player_car["name"]:
+
+                enemy = car
+
+                break
+
+
+
+        if not enemy:
+
+
+            await query.edit_message_text(
+
+                "❌ Нет соперников"
+
+            )
+
+            return
+
+
+
+
+        result = battle(
+
+            player_car,
+
+            enemy
+
+        )
+
+
+        if result["winner"]["name"] == player_car["name"]:
+
+
+            reward = reward_win(
+
+                user_id
+
+            )
+
+
+            text = (
+
+                battle_result_text(result)
+
+                +
+
+                "\n\n🏆 ПОБЕДА!"
+
+                +
+
+                f"\n💰 +{reward['coins']}"
+
+            )
+
+
+        else:
+
+
+            reward_loss(
+
+                user_id
+
+            )
+
+
+            text = (
+
+                battle_result_text(result)
+
+                +
+
+                "\n\n❌ ПОРАЖЕНИЕ"
+
+            )
+
 
 
         await query.edit_message_text(
 
-            "⚔️ <b>КЛАНЫ</b>",
+            text,
 
-            reply_markup=
-
-            clan_menu(),
+            reply_markup=main_menu(),
 
             parse_mode="HTML"
 
@@ -180,6 +316,98 @@ async def buttons(
 
 
 
+
+    # БОСС
+
+    elif action == "boss":
+
+
+        player = get_player(
+
+            user_id
+
+        )
+
+
+        if not player.get("main_car"):
+
+
+            await query.edit_message_text(
+
+                "❌ Нет главной машины"
+
+            )
+
+            return
+
+
+
+        car = get_car(
+
+            player["main_car"]
+
+        )
+
+
+        boss = get_boss()
+
+
+
+        result = fight_boss(
+
+            user_id,
+
+            car.get("power",0),
+
+            boss["id"]
+
+        )
+
+
+
+        if result["win"]:
+
+
+            text = (
+
+                "👑 <b>БОСС ПОБЕЖДЕН!</b>\n\n"
+
+                f"{result['boss']}\n\n"
+
+                f"🎁 Награда:\n"
+
+                f"{result['reward']}"
+
+            )
+
+
+        else:
+
+
+            text = (
+
+                "❌ <b>ПОРАЖЕНИЕ</b>\n\n"
+
+                f"Босс: {result['boss']}"
+
+            )
+
+
+
+        await query.edit_message_text(
+
+            text,
+
+            reply_markup=main_menu(),
+
+            parse_mode="HTML"
+
+        )
+
+
+
+
+    # КЕЙСЫ
 
     elif action == "cases":
 
@@ -188,9 +416,7 @@ async def buttons(
 
             cases_text(),
 
-            reply_markup=
-
-            cases_menu(),
+            reply_markup=cases_menu(),
 
             parse_mode="HTML"
 
@@ -198,6 +424,8 @@ async def buttons(
 
 
 
+
+    # ОТКРЫТИЕ КЕЙСА
 
     elif action == "open_normal_case":
 
@@ -234,23 +462,11 @@ async def buttons(
             )
 
 
-            text = result["message"]
-
-
-        else:
-
-
-            text = result["message"]
-
-
-
         await query.edit_message_text(
 
-            text,
+            result["message"],
 
-            reply_markup=
-
-            main_menu(),
+            reply_markup=main_menu(),
 
             parse_mode="HTML"
 
@@ -259,6 +475,26 @@ async def buttons(
 
 
 
+    # КЛАН
+
+    elif action == "clan":
+
+
+        await query.edit_message_text(
+
+            "⚔️ <b>КЛАНЫ</b>",
+
+            reply_markup=clan_menu(),
+
+            parse_mode="HTML"
+
+        )
+
+
+
+
+    # НАЗАД
+
     elif action == "back":
 
 
@@ -266,9 +502,7 @@ async def buttons(
 
             "🏎 Главное меню",
 
-            reply_markup=
-
-            main_menu()
+            reply_markup=main_menu()
 
         )
 
@@ -280,11 +514,9 @@ async def buttons(
 
         await query.edit_message_text(
 
-            "🔥 Раздел скоро будет доступен",
+            "🔥 Раздел в разработке",
 
-            reply_markup=
-
-            main_menu()
+            reply_markup=main_menu()
 
         )
 
