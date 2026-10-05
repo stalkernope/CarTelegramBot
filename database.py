@@ -47,23 +47,12 @@ def load_database():
             encoding="utf-8"
         ) as file:
 
-            data = json.load(file)
+            return json.load(file)
 
 
-            if isinstance(data, dict):
+    except Exception:
 
-                return data
-
-
-    except Exception as e:
-
-        print(
-            "Ошибка базы игроков:",
-            e
-        )
-
-
-    return {}
+        return {}
 
 
 
@@ -74,26 +63,17 @@ def load_database():
 
 def save_database(data):
 
-    try:
+    with open(
+        DATABASE_FILE,
+        "w",
+        encoding="utf-8"
+    ) as file:
 
-        with open(
-            DATABASE_FILE,
-            "w",
-            encoding="utf-8"
-        ) as file:
-
-            json.dump(
-                data,
-                file,
-                ensure_ascii=False,
-                indent=4
-            )
-
-    except Exception as e:
-
-        print(
-            "Ошибка сохранения:",
-            e
+        json.dump(
+            data,
+            file,
+            ensure_ascii=False,
+            indent=4
         )
 
 
@@ -103,7 +83,7 @@ def save_database(data):
 # =========================
 
 
-def default_player():
+def create_player():
 
     return {
 
@@ -119,7 +99,13 @@ def default_player():
 
         "losses": 0,
 
-        "title": "🚗 Новичок"
+        "title": "🚗 Новичок",
+
+        "daily_streak": 0,
+
+        "last_daily": "",
+
+        "collection_value": 0
 
     }
 
@@ -140,7 +126,7 @@ def get_player(user_id):
 
     if uid not in data:
 
-        data[uid] = default_player()
+        data[uid] = create_player()
 
         save_database(data)
 
@@ -151,42 +137,51 @@ def get_player(user_id):
 
 
 # =========================
+# СОХРАНИТЬ ИГРОКА
+# =========================
+
+
+def update_player(
+    user_id,
+    player
+):
+
+    data = load_database()
+
+    data[str(user_id)] = player
+
+    save_database(data)
+
+
+
+# =========================
 # ТИТУЛЫ
 # =========================
 
 
-def update_title(player):
-
-    level = player.get(
-        "level",
-        1
-    )
-
+def get_title(level):
 
     if level >= 50:
 
-        player["title"] = "👑 Автомобильный Бог"
+        return "👑 Автомобильный Бог"
 
 
-    elif level >= 30:
+    if level >= 25:
 
-        player["title"] = "🔥 Легенда дорог"
-
-
-    elif level >= 15:
-
-        player["title"] = "💎 Коллекционер легенд"
+        return "🔥 Легенда дорог"
 
 
-    elif level >= 5:
+    if level >= 10:
 
-        player["title"] = "🏆 Опытный владелец"
+        return "💎 Коллекционер"
 
 
-    else:
+    if level >= 5:
 
-        player["title"] = "🚗 Новичок"
+        return "🏆 Опытный владелец"
 
+
+    return "🚗 Новичок"
 
 
 
@@ -195,12 +190,10 @@ def update_title(player):
 # =========================
 
 
-def add_xp(user_id, amount):
-
-    data = load_database()
-
-    uid = str(user_id)
-
+def add_xp(
+    user_id,
+    amount
+):
 
     player = get_player(
         user_id
@@ -214,28 +207,28 @@ def add_xp(user_id, amount):
     while player["xp"] >= player["level"] * 200:
 
 
-        player["xp"] -= (
-            player["level"] * 200
-        )
-
+        player["xp"] -= player["level"] * 200
 
         player["level"] += 1
-
 
         player["coins"] += 500
 
 
 
-    update_title(
-        player
+    player["title"] = get_title(
+
+        player["level"]
+
     )
 
 
-    data[uid] = player
 
+    update_player(
 
-    save_database(
-        data
+        user_id,
+
+        player
+
     )
 
 
@@ -245,12 +238,10 @@ def add_xp(user_id, amount):
 # =========================
 
 
-def add_coins(user_id, amount):
-
-    data = load_database()
-
-    uid = str(user_id)
-
+def add_coins(
+    user_id,
+    amount
+):
 
     player = get_player(
         user_id
@@ -260,50 +251,57 @@ def add_coins(user_id, amount):
     player["coins"] += amount
 
 
+
     if player["coins"] < 0:
 
         player["coins"] = 0
 
 
 
-    data[uid] = player
+    update_player(
 
+        user_id,
 
-    save_database(
-        data
+        player
+
     )
 
 
 
 # =========================
-# ГАРАЖ
+# ДОБАВИТЬ МАШИНУ
 # =========================
 
 
-def add_car(user_id, car):
+def add_car(
+    user_id,
+    car_name
+):
 
     player = get_player(
         user_id
     )
 
 
-    if isinstance(car, dict):
+    if isinstance(car_name, dict):
 
-        car = car.get(
+        car_name = car_name.get(
             "name"
         )
 
 
-    if not car:
+
+    if not car_name:
 
         return
 
 
 
-    if car not in player["garage"]:
+    if car_name not in player["garage"]:
+
 
         player["garage"].append(
-            car
+            car_name
         )
 
 
@@ -313,13 +311,13 @@ def add_car(user_id, car):
         )
 
 
-    data = load_database()
 
-    data[str(user_id)] = player
+    update_player(
 
+        user_id,
 
-    save_database(
-        data
+        player
+
     )
 
 
@@ -329,7 +327,10 @@ def add_car(user_id, car):
 # =========================
 
 
-def has_car(user_id, car_name):
+def has_car(
+    user_id,
+    car_name
+):
 
     player = get_player(
         user_id
@@ -341,16 +342,13 @@ def has_car(user_id, car_name):
 
 
 # =========================
-# БИТВЫ
+# ПОБЕДА
 # =========================
 
 
-def add_win(user_id):
-
-    data = load_database()
-
-    uid = str(user_id)
-
+def add_win(
+    user_id
+):
 
     player = get_player(
         user_id
@@ -359,30 +357,37 @@ def add_win(user_id):
 
     player["wins"] += 1
 
-    player["coins"] += 100
+    player["coins"] += 200
 
 
-    data[uid] = player
 
+    update_player(
 
-    save_database(
-        data
+        user_id,
+
+        player
+
     )
 
 
     add_xp(
+
         user_id,
+
         100
+
     )
 
 
 
-def add_loss(user_id):
+# =========================
+# ПОРАЖЕНИЕ
+# =========================
 
-    data = load_database()
 
-    uid = str(user_id)
-
+def add_loss(
+    user_id
+):
 
     player = get_player(
         user_id
@@ -392,9 +397,11 @@ def add_loss(user_id):
     player["losses"] += 1
 
 
-    data[uid] = player
 
+    update_player(
 
-    save_database(
-        data
+        user_id,
+
+        player
+
     )
