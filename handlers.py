@@ -11,6 +11,7 @@ from menu_system import (
     main_menu,
     garage_menu,
     garage_cars_menu,
+    car_card_menu,
     race_menu,
     profile_menu,
     clan_menu,
@@ -43,7 +44,8 @@ from case_system import (
 from garage_system import (
     garage_text,
     get_garage_cars,
-    set_main_car
+    set_main_car,
+    car_card_text
 )
 
 
@@ -80,15 +82,20 @@ from boss_race_system import (
 
 
 async def start(
+
     update: Update,
+
     context: ContextTypes.DEFAULT_TYPE
+
 ):
 
     user = update.effective_user
 
 
     get_player(
+
         user.id
+
     )
 
 
@@ -116,7 +123,9 @@ async def start(
 
 def rewards_text(reward):
 
+
     text = ""
+
 
 
     if reward.get("missions"):
@@ -170,10 +179,12 @@ async def buttons(
 
 ):
 
+
     query = update.callback_query
 
 
     await query.answer()
+
 
 
     user_id = query.from_user.id
@@ -253,16 +264,84 @@ async def buttons(
 
         await query.edit_message_text(
 
-            "👑 Выбери машину:",
+            "🚗 <b>ТВОИ МАШИНЫ</b>\n\n"
+
+            "Выбери автомобиль:",
 
             reply_markup=garage_cars_menu(cars),
 
             parse_mode="HTML"
 
         )
-     
-           
-            elif action.startswith("set_main_"):
+
+
+
+
+    # =====================
+    # КАРТОЧКА МАШИНЫ
+    # =====================
+
+
+    elif action.startswith("car_"):
+
+
+        car_id = action.replace(
+
+            "car_",
+
+            ""
+
+        )
+
+
+        cars = get_garage_cars(
+
+            user_id
+
+        )
+
+
+        for car in cars:
+
+
+            if str(car.get("id")) == car_id:
+
+
+                await query.edit_message_text(
+
+                    car_card_text(
+
+                        user_id,
+
+                        car
+
+                    ),
+
+                    reply_markup=
+
+                    car_card_menu(car_id),
+
+                    parse_mode="HTML"
+
+                )
+
+                return
+
+
+
+        await query.edit_message_text(
+
+            "❌ Машина не найдена",
+
+            reply_markup=main_menu()
+
+        )
+           # =====================
+    # ВЫБОР ГЛАВНОЙ
+    # =====================
+
+
+    elif action.startswith("set_main_"):
 
 
         car_id = action.replace(
@@ -290,6 +369,7 @@ async def buttons(
 
             if str(car.get("id")) == car_id:
 
+
                 selected = car["name"]
 
                 break
@@ -310,7 +390,7 @@ async def buttons(
 
             text = (
 
-                "👑 <b>ГЛАВНАЯ МАШИНА</b>\n\n"
+                "👑 <b>ГЛАВНАЯ МАШИНА УСТАНОВЛЕНА</b>\n\n"
 
                 f"🚗 {selected}"
 
@@ -320,11 +400,7 @@ async def buttons(
         else:
 
 
-            text = (
-
-                "❌ Машина не найдена"
-
-            )
+            text = "❌ Машина не найдена"
 
 
 
@@ -373,6 +449,7 @@ async def buttons(
 
 
             if str(car.get("id")) == car_id:
+
 
                 car_name = car["name"]
 
@@ -429,11 +506,11 @@ async def buttons(
 
             text = (
 
-                "🔧 <b>МАШИНА УЛУЧШЕНА!</b>\n\n"
+                "🔧 <b>УЛУЧШЕНИЕ УСПЕШНО</b>\n\n"
 
-                f"🚗 {car_name}\n"
+                f"🚗 {car_name}\n\n"
 
-                f"⭐ Новый уровень: {result['level']}/10\n\n"
+                f"⭐ Уровень: {result['level']}/10\n"
 
                 f"⚡ Бонус мощности: +{result['power']}\n"
 
@@ -516,20 +593,29 @@ async def buttons(
 
         cars = {
 
+
             "buy_honda":
+
             "🚗 Honda Civic",
 
 
+
             "buy_bmw":
+
             "🏎 BMW M3",
 
 
+
             "buy_supra":
+
             "🔥 Supra MK5",
 
 
+
             "buy_bugatti":
+
             "👑 Bugatti X"
+
 
         }
 
@@ -540,21 +626,6 @@ async def buttons(
             action
 
         )
-
-
-
-        if not car_name:
-
-
-            await query.edit_message_text(
-
-                "❌ Машина не найдена",
-
-                reply_markup=main_menu()
-
-            )
-
-            return
 
 
 
@@ -592,11 +663,11 @@ async def buttons(
 
             text = (
 
-                "🛒 <b>ПОКУПКА УСПЕШНА!</b>\n\n"
+                "🛒 <b>ПОКУПКА УСПЕШНА</b>\n\n"
 
                 f"🚗 {car_name}\n\n"
 
-                "✅ Машина добавлена в гараж"
+                "✅ Добавлено в гараж"
 
             )
 
@@ -606,9 +677,7 @@ async def buttons(
 
             text = (
 
-                "❌ Покупка невозможна\n\n"
-
-                "Нет денег или машина уже есть"
+                "❌ Покупка невозможна"
 
             )
 
@@ -623,7 +692,6 @@ async def buttons(
             parse_mode="HTML"
 
         )
-        
             # =====================
     # NPC
     # =====================
