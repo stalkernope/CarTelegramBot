@@ -7,7 +7,7 @@ app = Flask(__name__)
 
 @app.route("/")
 def home():
-    return "CAR LEGENDS CLUB ONLINE"
+    return "CAR LEGENDS ONLINE"
 
 
 def run():
@@ -18,5 +18,9 @@ def run():
 
 
 def keep_alive():
-    thread = Thread(target=run)
-    thread.start()
+
+    t = Thread(
+        target=run
+    )
+
+    t.start()
