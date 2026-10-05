@@ -62,6 +62,11 @@ from upgrade_system import (
 )
 
 
+from pet_system import (
+    pets_text
+)
+
+
 from battle_system import (
     battle,
     battle_result_text,
@@ -84,15 +89,20 @@ from boss_race_system import (
 
 
 async def start(
+
     update: Update,
+
     context: ContextTypes.DEFAULT_TYPE
+
 ):
 
     user = update.effective_user
 
 
     get_player(
+
         user.id
+
     )
 
 
@@ -102,13 +112,13 @@ async def start(
 
         f"Добро пожаловать, {user.first_name}!\n\n"
 
-        "🚗 Собирай легендарные машины\n"
+        "🚗 Собирай машины\n"
 
         "🔧 Улучшай характеристики\n"
 
-        "🏁 Побеждай на трассах\n"
+        "🐾 Собирай питомцев\n"
 
-        "👑 Стань легендой скорости",
+        "🏁 Побеждай в гонках",
 
         reply_markup=main_menu(),
 
@@ -274,11 +284,7 @@ async def buttons(
             parse_mode="HTML"
 
         )
-
-
-
-
-    # =====================
+            # =====================
     # КАРТОЧКА МАШИНЫ
     # =====================
 
@@ -327,9 +333,33 @@ async def buttons(
                 )
 
                 return
-                
-                    # =====================
-    # ВЫБОР ГЛАВНОЙ МАШИНЫ
+
+
+
+
+    # =====================
+    # ПИТОМЦЫ
+    # =====================
+
+
+    elif action == "pets":
+
+
+        await query.edit_message_text(
+
+            pets_text(user_id),
+
+            reply_markup=garage_menu(),
+
+            parse_mode="HTML"
+
+        )
+
+
+
+
+    # =====================
+    # ГЛАВНАЯ МАШИНА
     # =====================
 
 
@@ -498,15 +528,15 @@ async def buttons(
 
             text = (
 
-                "🔧 <b>МАШИНА УЛУЧШЕНА</b>\n\n"
+                "🔧 <b>УЛУЧШЕНИЕ</b>\n\n"
 
                 f"🚗 {car_name}\n\n"
 
                 f"⭐ Уровень: {result['level']}/10\n"
 
-                f"⚡ Мощность: +{result['power']}\n"
+                f"⚡ +{result['power']} мощности\n"
 
-                f"🚀 Скорость: +{result['speed']}"
+                f"🚀 +{result['speed']} скорости"
 
             )
 
@@ -523,6 +553,60 @@ async def buttons(
             text,
 
             reply_markup=main_menu(),
+
+            parse_mode="HTML"
+
+        )
+
+
+
+
+    # =====================
+    # КАРЬЕРА
+    # =====================
+
+
+    elif action == "career":
+
+
+        await query.edit_message_text(
+
+            "🏆 <b>КАРЬЕРА</b>\n\n"
+
+            "⭐ Уровень\n"
+
+            "🎁 Награды\n"
+
+            "🎫 Боевой пропуск",
+
+            reply_markup=career_menu(),
+
+            parse_mode="HTML"
+
+        )
+
+
+
+
+    # =====================
+    # СОЦИАЛЬНОЕ
+    # =====================
+
+
+    elif action == "social":
+
+
+        await query.edit_message_text(
+
+            "🌐 <b>СОЦИАЛЬНОЕ</b>\n\n"
+
+            "👥 Друзья\n"
+
+            "🎁 Рефералы\n"
+
+            "🏆 Рейтинг",
+
+            reply_markup=social_menu(),
 
             parse_mode="HTML"
 
@@ -550,11 +634,7 @@ async def buttons(
             parse_mode="HTML"
 
         )
-
-
-
-
-    # =====================
+            # =====================
     # АВТОСАЛОН
     # =====================
 
@@ -652,7 +732,7 @@ async def buttons(
 
                 f"🚗 {car_name}\n"
 
-                "✅ Добавлено в гараж"
+                "✅ Машина добавлена"
 
             )
 
@@ -682,109 +762,6 @@ async def buttons(
 
 
     # =====================
-    # НОВЫЕ РАЗДЕЛЫ
-    # =====================
-
-
-    elif action == "career":
-
-
-        await query.edit_message_text(
-
-            "🏆 <b>КАРЬЕРА</b>\n\n"
-
-            "⭐ Уровень\n"
-
-            "🎁 Награды\n"
-
-            "🎫 Боевой пропуск\n\n"
-
-            "Раздел развивается",
-
-            reply_markup=career_menu(),
-
-            parse_mode="HTML"
-
-        )
-
-
-
-
-    elif action == "social":
-
-
-        await query.edit_message_text(
-
-            "🌐 <b>СОЦИАЛЬНОЕ</b>\n\n"
-
-            "👥 Друзья\n"
-
-            "🎁 Рефералы\n"
-
-            "🏆 Рейтинг игроков",
-
-            reply_markup=social_menu(),
-
-            parse_mode="HTML"
-
-        )
-
-
-
-
-    elif action in [
-
-        "tuning",
-
-        "pets",
-
-        "skins",
-
-        "parts",
-
-        "garage_upgrade"
-
-    ]:
-
-
-        await query.edit_message_text(
-
-            "🔥 <b>РАЗДЕЛ В РАЗРАБОТКЕ</b>\n\n"
-
-            "Скоро здесь появится новый функционал",
-
-            reply_markup=garage_menu(),
-
-            parse_mode="HTML"
-
-        )
-
-
-
-
-    elif action in [
-
-        "pvp",
-
-        "championship",
-
-        "seasons"
-
-    ]:
-
-
-        await query.edit_message_text(
-
-            "🏁 <b>ГОНКИ</b>\n\n"
-
-            "Этот режим скоро будет доступен",
-
-            reply_markup=race_menu(),
-
-            parse_mode="HTML"
-
-        )
-            # =====================
     # NPC
     # =====================
 
@@ -804,7 +781,7 @@ async def buttons(
 
             await query.edit_message_text(
 
-                "❌ У тебя нет главной машины",
+                "❌ Нет главной машины",
 
                 reply_markup=main_menu()
 
@@ -836,21 +813,6 @@ async def buttons(
                 enemy = car
 
                 break
-
-
-
-        if not enemy:
-
-
-            await query.edit_message_text(
-
-                "❌ Нет соперников",
-
-                reply_markup=main_menu()
-
-            )
-
-            return
 
 
 
@@ -946,24 +908,9 @@ async def buttons(
         )
 
 
-        if not player.get("main_car"):
-
-
-            await query.edit_message_text(
-
-                "❌ Сначала выбери главную машину",
-
-                reply_markup=main_menu()
-
-            )
-
-            return
-
-
-
         car = get_car(
 
-            player["main_car"]
+            player.get("main_car")
 
         )
 
@@ -995,13 +942,11 @@ async def buttons(
 
             text = (
 
-                "👑 <b>БОСС ПОБЕЖДЕН!</b>\n\n"
+                "👑 <b>БОСС ПОБЕЖДЕН</b>\n\n"
 
                 f"⚔️ {result['boss']}\n\n"
 
-                f"🎁 Награда:\n"
-
-                f"{result['reward']}"
+                f"🎁 {result['reward']}"
 
             )
 
@@ -1013,9 +958,7 @@ async def buttons(
 
                 "❌ <b>ПОРАЖЕНИЕ</b>\n\n"
 
-                f"👑 Босс:\n"
-
-                f"{result['boss']}"
+                f"👑 {result['boss']}"
 
             )
 
@@ -1156,7 +1099,7 @@ async def buttons(
 
         await query.edit_message_text(
 
-            "🔥 Раздел пока недоступен",
+            "🔥 Раздел в разработке",
 
             reply_markup=main_menu()
 
