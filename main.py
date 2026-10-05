@@ -1,6 +1,9 @@
 import os
 import logging
+
+
 from server import keep_alive
+
 
 from telegram import (
     Update,
@@ -77,6 +80,7 @@ logging.basicConfig(
 )
 
 
+
 TOKEN = os.environ.get(
     "BOT_TOKEN"
 )
@@ -84,7 +88,16 @@ TOKEN = os.environ.get(
 
 
 # =========================
-# МАШИНА ТЕКСТ
+# KEEP ALIVE RENDER
+# =========================
+
+
+keep_alive()
+
+
+
+# =========================
+# ТЕКСТ МАШИНЫ
 # =========================
 
 
@@ -100,17 +113,19 @@ def car_text(car):
 
         f"🏎 <b>{car.get('name','')}</b>\n\n"
 
-        f"🏭 {car.get('brand','')}\n"
+        f"🏭 Бренд: {car.get('brand','')}\n"
 
-        f"🌍 {car.get('country','')}\n\n"
+        f"🌍 Страна: {car.get('country','')}\n"
 
-        f"⚡ {car.get('power',0)} л.с.\n"
+        f"📅 Год: {car.get('year','')}\n\n"
 
-        f"🚀 {car.get('speed',0)} км/ч\n"
+        f"⚡ Мощность: {car.get('power',0)} л.с.\n"
 
-        f"💰 {car.get('price',0)}$\n"
+        f"🚀 Скорость: {car.get('speed',0)} км/ч\n"
 
-        f"💎 {car.get('rarity','')}\n\n"
+        f"💰 Цена: {car.get('price',0)}$\n"
+
+        f"💎 Редкость: {car.get('rarity','')}\n\n"
 
         f"📝 {car.get('description','')}"
 
@@ -142,7 +157,7 @@ async def start(
 
         "🔥 Добро пожаловать!\n\n"
 
-        "Собирай легендарные машины\n"
+        "🚗 Собирай легендарные машины\n"
 
         "⚔️ Участвуй в битвах\n"
 
@@ -150,7 +165,7 @@ async def start(
 
         "🛒 Покупай автомобили\n\n"
 
-        "Выбирай раздел 👇",
+        "Выбирай действие 👇",
 
         parse_mode="HTML",
 
@@ -161,7 +176,7 @@ async def start(
 
 
 # =========================
-# КОМАНДА CAR
+# /car
 # =========================
 
 
@@ -170,16 +185,21 @@ async def car_command(
     context: ContextTypes.DEFAULT_TYPE
 ):
 
+
     user_id = update.effective_user.id
 
 
     car = get_random_car()
 
 
+
     if not car:
 
+
         await update.message.reply_text(
-            "❌ Машины отсутствуют"
+
+            "❌ Нет машин в базе"
+
         )
 
         return
@@ -195,9 +215,38 @@ async def car_command(
     )
 
 
+
     await update.message.reply_text(
 
         car_text(car),
+
+        parse_mode="HTML"
+
+    )
+
+
+
+# =========================
+# ПРОФИЛЬ
+# =========================
+
+
+async def profile_command(
+    update: Update,
+    context: ContextTypes.DEFAULT_TYPE
+):
+
+
+    user = get_player(
+
+        update.effective_user.id
+
+    )
+
+
+    await update.message.reply_text(
+
+        profile_text(user),
 
         parse_mode="HTML"
 
@@ -225,15 +274,13 @@ async def button_handler(
 
 
         logging.info(
-
-            f"Button: {query.data} | USER: {user_id}"
-
+            f"BUTTON {query.data} USER {user_id}"
         )
 
 
 
         # =====================
-        # НАЗАД В МЕНЮ
+        # НАЗАД
         # =====================
 
 
@@ -253,6 +300,7 @@ async def button_handler(
 
 
 
+
         # =====================
         # МАШИНА ДНЯ
         # =====================
@@ -264,7 +312,9 @@ async def button_handler(
             car = get_daily_car()
 
 
+
             if not car:
+
 
                 await query.message.reply_text(
 
@@ -291,6 +341,7 @@ async def button_handler(
 
 
 
+
         # =====================
         # СЛУЧАЙНАЯ МАШИНА
         # =====================
@@ -305,6 +356,7 @@ async def button_handler(
 
             if not car:
 
+
                 return
 
 
@@ -316,6 +368,7 @@ async def button_handler(
                 car["name"]
 
             )
+
 
 
             await query.message.reply_text(
@@ -333,6 +386,7 @@ async def button_handler(
 
 
 
+
         # =====================
         # КЕЙС
         # =====================
@@ -343,8 +397,11 @@ async def button_handler(
 
             try:
 
+
                 car = open_case(
+
                     user_id
+
                 )
 
 
@@ -359,17 +416,22 @@ async def button_handler(
                 )
 
 
+
             except Exception as e:
 
 
                 await query.message.reply_text(
 
-                    str(e)
+                    "❌ "
+
+                    + str(e)
 
                 )
 
 
             return
+
+
 
 
 
@@ -382,8 +444,11 @@ async def button_handler(
 
 
             user = get_player(
+
                 user_id
+
             )
+
 
 
             await query.message.reply_text(
@@ -399,6 +464,8 @@ async def button_handler(
 
 
 
+
+
         # =====================
         # ГАРАЖ
         # =====================
@@ -408,7 +475,9 @@ async def button_handler(
 
 
             user = get_player(
+
                 user_id
+
             )
 
 
@@ -419,10 +488,12 @@ async def button_handler(
             )
 
 
+
             if user["garage"]:
 
 
                 for car in user["garage"]:
+
 
                     text += (
 
@@ -435,7 +506,9 @@ async def button_handler(
                     )
 
 
+
             else:
+
 
                 text += "Гараж пуст"
 
@@ -454,6 +527,8 @@ async def button_handler(
 
 
 
+
+
         # =====================
         # МАГАЗИН
         # =====================
@@ -467,6 +542,7 @@ async def button_handler(
 
 
             if not cars:
+
 
                 await query.message.reply_text(
 
@@ -488,12 +564,14 @@ async def button_handler(
             )
 
 
+
             for car in cars:
+
 
 
                 text += (
 
-                    f"🏎 {car['name']}\n"
+                    f"🏎 <b>{car['name']}</b>\n"
 
                     f"💎 {car['rarity']}\n"
 
@@ -561,7 +639,7 @@ async def button_handler(
             return
             
                     # =====================
-        # ПОКУПКА МАШИНЫ
+        # ПОКУПКА
         # =====================
 
 
@@ -577,6 +655,7 @@ async def button_handler(
             )
 
 
+
             try:
 
 
@@ -587,6 +666,7 @@ async def button_handler(
                     car_name
 
                 )
+
 
 
                 await query.message.reply_text(
@@ -600,6 +680,7 @@ async def button_handler(
                 )
 
 
+
             except Exception as e:
 
 
@@ -610,6 +691,7 @@ async def button_handler(
                     + str(e)
 
                 )
+
 
 
             return
@@ -638,9 +720,7 @@ async def button_handler(
 
                 )
 
-
                 return
-
 
 
 
@@ -656,6 +736,7 @@ async def button_handler(
 
             keyboard = [
 
+
                 [
 
                     InlineKeyboardButton(
@@ -668,6 +749,7 @@ async def button_handler(
 
                 ],
 
+
                 [
 
                     InlineKeyboardButton(
@@ -679,6 +761,7 @@ async def button_handler(
                     )
 
                 ],
+
 
                 [
 
@@ -725,7 +808,7 @@ async def button_handler(
 
 
         # =====================
-        # ВЫБОР В БИТВЕ
+        # ВЫБОР БИТВЫ
         # =====================
 
 
@@ -745,6 +828,7 @@ async def button_handler(
             )
 
 
+
             if not battle:
 
 
@@ -753,7 +837,6 @@ async def button_handler(
                     "❌ Битва устарела"
 
                 )
-
 
                 return
 
@@ -773,21 +856,16 @@ async def button_handler(
 
 
 
-            if not winner:
+            chosen = (
 
 
-                await query.message.reply_text(
+                car1
 
-                    "❌ Ошибка битвы"
+                if query.data == "fight_1"
 
-                )
+                else car2
 
-                return
-
-
-
-
-            chosen = car1 if query.data == "fight_1" else car2
+            )
 
 
 
@@ -803,7 +881,7 @@ async def button_handler(
 
                 result = (
 
-                    "🏆 Ты угадал победителя!"
+                    "🏆 Ты выбрал победителя!"
 
                 )
 
@@ -820,7 +898,7 @@ async def button_handler(
 
                 result = (
 
-                    "❌ Ты проиграл!"
+                    "❌ Неверный выбор!"
 
                 )
 
@@ -845,25 +923,26 @@ async def button_handler(
 
 
 
+
     except Exception as e:
 
 
-        logging.error(
+        logging.exception(
 
-            "Ошибка кнопки",
-
-            exc_info=True
+            "Ошибка кнопки"
 
         )
 
 
         await query.message.reply_text(
 
-            "❌ Произошла ошибка:\n"
+            "❌ Ошибка:\n"
 
             + str(e)
 
         )
+
+
 
 
 
@@ -877,13 +956,15 @@ async def error_handler(
     context
 ):
 
-    logging.error(
+    logging.exception(
 
-        "Ошибка бота",
+        "Ошибка приложения",
 
         exc_info=context.error
 
     )
+
+
 
 
 
@@ -900,7 +981,7 @@ def main():
 
         print(
 
-            "❌ BOT_TOKEN не найден"
+            "❌ BOT_TOKEN отсутствует"
 
         )
 
@@ -950,6 +1031,19 @@ def main():
 
     app.add_handler(
 
+        CommandHandler(
+
+            "profile",
+
+            profile_command
+
+        )
+
+    )
+
+
+    app.add_handler(
+
         CallbackQueryHandler(
 
             button_handler
@@ -967,18 +1061,33 @@ def main():
 
 
 
-        print(
+    print(
+
         "🏎 CAR LEGENDS CLUB запущен!"
+
     )
+
+
 
     app.run_polling()
 
 
-if __name__ == "__main__":
-    main()
 
-    except Exception as e:
+
+
+if __name__ == "__main__":
+
+
+    try:
+
+        main()
+
+
+    except Exception:
+
+
         logging.exception(
-            "КРИТИЧЕСКАЯ ОШИБКА БОТА"
+
+            "КРИТИЧЕСКАЯ ОШИБКА"
+
         )
-        raise e
