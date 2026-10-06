@@ -1,91 +1,92 @@
-import json
-import os
-
-
 from database import (
     get_player,
-    update_player
+    update_player,
+    remove_coins
 )
 
-
-
-PET_FILE = "pets.json"
 
 
 
 
 # =========================
-# БАЗА ПИТОМЦЕВ
+# PETS
 # =========================
 
 
 PETS = {
 
 
-    "drift_dog": {
+    "dog": {
 
 
-        "name": "🐺 Дрифт-пёс",
+        "name": "🐕 Street Dog",
 
-        "rarity": "⚪ Common",
 
-        "bonus": {
+        "price": 5000,
 
-            "handling": 5
 
-        }
+        "power": 100,
+
+
+        "speed": 20
+
 
     },
 
 
-    "speed_hawk": {
+
+    "cat": {
 
 
-        "name": "🦅 Сокол скорости",
+        "name": "🐈 Turbo Cat",
 
-        "rarity": "🔵 Rare",
 
-        "bonus": {
+        "price": 15000,
 
-            "speed": 20
 
-        }
+        "power": 250,
+
+
+        "speed": 50
+
 
     },
 
 
-    "turbo_bot": {
+
+    "hawk": {
 
 
-        "name": "🤖 Турбо-бот",
+        "name": "🦅 Racing Hawk",
 
-        "rarity": "💎 Legendary",
 
-        "bonus": {
+        "price": 40000,
 
-            "power": 50
 
-        }
+        "power": 600,
+
+
+        "speed": 100
+
 
     },
 
 
-    "fire_dragon": {
+
+    "dragon": {
 
 
-        "name": "🐉 Огненный дракон",
+        "name": "🐉 Neon Dragon",
 
-        "rarity": "🔥 Mythic",
 
-        "bonus": {
+        "price": 100000,
 
-            "power": 100,
 
-            "speed": 50,
+        "power": 1500,
 
-            "critical": 10
 
-        }
+        "speed": 200
+
 
     }
 
@@ -94,112 +95,32 @@ PETS = {
 
 
 
+
+
+
 # =========================
-# ЗАГРУЗКА
+# ALL PETS
 # =========================
 
 
-def load_pets():
+def get_pets():
 
 
-    if not os.path.exists(PET_FILE):
-
-        return {}
-
-
-
-    try:
-
-
-        with open(
-
-            PET_FILE,
-
-            "r",
-
-            encoding="utf-8"
-
-        ) as file:
-
-
-            return json.load(file)
+    return PETS
 
 
 
-    except:
 
-
-        return {}
 
 
 
 
 # =========================
-# СОХРАНЕНИЕ
+# BUY PET
 # =========================
 
 
-def save_pets(data):
-
-
-    with open(
-
-        PET_FILE,
-
-        "w",
-
-        encoding="utf-8"
-
-    ) as file:
-
-
-        json.dump(
-
-            data,
-
-            file,
-
-            ensure_ascii=False,
-
-            indent=4
-
-        )
-
-
-
-
-# =========================
-# ПОЛУЧИТЬ ПИТОМЦЕВ ИГРОКА
-# =========================
-
-
-def get_player_pets(user_id):
-
-
-    player = get_player(
-
-        user_id
-
-    )
-
-
-    return player.get(
-
-        "pets",
-
-        []
-
-    )
-
-
-
-
-# =========================
-# ДОБАВИТЬ ПИТОМЦА
-# =========================
-
-
-def add_pet(
+def buy_pet(
 
     user_id,
 
@@ -208,6 +129,21 @@ def add_pet(
 ):
 
 
+    if pet_id not in PETS:
+
+
+        raise Exception(
+
+            "Питомец не найден"
+
+        )
+
+
+
+    pet = PETS[pet_id]
+
+
+
     player = get_player(
 
         user_id
@@ -215,31 +151,52 @@ def add_pet(
     )
 
 
-    if pet_id not in PETS:
-
-
-        return False
 
 
 
-    player["pets"].append(
+    if pet_id in player["pets"]:
 
-        {
 
-            "id": pet_id,
+        raise Exception(
 
-            "level": 1
+            "Питомец уже есть"
 
-        }
+        )
+
+
+
+
+
+    if player["coins"] < pet["price"]:
+
+
+        raise Exception(
+
+            "Недостаточно монет"
+
+        )
+
+
+
+
+
+    remove_coins(
+
+        user_id,
+
+        pet["price"]
 
     )
 
 
 
-    if player["active_pet"] is None:
 
 
-        player["active_pet"] = pet_id
+    player["pets"].append(
+
+        pet_id
+
+    )
 
 
 
@@ -252,13 +209,18 @@ def add_pet(
     )
 
 
-    return True
+
+    return pet
+
+
+
+
 
 
 
 
 # =========================
-# АКТИВНЫЙ ПИТОМЕЦ
+# SET ACTIVE PET
 # =========================
 
 
@@ -278,112 +240,51 @@ def set_active_pet(
     )
 
 
-    for pet in player["pets"]:
+
+    if pet_id not in player["pets"]:
 
 
-        if pet["id"] == pet_id:
+        raise Exception(
 
+            "Питомца нет"
 
-            player["active_pet"] = pet_id
-
-
-            update_player(
-
-                user_id,
-
-                player
-
-            )
-
-
-            return True
-
-
-
-    return False
+        )
 
 
 
 
-# =========================
-# БОНУСЫ
-# =========================
+
+    player["active_pet"] = pet_id
 
 
-def get_pet_bonus(user_id):
 
+    update_player(
 
-    player = get_player(
+        user_id,
 
-        user_id
+        player
 
     )
 
 
-    active = player.get(
 
-        "active_pet"
-
-    )
-
-
-    bonus = {
-
-
-        "power": 0,
-
-        "speed": 0,
-
-        "handling": 0,
-
-        "critical": 0
-
-    }
+    return True
 
 
 
-    if not active:
 
-
-        return bonus
-
-
-
-    for pet in player["pets"]:
-
-
-        if pet["id"] == active:
-
-
-            data = PETS[active]
-
-
-            level = pet["level"]
-
-
-
-            for stat,value in data["bonus"].items():
-
-
-                bonus[stat] = value * level
-
-
-
-    return bonus
 
 
 
 
 # =========================
-# ПРОКАЧКА
+# BONUS
 # =========================
 
 
-def upgrade_pet(
+def get_pet_bonus(
 
-    user_id,
-
-    pet_id
+    user_id
 
 ):
 
@@ -395,114 +296,67 @@ def upgrade_pet(
     )
 
 
-    for pet in player["pets"]:
 
+    pet_id = player.get(
 
-        if pet["id"] == pet_id:
-
-
-            if pet["level"] >= 10:
-
-
-                return False
-
-
-
-            price = pet["level"] * 2000
-
-
-
-            if player["coins"] < price:
-
-
-                return False
-
-
-
-            player["coins"] -= price
-
-
-
-            pet["level"] += 1
-
-
-
-            update_player(
-
-                user_id,
-
-                player
-
-            )
-
-
-            return True
-
-
-
-    return False
-
-
-
-
-# =========================
-# ТЕКСТ
-# =========================
-
-
-def pets_text(user_id):
-
-
-    player = get_player(
-
-        user_id
-
-    )
-
-
-    text = (
-
-        "🐾 <b>ПИТОМЦЫ</b>\n\n"
+        "active_pet"
 
     )
 
 
 
-    if not player["pets"]:
+    if not pet_id:
 
 
-        return text + "У тебя нет питомцев"
+        return {
 
 
-
-    for pet in player["pets"]:
-
-
-        data = PETS[pet["id"]]
+            "power":0,
 
 
-        active = ""
+            "speed":0
 
 
-        if player["active_pet"] == pet["id"]:
-
-
-            active = " 👑"
+        }
 
 
 
-        text += (
 
-            f"{data['name']}{active}\n"
 
-            f"{data['rarity']}\n"
+    pet = PETS.get(
 
-            f"⭐ Уровень: "
+        pet_id
 
-            f"{pet['level']}/10\n\n"
-
-        )
+    )
 
 
 
-    return text
+    if not pet:
+
+
+        return {
+
+
+            "power":0,
+
+
+            "speed":0
+
+
+        }
+
+
+
+
+
+
+    return {
+
+
+        "power":pet["power"],
+
+
+        "speed":pet["speed"]
+
+
+    }
