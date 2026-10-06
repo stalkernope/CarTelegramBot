@@ -1,56 +1,103 @@
 import random
 
 
+
+from database import (
+    get_player,
+    remove_coins,
+    add_car
+)
+
+
 from car_database import (
     get_all_cars
 )
 
 
-from database import (
-    add_car
-)
 
 
-
-# =========================
-# ВЕСА КЕЙСА
-# =========================
-
-
-RARITY_CHANCE = {
-
-
-    "🔵 Rare": 70,
-
-
-    "💎 Legendary": 25,
-
-
-    "🔥 Mythic": 5
-
-}
 
 
 
 # =========================
-# ВЫБОР ИЗ КЕЙСА
+# CASE SETTINGS
 # =========================
 
 
-def open_case(user_id):
+CASE_PRICE = 2500
+
+
+
+
+
+
+
+
+# =========================
+# GET CASE CARS
+# =========================
+
+
+def get_case_cars():
 
 
     cars = get_all_cars()
 
 
 
+    result = []
+
+
+
+    for car in cars:
+
+
+        if car.get(
+
+            "case",
+
+            True
+
+        ):
+
+
+            result.append(
+
+                car
+
+            )
+
+
+
+    return result
+
+
+
+
+
+
+
+
+# =========================
+# RANDOM CAR
+# =========================
+
+
+def random_case_car():
+
+
+    cars = get_case_cars()
+
+
+
     if not cars:
+
 
         return None
 
 
 
-    weighted = []
+    weights = []
 
 
 
@@ -61,34 +108,127 @@ def open_case(user_id):
 
             "rarity",
 
-            "🔵 Rare"
-
-        )
-
-
-        chance = RARITY_CHANCE.get(
-
-            rarity,
-
-            10
+            "Common"
 
         )
 
 
 
-        weighted.extend(
-
-            [car] * chance
-
-        )
+        if rarity == "Legendary":
 
 
+            weights.append(5)
 
-    car = random.choice(
 
-        weighted
+
+        elif rarity == "Epic":
+
+
+            weights.append(15)
+
+
+
+        elif rarity == "Rare":
+
+
+            weights.append(30)
+
+
+
+        else:
+
+
+            weights.append(50)
+
+
+
+
+
+    return random.choices(
+
+        cars,
+
+        weights=weights,
+
+        k=1
+
+    )[0]
+
+
+
+
+
+
+
+
+
+# =========================
+# OPEN CASE
+# =========================
+
+
+def open_case(user_id):
+
+
+    player = get_player(
+
+        user_id
 
     )
+
+
+
+    if player["coins"] < CASE_PRICE:
+
+
+        raise Exception(
+
+            "Недостаточно монет для кейса"
+
+        )
+
+
+
+
+
+    paid = remove_coins(
+
+        user_id,
+
+        CASE_PRICE
+
+    )
+
+
+
+    if not paid:
+
+
+        raise Exception(
+
+            "Ошибка оплаты"
+
+        )
+
+
+
+
+
+
+    car = random_case_car()
+
+
+
+    if not car:
+
+
+        raise Exception(
+
+            "Нет машин в кейсе"
+
+        )
+
+
 
 
 
@@ -102,28 +242,6 @@ def open_case(user_id):
 
 
 
+
+
     return car
-
-
-
-# =========================
-# ИНФОРМАЦИЯ О КЕЙСЕ
-# =========================
-
-
-def case_info():
-
-
-    return (
-
-        "🎁 <b>LEGEND CASE</b>\n\n"
-
-        "🔵 Rare — 70%\n"
-
-        "💎 Legendary — 25%\n"
-
-        "🔥 Mythic — 5%\n\n"
-
-        "Открывай и собирай коллекцию!"
-
-    )
