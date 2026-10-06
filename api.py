@@ -25,6 +25,13 @@ from shop_cars import (
 )
 
 
+from race_system import (
+    race_npc,
+    fight_boss,
+    race_result_text
+)
+
+
 
 
 
@@ -45,7 +52,6 @@ app = Flask(
 
 
 
-
 # =========================
 # MINI APP
 # =========================
@@ -54,7 +60,6 @@ app = Flask(
 @app.route("/")
 
 def home():
-
 
     return send_from_directory(
 
@@ -68,14 +73,9 @@ def home():
 
 
 
-@app.route(
-
-    "/<path:path>"
-
-)
+@app.route("/<path:path>")
 
 def files(path):
-
 
     return send_from_directory(
 
@@ -91,9 +91,8 @@ def files(path):
 
 
 
-
 # =========================
-# ИГРОК
+# PLAYER
 # =========================
 
 
@@ -106,16 +105,13 @@ def files(path):
 def player(user_id):
 
 
-    data = get_player(
-
-        int(user_id)
-
-    )
-
-
     return jsonify(
 
-        data
+        get_player(
+
+            int(user_id)
+
+        )
 
     )
 
@@ -127,7 +123,7 @@ def player(user_id):
 
 
 # =========================
-# ГАРАЖ
+# GARAGE
 # =========================
 
 
@@ -150,7 +146,6 @@ def garage(user_id):
     cars = []
 
 
-
     for name in player.get(
 
         "garage",
@@ -167,9 +162,7 @@ def garage(user_id):
         )
 
 
-
         if car:
-
 
             cars.append(
 
@@ -193,7 +186,7 @@ def garage(user_id):
 
 
 # =========================
-# ГЛАВНАЯ МАШИНА
+# MAIN CAR
 # =========================
 
 
@@ -211,19 +204,9 @@ def set_main_car():
     data = request.json
 
 
+    user_id = data["user_id"]
 
-    user_id = data.get(
-
-        "user_id"
-
-    )
-
-
-    car_name = data.get(
-
-        "car"
-
-    )
+    car = data["car"]
 
 
 
@@ -235,22 +218,16 @@ def set_main_car():
 
 
 
-    if car_name not in player.get(
-
-        "garage",
-
-        []
-
-    ):
+    if car not in player["garage"]:
 
 
         return jsonify(
 
             {
 
-                "success": False,
+                "success":False,
 
-                "error": "Машины нет в гараже"
+                "error":"Нет такой машины"
 
             }
 
@@ -258,7 +235,7 @@ def set_main_car():
 
 
 
-    player["main_car"] = car_name
+    player["main_car"] = car
 
 
 
@@ -271,14 +248,13 @@ def set_main_car():
     )
 
 
-
     return jsonify(
 
         {
 
-            "success": True,
+            "success":True,
 
-            "main_car": car_name
+            "main_car":car
 
         }
 
@@ -292,7 +268,7 @@ def set_main_car():
 
 
 # =========================
-# МАГАЗИН
+# SHOP
 # =========================
 
 
@@ -317,12 +293,6 @@ def shop():
 
 
 
-
-# =========================
-# ПОКУПКА
-# =========================
-
-
 @app.route(
 
     "/api/buy",
@@ -337,46 +307,30 @@ def buy():
     data = request.json
 
 
-
-    user_id = data.get(
-
-        "user_id"
-
-    )
-
-
-    car = data.get(
-
-        "car"
-
-    )
-
-
-
     try:
 
 
-        result = buy_car(
+        car = buy_car(
 
-            int(user_id),
+            int(data["user_id"]),
 
-            car
+            data["car"]
 
         )
-
 
 
         return jsonify(
 
             {
 
-                "success": True,
+                "success":True,
 
-                "car": result
+                "car":car
 
             }
 
         )
+
 
 
     except Exception as e:
@@ -386,9 +340,9 @@ def buy():
 
             {
 
-                "success": False,
+                "success":False,
 
-                "error": str(e)
+                "error":str(e)
 
             }
 
@@ -402,7 +356,107 @@ def buy():
 
 
 # =========================
-# ОБНОВЛЕНИЕ
+# RACE NPC
+# =========================
+
+
+@app.route(
+
+    "/api/race/npc",
+
+    methods=["POST"]
+
+)
+
+def race_npc_api():
+
+
+    data = request.json
+
+
+
+    result = race_npc(
+
+        int(data["user_id"]),
+
+        data["car"]
+
+    )
+
+
+
+    return jsonify(
+
+        {
+
+            "result":result,
+
+            "text":race_result_text(result)
+
+        }
+
+    )
+
+
+
+
+
+
+
+
+# =========================
+# BOSS RACE
+# =========================
+
+
+@app.route(
+
+    "/api/race/boss",
+
+    methods=["POST"]
+
+)
+
+def race_boss_api():
+
+
+    data = request.json
+
+
+
+    result = fight_boss(
+
+        int(data["user_id"]),
+
+        data["car"],
+
+        data["boss"]
+
+    )
+
+
+
+    return jsonify(
+
+        {
+
+            "result":result,
+
+            "text":race_result_text(result)
+
+        }
+
+    )
+
+
+
+
+
+
+
+
+# =========================
+# UPDATE PLAYER
 # =========================
 
 
@@ -435,7 +489,7 @@ def update():
 
         {
 
-            "success": True
+            "success":True
 
         }
 
