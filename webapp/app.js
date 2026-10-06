@@ -3,8 +3,61 @@
 // =========================
 
 
-// ID игрока
-let userId = 1;
+
+let userId = null;
+
+
+let tg = window.Telegram.WebApp;
+
+
+
+// =========================
+// TELEGRAM USER
+// =========================
+
+
+if(tg){
+
+
+    tg.ready();
+
+
+    tg.expand();
+
+
+
+    if(
+
+        tg.initDataUnsafe &&
+
+        tg.initDataUnsafe.user
+
+    ){
+
+
+        userId = tg.initDataUnsafe.user.id;
+
+
+    }
+
+
+}
+
+
+
+// Для теста через браузер
+
+if(!userId){
+
+
+    userId = 1;
+
+
+}
+
+
+
+
 
 
 
@@ -18,11 +71,14 @@ document.addEventListener(
 
     "DOMContentLoaded",
 
-    function(){
+    ()=>{
+
 
         loadPlayer();
 
+
         setupButtons();
+
 
     }
 
@@ -33,8 +89,10 @@ document.addEventListener(
 
 
 
+
+
 // =========================
-// ИГРОК
+// LOAD PLAYER
 // =========================
 
 
@@ -44,14 +102,15 @@ async function loadPlayer(){
     try{
 
 
-        const response = await fetch(
+        let response = await fetch(
 
             "/api/player/" + userId
 
         );
 
 
-        const player = await response.json();
+
+        let player = await response.json();
 
 
 
@@ -61,12 +120,13 @@ async function loadPlayer(){
 
     }
 
+
     catch(error){
 
 
         console.log(
 
-            "Player error",
+            "PLAYER ERROR",
 
             error
 
@@ -82,69 +142,76 @@ async function loadPlayer(){
 
 
 
+
+
+// =========================
+// UPDATE UI
+// =========================
+
+
 function updatePlayer(player){
 
 
 
-    if(
+    setText(
 
-        document.getElementById("coins")
+        "coins",
 
-    ){
+        player.coins
 
-        document.getElementById("coins").innerText =
-
-        player.coins;
-
-
-    }
+    );
 
 
 
-    if(
+    setText(
 
-        document.getElementById("gems")
+        "gems",
 
-    ){
+        player.gems
 
-        document.getElementById("gems").innerText =
-
-        player.gems;
-
-
-    }
+    );
 
 
 
-    if(
+    setText(
 
-        document.getElementById("rep")
+        "xp",
 
-    ){
+        player.xp
 
-        document.getElementById("rep").innerText =
-
-        player.xp;
-
-
-    }
+    );
 
 
 
-    if(
+    setText(
 
-        document.getElementById("car-name")
+        "level",
 
-        &&
+        player.level
 
-        player.main_car
-
-    ){
+    );
 
 
-        document.getElementById("car-name").innerText =
 
-        player.main_car;
+
+
+    if(player.main_car){
+
+
+        setText(
+
+            "main-car",
+
+            player.main_car
+
+        );
+
+
+        loadCar(
+
+            player.main_car
+
+        );
 
 
     }
@@ -157,8 +224,108 @@ function updatePlayer(player){
 
 
 
+
+function setText(id,value){
+
+
+
+    let element = document.getElementById(
+
+        id
+
+    );
+
+
+
+    if(element){
+
+
+        element.innerText = value;
+
+
+    }
+
+
+}
+
+
+
+
+
+
+
+
 // =========================
-// КНОПКИ
+// CAR INFO
+// =========================
+
+
+async function loadCar(name){
+
+
+
+    try{
+
+
+        let response = await fetch(
+
+            "/api/car/" + name
+
+        );
+
+
+
+        let car = await response.json();
+
+
+
+        setText(
+
+            "power",
+
+            car.power || 0
+
+        );
+
+
+        setText(
+
+            "speed",
+
+            car.speed || 0
+
+        );
+
+
+        setText(
+
+            "control",
+
+            car.handling || 0
+
+        );
+
+
+    }
+
+    catch(e){
+
+
+
+    }
+
+
+}
+
+
+
+
+
+
+
+
+// =========================
+// BUTTONS
 // =========================
 
 
@@ -166,28 +333,30 @@ function setupButtons(){
 
 
 
-    const buttons = document.querySelectorAll(
+    document
+
+    .querySelectorAll(
 
         "button"
 
-    );
+    )
 
-
-
-    buttons.forEach(
+    .forEach(
 
         button => {
 
 
 
-            button.onclick = function(){
+            button.onclick = ()=>{
 
 
-                openMenu(
+                let page =
 
-                    button.innerText
+                button.dataset.page;
 
-                );
+
+
+                openPage(page);
 
 
             };
@@ -205,20 +374,18 @@ function setupButtons(){
 
 
 
+
+
 // =========================
-// МЕНЮ
+// PAGES
 // =========================
 
 
-function openMenu(name){
+function openPage(page){
 
 
 
-    if(
-
-        name.includes("GARAGE")
-
-    ){
+    if(page==="garage"){
 
 
         openGarage();
@@ -228,86 +395,30 @@ function openMenu(name){
 
 
 
-    else if(
-
-        name.includes("RACE")
-
-    ){
+    if(page==="race"){
 
 
-        alert(
-
-            "🏁 Скоро гонки"
-
-        );
+        openRace();
 
 
     }
 
 
 
-    else if(
-
-        name.includes("TUNING")
-
-    ){
+    if(page==="shop"){
 
 
-        alert(
-
-            "🔧 Скоро тюнинг"
-
-        );
+        openShop();
 
 
     }
 
 
 
-    else if(
-
-        name.includes("BLACKLIST")
-
-    ){
+    if(page==="profile"){
 
 
-        alert(
-
-            "🏆 Blacklist"
-
-        );
-
-
-    }
-
-
-
-    else if(
-
-        name.includes("SHOP")
-
-    ){
-
-
-        alert(
-
-            "🛒 Магазин"
-
-        );
-
-
-    }
-
-
-
-    else if(
-
-        name.includes("PROFILE")
-
-    ){
-
-
-        alert(
+        showMessage(
 
             "👤 Профиль"
 
@@ -317,6 +428,34 @@ function openMenu(name){
     }
 
 
+
+    if(page==="tuning"){
+
+
+        showMessage(
+
+            "🔧 Тюнинг"
+
+        );
+
+
+    }
+
+
+
+    if(page==="blacklist"){
+
+
+        showMessage(
+
+            "🏆 Blacklist"
+
+        );
+
+
+    }
+
+
 }
 
 
@@ -324,8 +463,10 @@ function openMenu(name){
 
 
 
+
+
 // =========================
-// ГАРАЖ
+// GARAGE
 // =========================
 
 
@@ -333,39 +474,102 @@ async function openGarage(){
 
 
 
-    try{
+    let response = await fetch(
 
+        "/api/garage/" + userId
 
-        const response = await fetch(
-
-            "/api/garage/" + userId
-
-        );
+    );
 
 
 
-        const cars = await response.json();
+    let cars = await response.json();
 
 
 
-        renderGarage(cars);
+    let html = `
+
+
+    <div class="main-car">
+
+
+    <h1>
+
+    🚗 ГАРАЖ
+
+    </h1>
+
+
+    `;
 
 
 
-    }
+    cars.forEach(
+
+        car=>{
 
 
-    catch(error){
+            html += `
 
 
-        alert(
-
-            "Ошибка гаража"
-
-        );
+            <div>
 
 
-    }
+            <h2>
+
+            ${car.name}
+
+            </h2>
+
+
+
+            <p>
+
+            ⚡ ${car.power}
+
+            🚀 ${car.speed}
+
+            </p>
+
+
+
+            <button onclick="setMainCar('${car.name}')">
+
+            👑 Выбрать
+
+            </button>
+
+
+
+            </div>
+
+
+            `;
+
+
+        }
+
+    );
+
+
+
+    html += `
+
+
+    <button onclick="location.reload()">
+
+    ⬅️ Назад
+
+    </button>
+
+
+    </div>
+
+
+    `;
+
+
+
+    document.querySelector(".game").innerHTML = html;
 
 
 }
@@ -375,129 +579,91 @@ async function openGarage(){
 
 
 
-function renderGarage(cars){
+
+
+async function setMainCar(car){
 
 
 
-    const game = document.querySelector(
+    await fetch(
 
-        ".game"
+        "/api/car/main",
+
+        {
+
+
+            method:"POST",
+
+
+            headers:{
+
+
+                "Content-Type":
+
+                "application/json"
+
+
+            },
+
+
+            body:JSON.stringify({
+
+
+                user_id:userId,
+
+
+                car:car
+
+
+            })
+
+
+        }
 
     );
 
 
 
-    let html = `
+    location.reload();
 
 
-    <header class="top">
+}
 
-        <div class="logo">
 
-        🚗 GARAGE
 
-        </div>
 
 
-    </header>
 
 
 
-    <div class="garage-list">
+// =========================
+// RACE
+// =========================
 
 
-    `;
+function openRace(){
 
 
 
-    if(
+    document.querySelector(".game").innerHTML = `
 
-        cars.length === 0
 
-    ){
+    <div class="main-car">
 
 
-        html += `
+    <h1>
 
+    🏁 STREET RACE
 
-        <h2>
+    </h1>
 
-        Гараж пуст
 
-        </h2>
+    <button onclick="race()">
 
+    START
 
-        `;
+    </button>
 
-
-    }
-
-
-
-    else{
-
-
-        cars.forEach(
-
-            car => {
-
-
-                html += `
-
-
-                <div class="garage-item">
-
-
-                    <div class="car-glow">
-
-                    🏎
-
-                    </div>
-
-
-                    <h2>
-
-                    ${car.name}
-
-                    </h2>
-
-
-                    <p>
-
-                    💎 ${car.rarity || "Common"}
-
-                    </p>
-
-
-                    <p>
-
-                    ⚡ ${car.power || 0}
-
-                    |
-
-                    🚀 ${car.speed || 0}
-
-                    </p>
-
-
-
-                </div>
-
-
-                `;
-
-
-            }
-
-        );
-
-
-    }
-
-
-
-
-    html += `
 
 
     <button onclick="location.reload()">
@@ -514,8 +680,178 @@ function renderGarage(cars){
     `;
 
 
+}
 
-    game.innerHTML = html;
+
+
+
+
+
+async function race(){
+
+
+
+    let response = await fetch(
+
+        "/api/race/npc",
+
+        {
+
+
+            method:"POST",
+
+
+            headers:{
+
+
+                "Content-Type":
+
+                "application/json"
+
+
+            },
+
+
+            body:JSON.stringify({
+
+
+                user_id:userId,
+
+
+                car:""
+
+
+            })
+
+
+        }
+
+    );
+
+
+
+    let data = await response.json();
+
+
+
+    alert(
+
+        data.text
+
+    );
+
+
+}
+
+
+
+
+
+
+
+
+// =========================
+// SHOP
+// =========================
+
+
+async function openShop(){
+
+
+
+    let response = await fetch(
+
+        "/api/shop"
+
+    );
+
+
+
+    let cars = await response.json();
+
+
+
+    let html = `
+
+
+    <div class="main-car">
+
+
+    <h1>
+
+    🛒 SHOP
+
+    </h1>
+
+
+    `;
+
+
+
+    cars.forEach(
+
+        car=>{
+
+
+            html += `
+
+
+            <h2>
+
+            ${car.name}
+
+            </h2>
+
+
+            <p>
+
+            💰 ${car.price}
+
+            </p>
+
+
+            `;
+
+
+        }
+
+    );
+
+
+
+    html += `
+
+
+    <button onclick="location.reload()">
+
+    ⬅️ Назад
+
+    </button>
+
+
+    </div>
+
+
+    `;
+
+
+
+    document.querySelector(".game").innerHTML = html;
+
+
+}
+
+
+
+
+
+
+
+
+function showMessage(text){
+
+
+    alert(text);
 
 
 }
