@@ -3,8 +3,33 @@ import os
 import random
 
 
+from database import (
+    get_player,
+    add_coins,
+    add_xp,
+    add_win,
+    add_loss
+)
 
-BOSS_FILE = "boss_races.json"
+
+from car_database import (
+    get_car
+)
+
+
+from tuning import (
+    tuning_bonus
+)
+
+
+from pet_system import (
+    get_pet_bonus
+)
+
+
+
+
+RACE_FILE = "race_history.json"
 
 
 
@@ -18,87 +43,92 @@ BOSSES = [
 
     {
 
-        "id":
+        "id": "night_king",
 
-        "night_king",
+        "name": "🌑 Night King",
 
+        "car": "Shadow GT",
 
-        "name":
+        "power": 2000,
 
-        "🌑 Night King",
-
-
-        "car":
-
-        "Shadow GT",
-
-
-        "power":
-
-        2000,
-
-
-        "reward":
-
-        "🔥 Shadow Engine"
+        "reward": "🔥 Shadow Engine"
 
     },
 
 
     {
 
-        "id":
+        "id": "speed_lord",
 
-        "speed_lord",
+        "name": "⚡ Speed Lord",
 
+        "car": "Lightning X",
 
-        "name":
+        "power": 5000,
 
-        "⚡ Speed Lord",
-
-
-        "car":
-
-        "Lightning X",
-
-
-        "power":
-
-        5000,
-
-
-        "reward":
-
-        "🚀 Turbo Ultimate"
+        "reward": "🚀 Turbo Ultimate"
 
     },
 
 
     {
 
-        "id":
+        "id": "car_legend",
 
-        "car_legend",
+        "name": "👑 Car Legend",
 
+        "car": "Legend X1",
 
-        "name":
+        "power": 10000,
 
-        "👑 Car Legend",
+        "reward": "🏆 Legendary Car"
 
+    }
 
-        "car":
-
-        "Legend X1",
-
-
-        "power":
-
-        10000,
+]
 
 
-        "reward":
 
-        "🏆 Legendary Car"
+
+# =========================
+# NPC
+# =========================
+
+
+NPC_CARS = [
+
+    {
+
+        "name": "🚗 Honda Civic",
+
+        "power": 500
+
+    },
+
+
+    {
+
+        "name": "🏎 BMW M3",
+
+        "power": 1500
+
+    },
+
+
+    {
+
+        "name": "🔥 Supra MK5",
+
+        "power": 3000
+
+    },
+
+
+    {
+
+        "name": "👑 Bugatti X",
+
+        "power": 7000
 
     }
 
@@ -112,9 +142,10 @@ BOSSES = [
 # =========================
 
 
-def load_boss():
+def load_history():
 
-    if not os.path.exists(BOSS_FILE):
+
+    if not os.path.exists(RACE_FILE):
 
         return {}
 
@@ -122,9 +153,10 @@ def load_boss():
 
     try:
 
+
         with open(
 
-            BOSS_FILE,
+            RACE_FILE,
 
             "r",
 
@@ -132,26 +164,25 @@ def load_boss():
 
         ) as file:
 
+
             return json.load(file)
 
 
+
     except:
+
 
         return {}
 
 
 
 
-# =========================
-# СОХРАНЕНИЕ
-# =========================
+def save_history(data):
 
-
-def save_boss(data):
 
     with open(
 
-        BOSS_FILE,
+        RACE_FILE,
 
         "w",
 
@@ -176,13 +207,129 @@ def save_boss(data):
 
 
 # =========================
-# ИГРОК
+# СИЛА МАШИНЫ
 # =========================
 
 
-def get_boss_player(user_id):
+def calculate_power(
 
-    data = load_boss()
+    user_id,
+
+    car_name
+
+):
+
+
+    car = get_car(
+
+        car_name
+
+    )
+
+
+    if not car:
+
+        return 0
+
+
+
+    power = (
+
+        car.get(
+
+            "power",
+
+            0
+
+        )
+
+        +
+
+        car.get(
+
+            "speed",
+
+            0
+
+        )
+
+    )
+
+
+
+    tune = tuning_bonus(
+
+        user_id,
+
+        car_name
+
+    )
+
+
+    power += (
+
+        tune["power"]
+
+        +
+
+        tune["speed"]
+
+    )
+
+
+
+    pet = get_pet_bonus(
+
+        user_id
+
+    )
+
+
+    power += (
+
+        pet["power"]
+
+        +
+
+        pet["speed"]
+
+    )
+
+
+
+    return power
+    
+    # =========================
+# ВЫБОР NPC
+# =========================
+
+
+def get_npc():
+
+    return random.choice(
+
+        NPC_CARS
+
+    )
+
+
+
+
+# =========================
+# СОХРАНЕНИЕ РЕЗУЛЬТАТА
+# =========================
+
+
+def save_race_result(
+
+    user_id,
+
+    result
+
+):
+
+
+    data = load_history()
 
 
     uid = str(user_id)
@@ -192,46 +339,254 @@ def get_boss_player(user_id):
     if uid not in data:
 
 
-        data[uid] = {
-
-            "defeated":
-
-            [],
+        data[uid] = []
 
 
-            "wins":
 
-            0,
+    data[uid].append(
+
+        result
+
+    )
 
 
-            "rewards":
+    save_history(
 
-            []
+        data
+
+    )
+
+
+
+
+# =========================
+# NPC ГОНКА
+# =========================
+
+
+def race_npc(
+
+    user_id,
+
+    car_name
+
+):
+
+
+    player_power = calculate_power(
+
+        user_id,
+
+        car_name
+
+    )
+
+
+    enemy = get_npc()
+
+
+
+    enemy_power = enemy["power"]
+
+
+
+    player_score = (
+
+        player_power
+
+        +
+
+        random.randint(
+
+            -300,
+
+            300
+
+        )
+
+    )
+
+
+
+    enemy_score = (
+
+        enemy_power
+
+        +
+
+        random.randint(
+
+            -300,
+
+            300
+
+        )
+
+    )
+
+
+
+    if player_score >= enemy_score:
+
+
+        reward = random.randint(
+
+            1000,
+
+            3000
+
+        )
+
+
+        add_coins(
+
+            user_id,
+
+            reward
+
+        )
+
+
+        add_xp(
+
+            user_id,
+
+            300
+
+        )
+
+
+        add_win(
+
+            user_id
+
+        )
+
+
+
+        result = {
+
+
+            "type":
+
+            "npc",
+
+
+            "win":
+
+            True,
+
+
+            "enemy":
+
+            enemy["name"],
+
+
+            "player_power":
+
+            player_power,
+
+
+            "enemy_power":
+
+            enemy_power,
+
+
+            "reward":
+
+            reward
 
         }
 
 
-        save_boss(data)
+
+    else:
+
+
+        add_loss(
+
+            user_id
+
+        )
+
+
+        add_xp(
+
+            user_id,
+
+            100
+
+        )
+
+
+        result = {
+
+
+            "type":
+
+            "npc",
+
+
+            "win":
+
+            False,
+
+
+            "enemy":
+
+            enemy["name"],
+
+
+            "player_power":
+
+            player_power,
+
+
+            "enemy_power":
+
+            enemy_power
+
+        }
 
 
 
-    return data[uid]
+    save_race_result(
+
+        user_id,
+
+        result
+
+    )
+
+
+
+    return result
 
 
 
 
 # =========================
-# ВЫБОР БОССА
+# БОСС
 # =========================
 
 
-def get_boss(index=None):
+def get_boss(
+
+    boss_id=None
+
+):
 
 
-    if index is not None:
+    if boss_id:
 
 
-        return BOSSES[index]
+        for boss in BOSSES:
+
+
+            if boss["id"] == boss_id:
+
+
+                return boss
 
 
 
@@ -244,49 +599,35 @@ def get_boss(index=None):
 
 
 
-# =========================
-# БИТВА С БОССОМ
-# =========================
-
-
 def fight_boss(
 
     user_id,
 
-    player_power,
+    car_name,
 
     boss_id
 
 ):
 
-    data = load_boss()
 
+    boss = get_boss(
 
-    player = get_boss_player(
-
-        user_id
+        boss_id
 
     )
 
 
 
-    boss = None
+    player_power = calculate_power(
+
+        user_id,
+
+        car_name
+
+    )
 
 
-
-    for item in BOSSES:
-
-
-        if item["id"] == boss_id:
-
-            boss = item
-
-
-
-    if not boss:
-
-        return False
-
+    boss_power = boss["power"]
 
 
 
@@ -310,7 +651,7 @@ def fight_boss(
 
     boss_score = (
 
-        boss["power"]
+        boss_power
 
         +
 
@@ -329,29 +670,38 @@ def fight_boss(
     if player_score >= boss_score:
 
 
-        if boss_id not in player["defeated"]:
-
-
-            player["defeated"].append(
-
-                boss_id
-
-            )
-
-
-            player["rewards"].append(
-
-                boss["reward"]
-
-            )
+        reward = boss["reward"]
 
 
 
-        player["wins"] += 1
+        add_coins(
+
+            user_id,
+
+            5000
+
+        )
+
+
+        add_xp(
+
+            user_id,
+
+            1000
+
+        )
+
+
+        add_win(
+
+            user_id
+
+        )
 
 
 
         result = {
+
 
             "win":
 
@@ -365,15 +715,34 @@ def fight_boss(
 
             "reward":
 
-            boss["reward"]
+            reward,
+
+
+            "player_power":
+
+            player_power,
+
+
+            "boss_power":
+
+            boss_power
 
         }
+
 
 
     else:
 
 
+        add_loss(
+
+            user_id
+
+        )
+
+
         result = {
+
 
             "win":
 
@@ -387,49 +756,283 @@ def fight_boss(
 
             "reward":
 
-            None
+            None,
+
+
+            "player_power":
+
+            player_power,
+
+
+            "boss_power":
+
+            boss_power
 
         }
 
 
 
+    save_race_result(
 
-    data[str(user_id)] = player
+        user_id,
 
+        result
 
-    save_boss(data)
+    )
 
 
 
     return result
+    
+    # =========================
+# ТЕКСТ РЕЗУЛЬТАТА
+# =========================
+
+
+def race_result_text(result):
+
+
+    if result["win"]:
+
+
+        text = (
+
+            "🏆 <b>ПОБЕДА!</b>\n\n"
+
+        )
+
+
+    else:
+
+
+        text = (
+
+            "❌ <b>ПОРАЖЕНИЕ</b>\n\n"
+
+        )
+
+
+
+    text += (
+
+        f"🚗 Твоя сила:\n"
+
+        f"⚡ {result.get('player_power',0)}\n\n"
+
+    )
+
+
+
+    if result.get("enemy"):
+
+
+        text += (
+
+            f"🏎 Соперник:\n"
+
+            f"{result['enemy']}\n"
+
+        )
+
+
+    if result.get("boss"):
+
+
+        text += (
+
+            f"👑 Босс:\n"
+
+            f"{result['boss']}\n"
+
+        )
+
+
+
+    text += (
+
+        f"\n⚔️ Сила соперника:\n"
+
+        f"{result.get('enemy_power', result.get('boss_power',0))}\n"
+
+    )
+
+
+
+    if result.get("reward"):
+
+
+        text += (
+
+            "\n🎁 Награда:\n"
+
+            f"{result['reward']}"
+
+        )
+
+
+
+    if result.get("reward") is not None and isinstance(result["reward"], int):
+
+
+        text += (
+
+            "\n\n💰 Монеты: "
+
+            f"{result['reward']}"
+
+        )
+
+
+
+    return text
 
 
 
 
 # =========================
-# ТЕКСТ
+# ИСТОРИЯ ГОНЩИКА
 # =========================
 
 
-def boss_text(user_id):
+def get_race_history(user_id):
 
-    player = get_boss_player(
+
+    data = load_history()
+
+
+    return data.get(
+
+        str(user_id),
+
+        []
+
+    )
+
+
+
+
+# =========================
+# СТАТИСТИКА
+# =========================
+
+
+def race_stats(user_id):
+
+
+    history = get_race_history(
 
         user_id
 
     )
 
 
-    return (
 
-        "👑 <b>БОССЫ</b>\n\n"
+    wins = 0
 
-        f"🏆 Победы: {player['wins']}\n"
+    losses = 0
 
-        f"🔥 Побеждено боссов: "
 
-        f"{len(player['defeated'])}\n\n"
 
-        "Стань легендой трассы!"
+    for race in history:
+
+
+        if race.get("win"):
+
+
+            wins += 1
+
+
+        else:
+
+
+            losses += 1
+
+
+
+    return {
+
+
+        "races":
+
+        len(history),
+
+
+        "wins":
+
+        wins,
+
+
+        "losses":
+
+        losses
+
+    }
+
+
+
+
+# =========================
+# PVP ЗАГОТОВКА
+# =========================
+
+
+def pvp_race(
+
+    player_one,
+
+    player_two
+
+):
+
+
+    power_one = player_one.get(
+
+        "power",
+
+        0
 
     )
+
+
+    power_two = player_two.get(
+
+        "power",
+
+        0
+
+    )
+
+
+
+    if power_one >= power_two:
+
+
+        return {
+
+
+            "winner":
+
+            player_one,
+
+
+            "loser":
+
+            player_two
+
+        }
+
+
+
+    return {
+
+
+        "winner":
+
+        player_two,
+
+
+        "loser":
+
+        player_one
+
+    }
