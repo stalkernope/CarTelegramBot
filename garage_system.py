@@ -30,7 +30,7 @@ def get_garage_cars(user_id):
 
 
 
-    for car_name in player["garage"]:
+    for car_name in player.get("garage", []):
 
 
         car = get_car(
