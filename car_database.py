@@ -4,65 +4,82 @@ import random
 
 
 
+
 CARS_FILE = "cars.json"
 
 
 
+
+
+
 # =========================
-# ЗАГРУЗКА МАШИН
+# LOAD CARS
 # =========================
 
 
 def load_cars():
 
-    if not os.path.exists(CARS_FILE):
+
+    if not os.path.exists(
+
+        CARS_FILE
+
+    ):
+
 
         return []
 
 
+
     try:
 
+
         with open(
+
             CARS_FILE,
+
             "r",
+
             encoding="utf-8"
+
         ) as file:
 
-            cars = json.load(file)
+
+            return json.load(file)
 
 
 
-            if isinstance(cars, list):
-
-                return cars
+    except Exception:
 
 
-
-    except Exception as e:
-
-        print(
-            "Ошибка загрузки машин:",
-            e
-        )
+        return []
 
 
 
-    return []
+
+
+
 
 
 
 # =========================
-# СОХРАНЕНИЕ
+# SAVE CARS
 # =========================
 
 
 def save_cars(cars):
 
+
     with open(
+
         CARS_FILE,
+
         "w",
+
         encoding="utf-8"
+
     ) as file:
+
 
         json.dump(
 
@@ -78,148 +95,29 @@ def save_cars(cars):
 
 
 
-# =========================
-# РЕЙТИНГ
-# =========================
 
 
-RARITY_POINTS = {
-
-
-    "🔥 Mythic": 100,
-
-
-    "💎 Legendary": 80,
-
-
-    "🟣 Rare": 60,
-
-
-    "🔵 Rare": 50
-
-
-}
-
-
-
-def calculate_rating(car):
-
-
-    power = car.get(
-
-        "power",
-
-        0
-
-    )
-
-
-    speed = car.get(
-
-        "speed",
-
-        0
-
-    )
-
-
-    rarity = car.get(
-
-        "rarity",
-
-        ""
-
-    )
-
-
-
-    rarity_score = RARITY_POINTS.get(
-
-        rarity,
-
-        40
-
-    )
-
-
-
-    rating = (
-
-        power / 20
-
-        +
-
-        speed / 5
-
-        +
-
-        rarity_score
-
-    ) / 3
-
-
-
-    if rating > 100:
-
-        rating = 100
-
-
-
-    return round(
-        rating
-    )
 
 
 
 # =========================
-# ДОПОЛНИТЬ ДАННЫЕ
+# ALL CARS
 # =========================
 
 
-def prepare_car(car):
+def get_all_cars():
 
 
-    if "rating" not in car:
-
-        car["rating"] = calculate_rating(
-            car
-        )
+    return load_cars()
 
 
 
-    return car
+
 
 
 
 # =========================
-# СЛУЧАЙНАЯ МАШИНА
-# =========================
-
-
-def get_random_car():
-
-    cars = load_cars()
-
-
-    if not cars:
-
-        return None
-
-
-
-    car = random.choice(
-        cars
-    )
-
-
-    return prepare_car(
-        car
-    )
-
-
-
-# =========================
-# НАЙТИ МАШИНУ
+# GET CAR
 # =========================
 
 
@@ -236,9 +134,7 @@ def get_car(name):
         if car.get("name") == name:
 
 
-            return prepare_car(
-                car
-            )
+            return car
 
 
 
@@ -246,28 +142,45 @@ def get_car(name):
 
 
 
+
+
+
+
+
 # =========================
-# ВСЕ МАШИНЫ
+# RANDOM CAR
 # =========================
 
 
-def get_all_cars():
+def get_random_car():
+
 
     cars = load_cars()
 
 
-    return [
 
-        prepare_car(car)
+    if not cars:
 
-        for car in cars
 
-    ]
+        return None
+
+
+
+    return random.choice(
+
+        cars
+
+    )
+
+
+
+
+
 
 
 
 # =========================
-# ДОБАВИТЬ НОВУЮ
+# ADD CAR
 # =========================
 
 
@@ -277,164 +190,68 @@ def add_new_car(car):
     cars = load_cars()
 
 
+
     cars.append(
-        prepare_car(car)
+
+        car
+
     )
+
 
 
     save_cars(
+
         cars
-    )
-    
-    # =========================
-# ГАРАЖ ИГРОКА
-# =========================
 
-
-def player_has_car(
-    player,
-    car_name
-):
-
-    return car_name in player.get(
-        "garage",
-        []
     )
 
 
 
 
+
+
+
+
 # =========================
-# КУПИТЬ МАШИНУ
+# CAR POWER
 # =========================
 
 
-def buy_car(
-    player,
-    car_name
-):
+def get_car_power(name):
+
 
     car = get_car(
-        car_name
+
+        name
+
     )
 
 
     if not car:
 
-        return False
+
+        return 0
 
 
 
-    if player_has_car(
-        player,
-        car_name
-    ):
+    return (
 
-        return False
+        car.get(
 
+            "power",
 
-
-    player["garage"].append(
-
-        car_name
-
-    )
-
-
-
-    if player["main_car"] is None:
-
-        player["main_car"] = car_name
-
-
-
-    return True
-
-
-
-
-# =========================
-# ПРОДАТЬ МАШИНУ
-# =========================
-
-
-def sell_car(
-
-    player,
-
-    car_name
-
-):
-
-
-    if not player_has_car(
-
-        player,
-
-        car_name
-
-    ):
-
-        return False
-
-
-
-    player["garage"].remove(
-
-        car_name
-
-    )
-
-
-
-    if player["main_car"] == car_name:
-
-
-        player["main_car"] = (
-
-            player["garage"][0]
-
-            if player["garage"]
-
-            else None
+            0
 
         )
 
+        +
 
+        car.get(
 
-    return True
+            "speed",
 
+            0
 
+        )
 
-
-# =========================
-# ВЫБОР ОСНОВНОЙ
-# =========================
-
-
-def set_main_car(
-
-    player,
-
-    car_name
-
-):
-
-
-    if not player_has_car(
-
-        player,
-
-        car_name
-
-    ):
-
-        return False
-
-
-
-    player["main_car"] = car_name
-
-
-
-    return True
+    )
