@@ -360,3 +360,64 @@ def get_pet_bonus(
 
 
     }
+    
+    # =========================
+# PETS TEXT
+# =========================
+
+def pets_text(user_id):
+
+    from database import get_player
+
+
+    player = get_player(
+        user_id
+    )
+
+
+    pets = player.get(
+        "pets",
+        []
+    )
+
+
+    active = player.get(
+        "active_pet"
+    )
+
+
+    text = (
+        "🐾 <b>ПИТОМЦЫ</b>\n\n"
+    )
+
+
+    if not pets:
+
+        text += (
+            "❌ Питомцев пока нет\n\n"
+            "Покупай питомцев и получай бонусы!"
+        )
+
+        return text
+
+
+
+    text += "Твои питомцы:\n\n"
+
+
+    for pet in pets:
+
+        if pet == active:
+
+            text += (
+                f"⭐ {pet} (активный)\n"
+            )
+
+        else:
+
+            text += (
+                f"🐾 {pet}\n"
+            )
+
+
+    return text
