@@ -1,42 +1,62 @@
+* {
+
+    box-sizing: border-box;
+
+}
+
+
+
 body {
 
     margin: 0;
 
     padding: 0;
 
+    min-height: 100vh;
+
     background:
-    linear-gradient(
-        180deg,
-        #050505,
-        #111827
+
+    radial-gradient(
+        circle at top,
+        #1e293b,
+        #020617 70%
     );
 
     color: white;
 
     font-family:
+
     Arial,
+
     sans-serif;
 
 }
 
 
 
-.app {
+
+
+.game {
 
     min-height: 100vh;
 
     padding: 20px;
 
+    padding-bottom: 100px;
+
 }
 
 
 
+
+
+
 /* =====================
- HEADER
+   HEADER
 ===================== */
 
 
-header {
+.top {
 
     display: flex;
 
@@ -46,15 +66,15 @@ header {
 
     background:
 
-    rgba(255,255,255,0.05);
-
-    padding: 15px;
-
-    border-radius: 20px;
+    rgba(255,255,255,0.06);
 
     border:
 
-    1px solid rgba(255,255,255,0.1);
+    1px solid rgba(255,255,255,0.12);
+
+    border-radius: 20px;
+
+    padding: 15px;
 
 }
 
@@ -62,33 +82,79 @@ header {
 
 .logo {
 
-    font-size: 24px;
+    font-size: 22px;
 
-    font-weight: bold;
+    font-weight: 900;
+
+    letter-spacing: 1px;
+
+}
+
+
+
+.profile-mini {
+
+    text-align: right;
+
+    color: #cbd5e1;
+
+    font-size: 14px;
 
 }
 
 
-
-.player {
-
-    margin-top: 15px;
-
-    color:
-
-    #aaa;
-
-}
 
 
 
 
 /* =====================
- CAR
+   WALLET
 ===================== */
 
 
-.car {
+.wallet {
+
+
+    display: flex;
+
+    justify-content: space-around;
+
+    margin-top: 20px;
+
+    background:
+
+    rgba(0,0,0,0.35);
+
+    padding: 15px;
+
+    border-radius: 20px;
+
+
+}
+
+
+
+.wallet div {
+
+
+    font-size: 14px;
+
+    color: #e2e8f0;
+
+
+}
+
+
+
+
+
+/* =====================
+   CAR
+===================== */
+
+
+.main-car {
+
 
     margin-top: 25px;
 
@@ -96,37 +162,58 @@ header {
 
     background:
 
-    radial-gradient(
-        circle,
-        #1f2937,
-        #050505
+
+    linear-gradient(
+
+        180deg,
+
+        rgba(37,99,235,0.15),
+
+        rgba(0,0,0,0.8)
+
     );
 
-    padding: 30px;
 
-    border-radius: 30px;
+    border-radius: 35px;
+
+    padding: 30px 20px;
+
+    border:
+
+    1px solid rgba(59,130,246,0.3);
+
 
 }
 
 
 
-.car-image {
+.car-glow {
 
-    font-size: 100px;
+
+    font-size: 110px;
+
 
     filter:
 
+
     drop-shadow(
-        0 0 20px #00aaff
+
+        0 0 25px #2563eb
+
     );
+
 
 }
 
 
 
-.car h2 {
+.main-car h1 {
 
-    font-size: 28px;
+
+    margin: 10px 0;
+
+    font-size: 30px;
+
 
 }
 
@@ -134,48 +221,38 @@ header {
 
 .rarity {
 
+
     color:
 
-    #00aaff;
+    #38bdf8;
+
 
     font-weight:
 
     bold;
 
+
+    letter-spacing:
+
+    3px;
+
+
 }
 
-
-
-.stats {
-
-    margin-top: 20px;
-
-}
-
-
-
-.stats p {
-
-    background:
-
-    rgba(255,255,255,0.05);
-
-    padding: 12px;
-
-    border-radius: 15px;
-
-}
 
 
 
 
 
 /* =====================
- BUTTONS
+   STATS
 ===================== */
 
 
-.buttons {
+.stats {
+
+
+    margin-top: 25px;
 
     display:
 
@@ -183,24 +260,126 @@ header {
 
     grid-template-columns:
 
-    1fr 1fr;
+    repeat(3,1fr);
 
-    gap:
+    gap: 10px;
+
+
+}
+
+
+
+.stats div {
+
+
+    background:
+
+    rgba(255,255,255,0.08);
+
+
+    border-radius:
 
     15px;
+
+
+    padding:
+
+    15px 5px;
+
+
+    font-size:
+
+    12px;
+
+
+}
+
+
+
+.stats b {
+
+
+    display:
+
+    block;
+
+
+    margin-top:
+
+    8px;
+
+
+    font-size:
+
+    18px;
+
+
+    color:
+
+    #60a5fa;
+
+
+}
+
+
+
+
+
+
+
+/* =====================
+   MENU
+===================== */
+
+
+.menu {
+
 
     margin-top:
 
     25px;
 
+
+    display:
+
+    grid;
+
+
+    grid-template-columns:
+
+    repeat(2,1fr);
+
+
+    gap:
+
+    15px;
+
+
 }
+
 
 
 
 button {
 
 
+    border:
+
+    none;
+
+
+    border-radius:
+
+    20px;
+
+
+    padding:
+
+    18px 10px;
+
+
     background:
+
 
     linear-gradient(
 
@@ -208,7 +387,7 @@ button {
 
         #111827,
 
-        #2563eb
+        #1d4ed8
 
     );
 
@@ -218,28 +397,17 @@ button {
     white;
 
 
-    border:
-
-    none;
-
-
-    padding:
-
-    18px;
-
-
-    border-radius:
-
-    20px;
-
-
     font-size:
 
-    16px;
+    15px;
+
+
+    font-weight:
+
+    bold;
 
 
 }
-
 
 
 
@@ -257,12 +425,15 @@ button:active {
 
 
 
+
+
 /* =====================
- NAV
+   BOTTOM NAV
 ===================== */
 
 
-nav {
+footer {
+
 
     position:
 
@@ -284,11 +455,6 @@ nav {
     15px;
 
 
-    background:
-
-    rgba(0,0,0,0.8);
-
-
     display:
 
     flex;
@@ -299,9 +465,9 @@ nav {
     space-around;
 
 
-    padding:
+    background:
 
-    15px;
+    rgba(0,0,0,0.85);
 
 
     border-radius:
@@ -309,11 +475,21 @@ nav {
     25px;
 
 
+    padding:
+
+    15px 5px;
+
+
+    border:
+
+    1px solid rgba(255,255,255,0.1);
+
+
 }
 
 
 
-nav span {
+footer div {
 
 
     text-align:
@@ -328,7 +504,7 @@ nav span {
 
     color:
 
-    #aaa;
+    #94a3b8;
 
 
 }
