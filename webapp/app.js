@@ -3,7 +3,11 @@
 // =========================
 
 
+// временный ID игрока
+// позже заменим на Telegram ID
+
 let userId = 1;
+
 
 
 
@@ -16,7 +20,7 @@ document.addEventListener(
 
     "DOMContentLoaded",
 
-    () => {
+    function(){
 
         loadPlayer();
 
@@ -41,15 +45,14 @@ async function loadPlayer(){
     try {
 
 
-        let response = await fetch(
+        const response = await fetch(
 
-            `/api/player/${userId}`
+            "/api/player/" + userId
 
         );
 
 
-        let player = await response.json();
-
+        const player = await response.json();
 
 
         updatePlayer(player);
@@ -64,9 +67,7 @@ async function loadPlayer(){
 
         console.log(
 
-            "Ошибка загрузки игрока",
-
-            error
+            "API пока недоступен"
 
         );
 
@@ -82,7 +83,7 @@ async function loadPlayer(){
 
 
 // =========================
-// ОТОБРАЖЕНИЕ
+// ОБНОВЛЕНИЕ ЭКРАНА
 // =========================
 
 
@@ -90,43 +91,56 @@ function updatePlayer(player){
 
 
 
-    let block = document.querySelector(
+    const coins = document.getElementById(
 
-        ".player"
+        "coins"
+
+    );
+
+
+    const gems = document.getElementById(
+
+        "gems"
+
+    );
+
+
+    const rep = document.getElementById(
+
+        "rep"
 
     );
 
 
 
-    if(block){
+    if(coins){
+
+        coins.innerText = player.coins;
+
+    }
 
 
-        block.innerHTML =
 
-        `
+    if(gems){
 
-        👤 Игрок<br>
+        gems.innerText = player.gems;
 
-        ⭐ Level ${player.level}<br>
+    }
 
-        🔥 XP ${player.xp}<br>
 
-        💰 ${player.coins}<br>
 
-        💎 ${player.gems}
+    if(rep){
 
-        `;
-
+        rep.innerText = player.xp;
 
     }
 
 
 
 
+    const car = document.getElementById(
 
-    let car = document.querySelector(
-
-        ".car h2"
+        "car-name"
 
     );
 
@@ -139,9 +153,7 @@ function updatePlayer(player){
     ){
 
 
-        car.innerHTML =
-
-        player.main_car;
+        car.innerText = player.main_car;
 
 
     }
@@ -149,7 +161,6 @@ function updatePlayer(player){
 
 
 }
-
 
 
 
@@ -165,7 +176,7 @@ function setupButtons(){
 
 
 
-    let buttons = document.querySelectorAll(
+    const buttons = document.querySelectorAll(
 
         "button"
 
@@ -178,23 +189,29 @@ function setupButtons(){
         button => {
 
 
-            button.onclick = () => {
+
+            button.addEventListener(
+
+                "click",
+
+                function(){
 
 
-                let text = button.innerText;
+                    openMenu(
+
+                        button.innerText
+
+                    );
 
 
+                }
 
-                openScreen(text);
-
-
-            }
+            );
 
 
         }
 
     );
-
 
 
 }
@@ -205,33 +222,24 @@ function setupButtons(){
 
 
 // =========================
-// ПЕРЕХОДЫ
+// МЕНЮ
 // =========================
 
 
-function openScreen(action){
+function openMenu(name){
 
 
 
-    if(action.includes("GARAGE")){
+    if(
+
+        name.includes("RACE")
+
+    ){
 
 
-        alert(
+        showMessage(
 
-            "🚗 Гараж"
-
-        );
-
-
-    }
-
-
-    else if(action.includes("RACE")){
-
-
-        alert(
-
-            "🏁 Гонка"
+            "🏁 Поиск гонки..."
 
         );
 
@@ -239,25 +247,17 @@ function openScreen(action){
     }
 
 
-    else if(action.includes("SHOP")){
+
+    else if(
+
+        name.includes("GARAGE")
+
+    ){
 
 
-        alert(
+        showMessage(
 
-            "🛒 Магазин"
-
-        );
-
-
-    }
-
-
-    else if(action.includes("TUNING")){
-
-
-        alert(
-
-            "🔧 Тюнинг"
+            "🚗 Открываем гараж..."
 
         );
 
@@ -265,18 +265,94 @@ function openScreen(action){
     }
 
 
-    else if(action.includes("PROFILE")){
+
+    else if(
+
+        name.includes("TUNING")
+
+    ){
 
 
-        alert(
+        showMessage(
 
-            "👤 Профиль"
+            "🔧 Тюнинг..."
 
         );
 
 
     }
 
+
+
+    else if(
+
+        name.includes("BLACKLIST")
+
+    ){
+
+
+        showMessage(
+
+            "🏆 Blacklist..."
+
+        );
+
+
+    }
+
+
+
+    else if(
+
+        name.includes("SHOP")
+
+    ){
+
+
+        showMessage(
+
+            "🛒 Автосалон..."
+
+        );
+
+
+    }
+
+
+
+    else if(
+
+        name.includes("PROFILE")
+
+    ){
+
+
+        showMessage(
+
+            "👤 Профиль..."
+
+        );
+
+
+    }
+
+
+}
+
+
+
+
+
+
+// =========================
+// УВЕДОМЛЕНИЕ
+// =========================
+
+
+function showMessage(text){
+
+
+    alert(text);
 
 
 }
