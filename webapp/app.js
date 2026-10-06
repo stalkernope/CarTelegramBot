@@ -3,16 +3,14 @@
 // =========================
 
 
-// временный ID игрока
-// позже заменим на Telegram ID
-
+// ID игрока
 let userId = 1;
 
 
 
 
 // =========================
-// ЗАПУСК
+// START
 // =========================
 
 
@@ -34,15 +32,16 @@ document.addEventListener(
 
 
 
+
 // =========================
-// ЗАГРУЗКА ИГРОКА
+// ИГРОК
 // =========================
 
 
 async function loadPlayer(){
 
 
-    try {
+    try{
 
 
         const response = await fetch(
@@ -55,19 +54,21 @@ async function loadPlayer(){
         const player = await response.json();
 
 
+
         updatePlayer(player);
 
 
 
     }
 
-
     catch(error){
 
 
         console.log(
 
-            "API пока недоступен"
+            "Player error",
+
+            error
 
         );
 
@@ -81,83 +82,72 @@ async function loadPlayer(){
 
 
 
-
-// =========================
-// ОБНОВЛЕНИЕ ЭКРАНА
-// =========================
-
-
 function updatePlayer(player){
-
-
-
-    const coins = document.getElementById(
-
-        "coins"
-
-    );
-
-
-    const gems = document.getElementById(
-
-        "gems"
-
-    );
-
-
-    const rep = document.getElementById(
-
-        "rep"
-
-    );
-
-
-
-    if(coins){
-
-        coins.innerText = player.coins;
-
-    }
-
-
-
-    if(gems){
-
-        gems.innerText = player.gems;
-
-    }
-
-
-
-    if(rep){
-
-        rep.innerText = player.xp;
-
-    }
-
-
-
-
-    const car = document.getElementById(
-
-        "car-name"
-
-    );
 
 
 
     if(
 
-        car && player.main_car
+        document.getElementById("coins")
 
     ){
 
+        document.getElementById("coins").innerText =
 
-        car.innerText = player.main_car;
+        player.coins;
 
 
     }
 
+
+
+    if(
+
+        document.getElementById("gems")
+
+    ){
+
+        document.getElementById("gems").innerText =
+
+        player.gems;
+
+
+    }
+
+
+
+    if(
+
+        document.getElementById("rep")
+
+    ){
+
+        document.getElementById("rep").innerText =
+
+        player.xp;
+
+
+    }
+
+
+
+    if(
+
+        document.getElementById("car-name")
+
+        &&
+
+        player.main_car
+
+    ){
+
+
+        document.getElementById("car-name").innerText =
+
+        player.main_car;
+
+
+    }
 
 
 }
@@ -190,23 +180,17 @@ function setupButtons(){
 
 
 
-            button.addEventListener(
-
-                "click",
-
-                function(){
+            button.onclick = function(){
 
 
-                    openMenu(
+                openMenu(
 
-                        button.innerText
+                    button.innerText
 
-                    );
+                );
 
 
-                }
-
-            );
+            };
 
 
         }
@@ -232,16 +216,12 @@ function openMenu(name){
 
     if(
 
-        name.includes("RACE")
+        name.includes("GARAGE")
 
     ){
 
 
-        showMessage(
-
-            "🏁 Поиск гонки..."
-
-        );
+        openGarage();
 
 
     }
@@ -250,14 +230,14 @@ function openMenu(name){
 
     else if(
 
-        name.includes("GARAGE")
+        name.includes("RACE")
 
     ){
 
 
-        showMessage(
+        alert(
 
-            "🚗 Открываем гараж..."
+            "🏁 Скоро гонки"
 
         );
 
@@ -273,9 +253,9 @@ function openMenu(name){
     ){
 
 
-        showMessage(
+        alert(
 
-            "🔧 Тюнинг..."
+            "🔧 Скоро тюнинг"
 
         );
 
@@ -291,9 +271,9 @@ function openMenu(name){
     ){
 
 
-        showMessage(
+        alert(
 
-            "🏆 Blacklist..."
+            "🏆 Blacklist"
 
         );
 
@@ -309,9 +289,9 @@ function openMenu(name){
     ){
 
 
-        showMessage(
+        alert(
 
-            "🛒 Автосалон..."
+            "🛒 Магазин"
 
         );
 
@@ -327,9 +307,9 @@ function openMenu(name){
     ){
 
 
-        showMessage(
+        alert(
 
-            "👤 Профиль..."
+            "👤 Профиль"
 
         );
 
@@ -345,14 +325,197 @@ function openMenu(name){
 
 
 // =========================
-// УВЕДОМЛЕНИЕ
+// ГАРАЖ
 // =========================
 
 
-function showMessage(text){
+async function openGarage(){
 
 
-    alert(text);
+
+    try{
+
+
+        const response = await fetch(
+
+            "/api/garage/" + userId
+
+        );
+
+
+
+        const cars = await response.json();
+
+
+
+        renderGarage(cars);
+
+
+
+    }
+
+
+    catch(error){
+
+
+        alert(
+
+            "Ошибка гаража"
+
+        );
+
+
+    }
+
+
+}
+
+
+
+
+
+
+function renderGarage(cars){
+
+
+
+    const game = document.querySelector(
+
+        ".game"
+
+    );
+
+
+
+    let html = `
+
+
+    <header class="top">
+
+        <div class="logo">
+
+        🚗 GARAGE
+
+        </div>
+
+
+    </header>
+
+
+
+    <div class="garage-list">
+
+
+    `;
+
+
+
+    if(
+
+        cars.length === 0
+
+    ){
+
+
+        html += `
+
+
+        <h2>
+
+        Гараж пуст
+
+        </h2>
+
+
+        `;
+
+
+    }
+
+
+
+    else{
+
+
+        cars.forEach(
+
+            car => {
+
+
+                html += `
+
+
+                <div class="garage-item">
+
+
+                    <div class="car-glow">
+
+                    🏎
+
+                    </div>
+
+
+                    <h2>
+
+                    ${car.name}
+
+                    </h2>
+
+
+                    <p>
+
+                    💎 ${car.rarity || "Common"}
+
+                    </p>
+
+
+                    <p>
+
+                    ⚡ ${car.power || 0}
+
+                    |
+
+                    🚀 ${car.speed || 0}
+
+                    </p>
+
+
+
+                </div>
+
+
+                `;
+
+
+            }
+
+        );
+
+
+    }
+
+
+
+
+    html += `
+
+
+    <button onclick="location.reload()">
+
+    ⬅️ Назад
+
+    </button>
+
+
+
+    </div>
+
+
+    `;
+
+
+
+    game.innerHTML = html;
 
 
 }
