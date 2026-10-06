@@ -3,135 +3,235 @@ import json
 import os
 
 
+from database import (
+    get_player,
+    update_player
+)
 
-CASE_FILE = "cases.json"
+
+from garage_system import (
+    add_car_to_garage
+)
+
+
+from pet_system import (
+    add_pet
+)
+
+
+
+
+CASE_FILE = "cases_history.json"
+
 
 
 
 # =========================
-# ТИПЫ КЕЙСОВ
+# КЕЙСЫ
 # =========================
 
 
 CASES = {
 
+
     "normal": {
+
 
         "name": "📦 Обычный кейс",
 
         "price": 1000,
 
-        "luck": 0
+
+        "rewards": [
+
+            {
+
+                "type": "coins",
+
+                "amount": 2000,
+
+                "chance": 40
+
+            },
+
+
+            {
+
+                "type": "car",
+
+                "id": "Honda Civic",
+
+                "chance": 30
+
+            },
+
+
+            {
+
+                "type": "part",
+
+                "id": "engine",
+
+                "chance": 30
+
+            }
+
+        ]
 
     },
 
 
-    "rare": {
 
-        "name": "💎 Редкий кейс",
+    "premium": {
 
-        "price": 10000,
 
-        "luck": 10
+        "name": "💎 Премиум кейс",
+
+        "price": 5000,
+
+
+        "rewards": [
+
+            {
+
+                "type": "coins",
+
+                "amount": 10000,
+
+                "chance": 30
+
+            },
+
+
+            {
+
+                "type": "car",
+
+                "id": "BMW M3",
+
+                "chance": 35
+
+            },
+
+
+            {
+
+                "type": "pet",
+
+                "id": "speed_hawk",
+
+                "chance": 35
+
+            }
+
+        ]
 
     },
+
 
 
     "legendary": {
 
+
         "name": "🔥 Легендарный кейс",
 
-        "price": 50000,
-
-        "luck": 25
-
-    },
+        "price": 15000,
 
 
-    "mythic": {
+        "rewards": [
 
-        "name": "👑 Mythic кейс",
+            {
 
-        "price": 200000,
+                "type": "car",
 
-        "luck": 50
+                "id": "Bugatti X",
+
+                "chance": 40
+
+            },
+
+
+            {
+
+                "type": "pet",
+
+                "id": "fire_dragon",
+
+                "chance": 30
+
+            },
+
+
+            {
+
+                "type": "coins",
+
+                "amount": 50000,
+
+                "chance": 30
+
+            }
+
+        ]
 
     }
 
 }
 
-
-
-
 # =========================
-# НАСТРОЙКИ ШАНСОВ
+# ИСТОРИЯ КЕЙСОВ
 # =========================
 
 
-RARITY_CHANCE = {
+def load_history():
 
-
-    "🔵 Rare":
-
-    60,
-
-
-    "💎 Legendary":
-
-    30,
-
-
-    "🔥 Mythic":
-
-    10
-
-}
-
-
-
-
-# =========================
-# ЗАГРУЗКА
-# =========================
-
-
-def load_cases():
 
     if not os.path.exists(CASE_FILE):
 
+
         return {}
+
 
 
     try:
 
+
         with open(
+
             CASE_FILE,
+
             "r",
+
             encoding="utf-8"
+
         ) as file:
+
 
             return json.load(file)
 
 
+
     except:
+
 
         return {}
 
 
 
 
-# =========================
-# СОХРАНЕНИЕ
-# =========================
+def save_history(data):
 
-
-def save_cases(data):
 
     with open(
+
         CASE_FILE,
+
         "w",
+
         encoding="utf-8"
+
     ) as file:
+
 
         json.dump(
 
@@ -149,71 +249,29 @@ def save_cases(data):
 
 
 # =========================
-# ПРОГРЕСС КЕЙСОВ
+# ВЫБОР НАГРАДЫ
 # =========================
 
 
-def get_case_progress(user_id):
-
-    data = load_cases()
+def random_reward(case_id):
 
 
-    uid = str(user_id)
+    case = CASES.get(
 
+        case_id
 
-
-    if uid not in data:
-
-        data[uid] = {
-
-            "opened": 0,
-
-            "mythic_counter": 0
-
-        }
-
-
-        save_cases(
-            data
-        )
+    )
 
 
 
-    return data[uid]
+    if not case:
+
+
+        return None
 
 
 
-
-# =========================
-# ВЫБОР РЕДКОСТИ
-# =========================
-
-
-def random_rarity(case_type):
-
-
-    bonus = CASES[case_type]["luck"]
-
-
-
-    chance = {
-
-
-        "🔵 Rare":
-
-        60 - bonus,
-
-
-        "💎 Legendary":
-
-        30 + bonus // 2,
-
-
-        "🔥 Mythic":
-
-        10 + bonus // 2
-
-    }
+    rewards = case["rewards"]
 
 
 
@@ -226,260 +284,440 @@ def random_rarity(case_type):
     )
 
 
-
-    total = 0
-
-
-
-    for rarity, value in chance.items():
-
-
-        total += value
-
-
-        if roll <= total:
-
-            return rarity
+    current = 0
 
 
 
-    return "🔵 Rare"
+    for reward in rewards:
+
+
+        current += reward["chance"]
+
+
+
+        if roll <= current:
+
+
+            return reward
+
+
+
+    return rewards[-1]
 
 
 
 
 # =========================
-# ОТКРЫТИЕ
+# ОТКРЫТИЕ КЕЙСА
 # =========================
 
 
-def open_case_system(
+def open_case(
 
     user_id,
 
-    case_type,
-
-    cars
+    case_id
 
 ):
 
 
-    if case_type not in CASES:
+    if case_id not in CASES:
 
-        return None
-
-
-
-    progress = get_case_progress(
-        user_id
-    )
-
-
-
-    rarity = random_rarity(
-
-        case_type
-
-    )
-
-
-
-    # гарантия Mythic
-
-    if progress["mythic_counter"] >= 20:
-
-
-        rarity = "🔥 Mythic"
-
-        progress["mythic_counter"] = 0
-
-
-
-    else:
-
-
-        if rarity == "🔥 Mythic":
-
-            progress["mythic_counter"] = 0
-
-        else:
-
-            progress["mythic_counter"] += 1
-
-
-
-    possible = []
-
-
-    for car in cars:
-
-
-        if car["rarity"] == rarity:
-
-            possible.append(
-                car
-            )
-
-
-
-    if not possible:
-
-        possible = cars
-
-
-
-    car = random.choice(
-
-        possible
-
-    )
-
-
-
-    progress["opened"] += 1
-
-
-
-    data = load_cases()
-
-
-    data[str(user_id)] = progress
-
-
-    save_cases(
-        data
-    )
-
-
-
-    return car
-
-
-
-
-# =========================
-# ТЕКСТ
-# =========================
-
-
-def cases_text():
-
-    text = (
-
-        "🎁 <b>CASE SHOP</b>\n\n"
-
-    )
-
-
-    for key, item in CASES.items():
-
-
-        text += (
-
-            f"{item['name']}\n"
-
-            f"💰 Цена: {item['price']}\n\n"
-
-        )
-
-
-    return text
-    
-    # =========================
-# ПОКУПКА И ОТКРЫТИЕ КЕЙСА
-# =========================
-
-
-def buy_and_open_case(
-
-    user_id,
-
-    player,
-
-    case_type,
-
-    cars
-
-):
-
-
-    if case_type not in CASES:
-
-        return False
-
-
-
-    price = CASES[case_type]["price"]
-
-
-
-    if player["coins"] < price:
 
         return {
 
+
             "success": False,
 
-            "message": "❌ Не хватает монет"
+
+            "message":
+
+            "❌ Такой кейс не найден"
 
         }
 
 
 
-    player["coins"] -= price
+
+    player = get_player(
+
+        user_id
+
+    )
 
 
 
-    car = open_case_system(
+    case = CASES[case_id]
+
+
+
+    if player["coins"] < case["price"]:
+
+
+        return {
+
+
+            "success": False,
+
+
+            "message":
+
+            "❌ Недостаточно монет"
+
+        }
+
+
+
+
+    player["coins"] -= case["price"]
+
+
+
+    reward = random_reward(
+
+        case_id
+
+    )
+
+
+
+    text = ""
+
+
+
+
+    if reward["type"] == "coins":
+
+
+        player["coins"] += reward["amount"]
+
+
+        text = (
+
+            f"💰 Монеты +"
+
+            f"{reward['amount']}"
+
+        )
+
+
+
+
+    elif reward["type"] == "car":
+
+
+        add_car_to_garage(
+
+            user_id,
+
+            reward["id"]
+
+        )
+
+
+        text = (
+
+            f"🚗 Получена машина:\n"
+
+            f"{reward['id']}"
+
+        )
+
+
+
+
+    elif reward["type"] == "pet":
+
+
+        add_pet(
+
+            user_id,
+
+            reward["id"]
+
+        )
+
+
+        text = (
+
+            f"🐾 Получен питомец:\n"
+
+            f"{reward['id']}"
+
+        )
+
+
+
+
+    elif reward["type"] == "part":
+
+
+        if "parts" not in player:
+
+
+            player["parts"] = []
+
+
+
+        player["parts"].append(
+
+            reward["id"]
+
+        )
+
+
+        text = (
+
+            f"🧩 Получена деталь:\n"
+
+            f"{reward['id']}"
+
+        )
+
+
+
+
+    update_player(
 
         user_id,
 
-        case_type,
-
-        cars
+        player
 
     )
 
 
 
-    if not car:
+    save_case_history(
 
-        return {
+        user_id,
 
-            "success": False,
+        case_id,
 
-            "message": "❌ Ошибка открытия"
+        reward
 
-        }
-
-
-
-    if car["name"] not in player["garage"]:
-
-
-        player["garage"].append(
-
-            car["name"]
-
-        )
+    )
 
 
 
     return {
 
+
         "success": True,
 
-        "car": car,
 
         "message":
 
-        f"🎉 Выпала машина:\n\n"
+        (
 
-        f"{car['name']}\n"
+            f"🎁 <b>{case['name']}</b>\n\n"
 
-        f"💎 {car['rarity']}\n"
+            f"{text}"
 
-        f"⚡ Мощность: {car['power']}\n"
-
-        f"🚀 Скорость: {car['speed']}"
+        )
 
     }
+
+
+
+
+# =========================
+# СОХРАНЕНИЕ ОТКРЫТИЯ
+# =========================
+
+
+def save_case_history(
+
+    user_id,
+
+    case_id,
+
+    reward
+
+):
+
+
+    data = load_history()
+
+
+    uid = str(user_id)
+
+
+
+    if uid not in data:
+
+
+        data[uid] = []
+
+
+
+    data[uid].append(
+
+        {
+
+            "case":
+
+            case_id,
+
+
+            "reward":
+
+            reward
+
+        }
+
+    )
+
+
+
+    save_history(
+
+        data
+
+    )
+    
+    # =========================
+# ТЕКСТ КЕЙСОВ
+# =========================
+
+
+def cases_text():
+
+
+    return (
+
+        "🎁 <b>КЕЙСЫ</b>\n\n"
+
+        "📦 Обычный кейс\n"
+
+        "💰 Цена: 1000\n\n"
+
+        "💎 Премиум кейс\n"
+
+        "💰 Цена: 5000\n\n"
+
+        "🔥 Легендарный кейс\n"
+
+        "💰 Цена: 15000\n\n"
+
+        "Открывай и получай:\n"
+
+        "🚗 Машины\n"
+
+        "🐾 Питомцев\n"
+
+        "🧩 Детали\n"
+
+        "💎 Валюту"
+
+    )
+
+
+
+
+# =========================
+# СПИСОК КЕЙСОВ
+# =========================
+
+
+def get_cases():
+
+
+    result = []
+
+
+
+    for key, value in CASES.items():
+
+
+        result.append(
+
+            {
+
+                "id": key,
+
+                "name": value["name"],
+
+                "price": value["price"]
+
+            }
+
+        )
+
+
+
+    return result
+
+
+
+
+# =========================
+# ИСТОРИЯ ИГРОКА
+# =========================
+
+
+def get_case_history(user_id):
+
+
+    data = load_history()
+
+
+
+    return data.get(
+
+        str(user_id),
+
+        []
+
+    )
+
+
+
+
+# =========================
+# ТЕКСТ ИСТОРИИ
+# =========================
+
+
+def history_text(user_id):
+
+
+    history = get_case_history(
+
+        user_id
+
+    )
+
+
+    text = (
+
+        "🎁 <b>ИСТОРИЯ КЕЙСОВ</b>\n\n"
+
+    )
+
+
+
+    if not history:
+
+
+        return text + "Пока ничего не открыто"
+
+
+
+    for item in history[-10:]:
+
+
+        reward = item["reward"]
+
+
+
+        text += (
+
+            f"📦 {item['case']}\n"
+
+            f"🎉 {reward['type']}\n\n"
+
+        )
+
+
+
+    return text
