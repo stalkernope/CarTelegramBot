@@ -8,7 +8,6 @@ from flask import (
 import os
 
 
-
 from database import (
     get_player,
     update_player
@@ -29,7 +28,8 @@ from shop_cars import (
 from boss_race_system import (
     race_npc,
     fight_boss,
-    race_result_text
+    race_result_text,
+    get_boss
 )
 
 
@@ -54,8 +54,6 @@ app = Flask(
 
 
 
-
-
 # =========================
 # MINI APP
 # =========================
@@ -64,7 +62,6 @@ app = Flask(
 @app.route("/")
 
 def home():
-
 
     return send_from_directory(
 
@@ -78,11 +75,9 @@ def home():
 
 
 
-
 @app.route("/<path:path>")
 
 def static_files(path):
-
 
     return send_from_directory(
 
@@ -91,8 +86,6 @@ def static_files(path):
         path
 
     )
-
-
 
 
 
@@ -114,13 +107,121 @@ def static_files(path):
 def player_api(user_id):
 
 
-    return jsonify(
+    player = get_player(
 
-        get_player(
+        user_id
 
-            user_id
+    )
+
+
+    main_car = player.get(
+
+        "main_car"
+
+    )
+
+
+    car_data = None
+
+
+
+    if main_car:
+
+
+        car_data = get_car(
+
+            main_car
 
         )
+
+
+
+    response = {
+
+
+        "id":
+
+            user_id,
+
+
+        "name":
+
+            player.get(
+
+                "username",
+
+                "PLAYER"
+
+            ),
+
+
+        "level":
+
+            player.get(
+
+                "level",
+
+                1
+
+            ),
+
+
+        "coins":
+
+            player.get(
+
+                "coins",
+
+                5000
+
+            ),
+
+
+        "gems":
+
+            player.get(
+
+                "gems",
+
+                0
+
+            ),
+
+
+        "rep":
+
+            player.get(
+
+                "rep",
+
+                0
+
+            ),
+
+
+        "garage":
+
+            player.get(
+
+                "garage",
+
+                []
+
+            ),
+
+
+        "main_car":
+
+            car_data
+
+
+    }
+
+
+
+    return jsonify(
+
+        response
 
     )
 
@@ -182,7 +283,6 @@ def car_api(name):
 
 
 
-
 # =========================
 # GARAGE
 # =========================
@@ -204,7 +304,6 @@ def garage_api(user_id):
     )
 
 
-
     cars = []
 
 
@@ -223,7 +322,6 @@ def garage_api(user_id):
             name
 
         )
-
 
 
         if car:
@@ -250,7 +348,7 @@ def garage_api(user_id):
 
 
 # =========================
-# MAIN CAR
+# SET MAIN CAR
 # =========================
 
 
@@ -266,7 +364,6 @@ def main_car_api():
 
 
     data = request.json
-
 
 
     user_id = int(
@@ -288,14 +385,20 @@ def main_car_api():
 
 
 
-    if car not in player["garage"]:
+    if car not in player.get(
+
+        "garage",
+
+        []
+
+    ):
 
 
         return jsonify(
 
             {
 
-                "success":False
+                "success": False
 
             }
 
@@ -321,12 +424,11 @@ def main_car_api():
 
         {
 
-            "success":True
+            "success": True
 
         }
 
     )
-
 
 
 
@@ -350,7 +452,6 @@ def shop_api():
         get_shop_cars()
 
     )
-
 
 
 
@@ -384,18 +485,18 @@ def buy_api():
         )
 
 
-
         return jsonify(
 
             {
 
-                "success":True,
+                "success": True,
 
-                "car":car
+                "car": car
 
             }
 
         )
+
 
 
     except Exception as e:
@@ -405,14 +506,13 @@ def buy_api():
 
             {
 
-                "success":False,
+                "success": False,
 
-                "error":str(e)
+                "error": str(e)
 
             }
 
         )
-
 
 
 
@@ -455,9 +555,9 @@ def npc_race_api():
 
         {
 
-            "result":result,
+            "result": result,
 
-            "text":race_result_text(result)
+            "text": race_result_text(result)
 
         }
 
@@ -501,9 +601,9 @@ def boss_race_api():
 
         {
 
-            "result":result,
+            "result": result,
 
-            "text":race_result_text(result)
+            "text": race_result_text(result)
 
         }
 
@@ -517,7 +617,7 @@ def boss_race_api():
 
 
 # =========================
-# UPDATE
+# UPDATE PLAYER
 # =========================
 
 
@@ -550,7 +650,7 @@ def update_api():
 
         {
 
-            "success":True
+            "success": True
 
         }
 
@@ -558,33 +658,66 @@ def update_api():
 
 
 
+
+
+
+
+
 # =========================
-# BLACKLIST
+# BOSS INFO
 # =========================
 
 
 @app.route(
 
-    "/api/blacklist/<int:user_id>"
+    "/api/boss"
 
 )
 
-def blacklist_api(user_id):
+def boss_api():
 
+
+    return jsonify(
+
+        get_boss()
+
+    )
+
+
+
+
+
+
+
+
+# =========================
+# HEALTH CHECK
+# =========================
+
+
+@app.route(
+
+    "/api/status"
+
+)
+
+def status():
 
     return jsonify(
 
         {
 
-            "text": blacklist_text(user_id),
+            "status":
 
-            "bosses": get_blacklist(),
-
-            "current": get_current_boss(user_id)
+            "online"
 
         }
 
     )
+
+
+
+
 
 
 
