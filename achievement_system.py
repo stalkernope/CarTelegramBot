@@ -411,3 +411,120 @@ def achievement_text(user_id):
 
 
     return text
+    
+    # =========================
+# ACHIEVEMENT SYSTEM FIX
+# =========================
+
+
+from database import get_player
+
+
+
+
+
+# =========================
+# ACHIEVEMENTS TEXT
+# =========================
+
+
+def achievement_text(user_id):
+
+
+    player = get_player(
+
+        user_id
+
+    )
+
+
+    wins = player.get(
+
+        "wins",
+
+        0
+
+    )
+
+
+    garage = len(
+
+        player.get(
+
+            "garage",
+
+            []
+
+        )
+
+    )
+
+
+    text = (
+
+        "🏆 <b>ДОСТИЖЕНИЯ</b>\n\n"
+
+    )
+
+
+
+    if wins >= 1:
+
+
+        text += "✅ Первая победа\n"
+
+
+    else:
+
+
+        text += "🔒 Первая победа\n"
+
+
+
+
+    if wins >= 50:
+
+
+        text += "✅ Гонщик PRO\n"
+
+
+    else:
+
+
+        text += "🔒 Гонщик PRO\n"
+
+
+
+
+
+    if garage >= 10:
+
+
+        text += "✅ Коллекционер машин\n"
+
+
+    else:
+
+
+        text += "🔒 Коллекционер машин\n"
+
+
+
+
+
+    if wins >= 100:
+
+
+        text += "✅ Легенда улиц\n"
+
+
+    else:
+
+
+        text += "🔒 Легенда улиц\n"
+
+
+
+
+
+    return text
