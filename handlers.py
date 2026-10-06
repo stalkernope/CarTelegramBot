@@ -138,7 +138,12 @@ from boss_race_system import (
 
 from shop import (
 
-    open_case,
+    open_case
+
+)
+
+
+from shop_cars import (
 
     get_shop_cars,
 
