@@ -5,7 +5,6 @@ from flask import (
     send_from_directory
 )
 
-
 import os
 
 
@@ -16,7 +15,6 @@ from database import (
 
 
 from car_database import (
-    get_all_cars,
     get_car
 )
 
@@ -26,6 +24,13 @@ from shop_cars import (
     buy_car
 )
 
+
+
+
+
+# =========================
+# APP
+# =========================
 
 
 app = Flask(
@@ -38,13 +43,18 @@ app = Flask(
 
 
 
+
+
+
 # =========================
-# MINI APP ГЛАВНАЯ
+# MINI APP
 # =========================
 
 
 @app.route("/")
+
 def home():
+
 
     return send_from_directory(
 
@@ -57,16 +67,14 @@ def home():
 
 
 
-# =========================
-# СТАТИКА
-# =========================
-
 
 @app.route(
+
     "/<path:path>"
+
 )
 
-def static_files(path):
+def files(path):
 
 
     return send_from_directory(
@@ -80,8 +88,12 @@ def static_files(path):
 
 
 
+
+
+
+
 # =========================
-# ПРОФИЛЬ
+# ИГРОК
 # =========================
 
 
@@ -91,10 +103,10 @@ def static_files(path):
 
 )
 
-def player_data(user_id):
+def player(user_id):
 
 
-    player = get_player(
+    data = get_player(
 
         int(user_id)
 
@@ -103,9 +115,13 @@ def player_data(user_id):
 
     return jsonify(
 
-        player
+        data
 
     )
+
+
+
+
 
 
 
@@ -134,17 +150,26 @@ def garage(user_id):
     cars = []
 
 
-    for car_name in player["garage"]:
+
+    for name in player.get(
+
+        "garage",
+
+        []
+
+    ):
 
 
         car = get_car(
 
-            car_name
+            name
 
         )
 
 
+
         if car:
+
 
             cars.append(
 
@@ -153,11 +178,115 @@ def garage(user_id):
             )
 
 
+
     return jsonify(
 
         cars
 
     )
+
+
+
+
+
+
+
+
+# =========================
+# ГЛАВНАЯ МАШИНА
+# =========================
+
+
+@app.route(
+
+    "/api/set_main_car",
+
+    methods=["POST"]
+
+)
+
+def set_main_car():
+
+
+    data = request.json
+
+
+
+    user_id = data.get(
+
+        "user_id"
+
+    )
+
+
+    car_name = data.get(
+
+        "car"
+
+    )
+
+
+
+    player = get_player(
+
+        int(user_id)
+
+    )
+
+
+
+    if car_name not in player.get(
+
+        "garage",
+
+        []
+
+    ):
+
+
+        return jsonify(
+
+            {
+
+                "success": False,
+
+                "error": "Машины нет в гараже"
+
+            }
+
+        )
+
+
+
+    player["main_car"] = car_name
+
+
+
+    update_player(
+
+        int(user_id),
+
+        player
+
+    )
+
+
+
+    return jsonify(
+
+        {
+
+            "success": True,
+
+            "main_car": car_name
+
+        }
+
+    )
+
+
+
+
 
 
 
@@ -176,15 +305,15 @@ def garage(user_id):
 def shop():
 
 
-    cars = get_shop_cars()
-
-
-
     return jsonify(
 
-        cars
+        get_shop_cars()
 
     )
+
+
+
+
 
 
 
@@ -216,7 +345,7 @@ def buy():
     )
 
 
-    car_name = data.get(
+    car = data.get(
 
         "car"
 
@@ -227,26 +356,23 @@ def buy():
     try:
 
 
-        car = buy_car(
+        result = buy_car(
 
-            user_id,
+            int(user_id),
 
-            car_name
+            car
 
         )
+
 
 
         return jsonify(
 
             {
 
-                "success":
+                "success": True,
 
-                True,
-
-                "car":
-
-                car
+                "car": result
 
             }
 
@@ -260,13 +386,9 @@ def buy():
 
             {
 
-                "success":
+                "success": False,
 
-                False,
-
-                "error":
-
-                str(e)
+                "error": str(e)
 
             }
 
@@ -275,8 +397,12 @@ def buy():
 
 
 
+
+
+
+
 # =========================
-# СОХРАНЕНИЕ
+# ОБНОВЛЕНИЕ
 # =========================
 
 
@@ -294,18 +420,12 @@ def update():
     data = request.json
 
 
-    user_id = data["user_id"]
-
-
-    player = data["player"]
-
-
 
     update_player(
 
-        user_id,
+        int(data["user_id"]),
 
-        player
+        data["player"]
 
     )
 
@@ -315,9 +435,7 @@ def update():
 
         {
 
-            "success":
-
-            True
+            "success": True
 
         }
 
@@ -326,8 +444,12 @@ def update():
 
 
 
+
+
+
+
 # =========================
-# ЗАПУСК
+# RUN
 # =========================
 
 
@@ -344,7 +466,7 @@ def run_api():
 
                 "PORT",
 
-                5000
+                10000
 
             )
 
