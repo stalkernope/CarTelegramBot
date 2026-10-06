@@ -7,7 +7,7 @@ from telegram.ext import (
 )
 
 
-from menus.menu_system import (
+from menu_system import (
 
     main_menu,
 
