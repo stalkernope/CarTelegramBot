@@ -15,52 +15,120 @@ TUNING_FILE = "tuning.json"
 
 
 # =========================
-# НАСТРОЙКИ
+# ДЕТАЛИ ТЮНИНГА
 # =========================
 
 
 PARTS = {
 
+
     "engine": {
+
 
         "name": "⚡ Двигатель",
 
-        "power": 50,
 
-        "price": 5000
+        "max_level": 10,
+
+
+        "price": 5000,
+
+
+        "bonus": {
+
+            "power": 50
+
+        }
 
     },
+
 
 
     "turbo": {
 
+
         "name": "🔥 Турбо",
 
-        "speed": 15,
 
-        "price": 7000
+        "max_level": 10,
+
+
+        "price": 7000,
+
+
+        "bonus": {
+
+            "speed": 20
+
+        }
 
     },
+
 
 
     "tires": {
 
+
         "name": "🛞 Шины",
 
-        "speed": 10,
 
-        "price": 3000
+        "max_level": 10,
+
+
+        "price": 3000,
+
+
+        "bonus": {
+
+            "speed": 10,
+
+            "handling": 5
+
+        }
 
     },
 
 
+
     "suspension": {
+
 
         "name": "🔧 Подвеска",
 
-        "power": 20,
 
-        "price": 4000
+        "max_level": 10,
+
+
+        "price": 4000,
+
+
+        "bonus": {
+
+            "handling": 10
+
+        }
+
+    },
+
+
+
+    "electronics": {
+
+
+        "name": "🔋 Электроника",
+
+
+        "max_level": 10,
+
+
+        "price": 6000,
+
+
+        "bonus": {
+
+            "critical": 5
+
+        }
 
     }
 
@@ -76,23 +144,33 @@ PARTS = {
 
 def load_tuning():
 
+
     if not os.path.exists(TUNING_FILE):
 
         return {}
 
 
+
     try:
 
+
         with open(
+
             TUNING_FILE,
+
             "r",
+
             encoding="utf-8"
+
         ) as file:
+
 
             return json.load(file)
 
 
+
     except:
+
 
         return {}
 
@@ -106,11 +184,17 @@ def load_tuning():
 
 def save_tuning(data):
 
+
     with open(
+
         TUNING_FILE,
+
         "w",
+
         encoding="utf-8"
+
     ) as file:
+
 
         json.dump(
 
@@ -133,9 +217,13 @@ def save_tuning(data):
 
 
 def get_car_tuning(
+
     user_id,
+
     car_name
+
 ):
+
 
     data = load_tuning()
 
@@ -146,6 +234,7 @@ def get_car_tuning(
 
     if uid not in data:
 
+
         data[uid] = {}
 
 
@@ -155,20 +244,21 @@ def get_car_tuning(
 
         data[uid][car_name] = {
 
+
             "engine": 0,
 
             "turbo": 0,
 
             "tires": 0,
 
-            "suspension": 0
+            "suspension": 0,
+
+            "electronics": 0
 
         }
 
 
-        save_tuning(
-            data
-        )
+        save_tuning(data)
 
 
 
@@ -183,37 +273,98 @@ def get_car_tuning(
 
 
 def upgrade_car(
+
     user_id,
+
     car_name,
+
     part
+
 ):
 
 
     if part not in PARTS:
 
+
         return {
+
 
             "success": False,
 
+
             "message":
-            "❌ Нет такого улучшения"
+
+            "❌ Такой детали нет"
 
         }
 
 
 
+
     player = get_player(
+
         user_id
+
     )
 
 
-    if player["coins"] < PARTS[part]["price"]:
+
+    tuning = get_car_tuning(
+
+        user_id,
+
+        car_name
+
+    )
+
+
+
+    current = tuning[part]
+
+
+
+    config = PARTS[part]
+
+
+
+    if current >= config["max_level"]:
+
 
         return {
 
+
             "success": False,
 
+
             "message":
+
+            "🔥 Максимальный уровень"
+
+        }
+
+
+
+
+    price = config["price"] * (
+
+        current + 1
+
+    )
+
+
+
+
+    if player["coins"] < price:
+
+
+        return {
+
+
+            "success": False,
+
+
+            "message":
+
             "❌ Недостаточно монет"
 
         }
@@ -221,55 +372,11 @@ def upgrade_car(
 
 
 
-    tuning = load_tuning()
-
-
-    uid = str(user_id)
+    player["coins"] -= price
 
 
 
-    if uid not in tuning:
-
-        tuning[uid] = {}
-
-
-
-    if car_name not in tuning[uid]:
-
-        tuning[uid][car_name] = {
-
-            "engine": 0,
-
-            "turbo": 0,
-
-            "tires": 0,
-
-            "suspension": 0
-
-        }
-
-
-
-
-    if tuning[uid][car_name][part] >= 5:
-
-        return {
-
-            "success": False,
-
-            "message":
-            "❌ Максимальный уровень"
-
-        }
-
-
-
-
-    player["coins"] -= PARTS[part]["price"]
-
-
-
-    tuning[uid][car_name][part] += 1
+    tuning[part] += 1
 
 
 
@@ -282,21 +389,36 @@ def upgrade_car(
     )
 
 
-    save_tuning(
-        tuning
-    )
+
+    data = load_tuning()
+
+
+    data[str(user_id)][car_name] = tuning
+
+
+    save_tuning(data)
 
 
 
     return {
 
+
         "success": True,
+
 
         "message":
 
-        f"✅ {PARTS[part]['name']} улучшено\n"
+        (
 
-        f"Уровень: {tuning[uid][car_name][part]}/5"
+            f"✅ {config['name']}\n"
+
+            f"⭐ Уровень: "
+
+            f"{tuning[part]}/10\n"
+
+            f"💰 Цена: {price}"
+
+        )
 
     }
 
@@ -309,9 +431,13 @@ def upgrade_car(
 
 
 def tuning_bonus(
+
     user_id,
+
     car_name
+
 ):
+
 
     tuning = get_car_tuning(
 
@@ -322,40 +448,36 @@ def tuning_bonus(
     )
 
 
-    power = (
-
-        tuning["engine"] * 50
-
-        +
-
-        tuning["suspension"] * 20
-
-    )
+    bonus = {
 
 
-    speed = (
+        "power": 0,
 
-        tuning["turbo"] * 15
+        "speed": 0,
 
-        +
+        "handling": 0,
 
-        tuning["tires"] * 10
-
-    )
-
-
-    return {
-
-        "power":
-
-        power,
-
-
-        "speed":
-
-        speed
+        "critical": 0
 
     }
+
+
+
+    for part, level in tuning.items():
+
+
+        config = PARTS[part]
+
+
+
+        for stat, value in config["bonus"].items():
+
+
+            bonus[stat] += value * level
+
+
+
+    return bonus
 
 
 
@@ -366,9 +488,13 @@ def tuning_bonus(
 
 
 def tuning_text(
+
     user_id,
+
     car_name
+
 ):
+
 
     tuning = get_car_tuning(
 
@@ -379,18 +505,41 @@ def tuning_text(
     )
 
 
-    return (
 
-        f"🔧 <b>ТЮНИНГ</b>\n\n"
+    text = (
+
+        "🔧 <b>ТЮНИНГ</b>\n\n"
 
         f"🏎 {car_name}\n\n"
 
-        f"⚡ Двигатель: {tuning['engine']}/5\n"
-
-        f"🔥 Турбо: {tuning['turbo']}/5\n"
-
-        f"🛞 Шины: {tuning['tires']}/5\n"
-
-        f"🔧 Подвеска: {tuning['suspension']}/5"
-
     )
+
+
+
+    for part, level in tuning.items():
+
+
+        item = PARTS[part]
+
+
+        stars = "⭐" * level + "▫️" * (
+
+            10 - level
+
+        )
+
+
+
+        text += (
+
+            f"{item['name']}\n"
+
+            f"{stars}\n"
+
+            f"Уровень: {level}/10\n\n"
+
+        )
+
+
+
+    return text
