@@ -2,606 +2,91 @@ import json
 import os
 
 
+DB_FILE = "players.json"
 
-DATABASE_FILE = "players.json"
 
-
-
-
-
-
-# =========================
-# CREATE PLAYER
-# =========================
-
-
-def create_player(user_id):
-
-
-    return {
-
-
-        "id": user_id,
-
-
-        "coins": 5000,
-
-
-        "gems": 0,
-
-
-        "level": 1,
-
-
-        "xp": 0,
-
-
-
-        "garage": [],
-
-
-        "main_car": None,
-
-
-
-        "wins": 0,
-
-
-        "losses": 0,
-
-
-
-        "pets": [],
-
-
-        "active_pet": None,
-
-
-
-        "tuning_parts": [],
-
-
-
-        "achievements": [],
-
-
-        "titles": [],
-
-
-
-        "clan": None,
-
-
-
-        "premium": False
-
-
-    }
-
-
-
-
-
-
-
-
-# =========================
-# LOAD DATABASE
-# =========================
-
-
-def load_database():
-
-
-    if not os.path.exists(
-
-        DATABASE_FILE
-
-    ):
-
-
+def load_players():
+    if not os.path.exists(DB_FILE):
         return {}
 
+    with open(DB_FILE, "r", encoding="utf-8") as f:
+        return json.load(f)
 
 
+def save_players(players):
+    with open(DB_FILE, "w", encoding="utf-8") as f:
+        json.dump(players, f, indent=4, ensure_ascii=False)
 
-    try:
 
+def get_player(player_id):
+    players = load_players()
 
-        with open(
+    if str(player_id) not in players:
+        players[str(player_id)] = {
+            "coins": 0,
+            "xp": 0,
+            "wins": 0,
+            "cars": []
+        }
+        save_players(players)
 
-            DATABASE_FILE,
+    return players[str(player_id)]
 
-            "r",
 
-            encoding="utf-8"
+def update_player(player_id, data):
+    players = load_players()
 
-        ) as file:
+    players[str(player_id)] = data
 
+    save_players(players)
 
-            return json.load(file)
 
-
-
-    except Exception:
-
-
-        return {}
-
-
-
-
-
-
-
-
-
-# =========================
-# SAVE DATABASE
-# =========================
-
-
-def save_database(data):
-
-
-    with open(
-
-        DATABASE_FILE,
-
-        "w",
-
-        encoding="utf-8"
-
-    ) as file:
-
-
-        json.dump(
-
-            data,
-
-            file,
-
-            ensure_ascii=False,
-
-            indent=4
-
-        )
-
-
-
-
-
-
-
-
-
-# =========================
-# GET PLAYER
-# =========================
-
-
-def get_player(user_id):
-
-
-    data = load_database()
-
-
-
-    uid = str(user_id)
-
-
-
-    if uid not in data:
-
-
-        data[uid] = create_player(
-
-            user_id
-
-        )
-
-
-        save_database(
-
-            data
-
-        )
-
-
-
-    return data[uid]
-
-
-
-
-
-
-
-
-
-# =========================
-# UPDATE PLAYER
-# =========================
-
-
-def update_player(
-
-    user_id,
-
-    player
-
-):
-
-
-    data = load_database()
-
-
-
-    data[str(user_id)] = player
-
-
-
-    save_database(
-
-        data
-
-    )
-
-
-
-
-
-
-
-
-
-# =========================
-# COINS
-# =========================
-
-
-def add_coins(
-
-    user_id,
-
-    amount
-
-):
-
-
-    player = get_player(
-
-        user_id
-
-    )
-
+def add_coins(player_id, amount):
+    player = get_player(player_id)
 
     player["coins"] += amount
 
+    update_player(player_id, player)
 
 
-    update_player(
+def remove_coins(player_id, amount):
+    player = get_player(player_id)
 
-        user_id,
+    if player["coins"] >= amount:
+        player["coins"] -= amount
 
-        player
-
-    )
-
-
+    update_player(player_id, player)
 
 
-
-
-
-def remove_coins(
-
-    user_id,
-
-    amount
-
-):
-
-
-    player = get_player(
-
-        user_id
-
-    )
-
-
-
-    if player["coins"] < amount:
-
-
-        return False
-
-
-
-    player["coins"] -= amount
-
-
-
-    update_player(
-
-        user_id,
-
-        player
-
-    )
-
-
-
-    return True
-
-
-
-
-
-
-
-# =========================
-# XP
-# =========================
-
-
-def add_xp(
-
-    user_id,
-
-    amount
-
-):
-
-
-    player = get_player(
-
-        user_id
-
-    )
-
-
+def add_xp(player_id, amount):
+    player = get_player(player_id)
 
     player["xp"] += amount
 
+    update_player(player_id, player)
 
 
-    need = player["level"] * 1000
-
-
-
-    if player["xp"] >= need:
-
-
-        player["xp"] -= need
-
-
-        player["level"] += 1
-
-
-
-    update_player(
-
-        user_id,
-
-        player
-
-    )
-
-
-
-
-
-
-
-
-# =========================
-# WINS
-# =========================
-
-
-def add_win(user_id):
-
-
-    player = get_player(
-
-        user_id
-
-    )
-
-
+def add_win(player_id):
+    player = get_player(player_id)
 
     player["wins"] += 1
 
+    update_player(player_id, player)
 
 
-    update_player(
+def add_car(player_id, car):
+    player = get_player(player_id)
 
-        user_id,
+    if car not in player["cars"]:
+        player["cars"].append(car)
 
-        player
+    update_player(player_id, player)
 
-    )
 
+def remove_car(player_id, car):
+    player = get_player(player_id)
 
+    if car in player["cars"]:
+        player["cars"].remove(car)
 
-
-
-
-
-
-def add_loss(user_id):
-
-
-    player = get_player(
-
-        user_id
-
-    )
-
-
-
-    player["losses"] += 1
-
-
-
-    update_player(
-
-        user_id,
-
-        player
-
-    )
-
-
-
-
-
-
-
-
-# =========================
-# GARAGE
-# =========================
-
-
-def add_car(
-
-    user_id,
-
-    car_name
-
-):
-
-
-    player = get_player(
-
-        user_id
-
-    )
-
-
-
-    if car_name not in player["garage"]:
-
-
-        player["garage"].append(
-
-            car_name
-
-        )
-
-
-
-    if player["main_car"] is None:
-
-
-        player["main_car"] = car_name
-
-
-
-    update_player(
-
-        user_id,
-
-        player
-
-    )
-
-
-
-
-
-
-
-
-def remove_car(
-
-    user_id,
-
-    car_name
-
-):
-
-
-    player = get_player(
-
-        user_id
-
-    )
-
-
-
-    if car_name in player["garage"]:
-
-
-        player["garage"].remove(
-
-            car_name
-
-        )
-
-
-
-    if player["main_car"] == car_name:
-
-
-        player["main_car"] = None
-
-
-
-    update_player(
-
-        user_id,
-
-        player
-
-    )
-
-
-
-
-
-
-
-
-# =========================
-# PETS
-# =========================
-
-
-def add_pet(
-
-    user_id,
-
-    pet
-
-):
-
-
-    player = get_player(
-
-        user_id
-
-    )
-
-
-
-    if pet not in player["pets"]:
-
-
-        player["pets"].append(
-
-            pet
-
-        )
-
-
-
-    update_player(
-
-        user_id,
-
-        player
-
-    )
+    update_player(player_id, player)
