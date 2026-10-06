@@ -1,72 +1,69 @@
-import json
-import os
-
-
-
 from database import (
-
     get_player,
-
-    update_player
-
+    update_player,
+    remove_coins
 )
 
 
 
 
-TUNING_FILE = "tuning.json"
-
-
-
 
 # =========================
-# ДЕТАЛИ
+# TUNING PARTS
 # =========================
 
 
-PARTS = {
+TUNING_PARTS = {
 
 
-    "engine": {
+    "engine_1": {
 
-        "name": "⚡ Двигатель",
+        "name": "⚡ Stage 1 Engine",
 
-        "power": 50,
+        "price": 5000,
 
-        "price": 5000
+        "power": 300,
+
+        "speed": 20
+
+    },
+
+
+    "engine_2": {
+
+        "name": "🔥 Stage 2 Engine",
+
+        "price": 15000,
+
+        "power": 800,
+
+        "speed": 50
 
     },
 
 
     "turbo": {
 
-        "name": "🔥 Турбо",
+        "name": "🚀 Turbo",
 
-        "speed": 15,
+        "price": 25000,
 
-        "price": 7000
+        "power": 1200,
 
-    },
-
-
-    "tires": {
-
-        "name": "🛞 Шины",
-
-        "speed": 10,
-
-        "price": 3000
+        "speed": 80
 
     },
 
 
-    "suspension": {
+    "race_kit": {
 
-        "name": "🔧 Подвеска",
+        "name": "🏎 Race Kit",
 
-        "power": 20,
+        "price": 50000,
 
-        "price": 4000
+        "power": 2000,
+
+        "speed": 120
 
     }
 
@@ -75,168 +72,53 @@ PARTS = {
 
 
 
-# =========================
-# ЗАГРУЗКА
-# =========================
-
-
-def load_tuning():
-
-
-    if not os.path.exists(TUNING_FILE):
-
-        return {}
-
-
-
-    try:
-
-
-        with open(
-
-            TUNING_FILE,
-
-            "r",
-
-            encoding="utf-8"
-
-        ) as file:
-
-
-            return json.load(file)
-
-
-
-    except:
-
-
-        return {}
 
 
 
 
 # =========================
-# СОХРАНЕНИЕ
+# GET PARTS
 # =========================
 
 
-def save_tuning(data):
+def get_tuning_parts():
 
 
-    with open(
-
-        TUNING_FILE,
-
-        "w",
-
-        encoding="utf-8"
-
-    ) as file:
+    return TUNING_PARTS
 
 
-        json.dump(
 
-            data,
 
-            file,
 
-            ensure_ascii=False,
 
-            indent=4
 
-        )
-        
-        # =========================
-# ПОЛУЧИТЬ ТЮНИНГ
+
+# =========================
+# BUY TUNING
 # =========================
 
 
-def get_car_tuning(
+def buy_tuning(
 
     user_id,
 
-    car_name
+    part_id
 
 ):
 
 
-    data = load_tuning()
+    if part_id not in TUNING_PARTS:
 
 
-    uid = str(user_id)
+        raise Exception(
 
-
-
-    if uid not in data:
-
-
-        data[uid] = {}
-
-
-
-    if car_name not in data[uid]:
-
-
-        data[uid][car_name] = {
-
-
-            "engine": 0,
-
-            "turbo": 0,
-
-            "tires": 0,
-
-            "suspension": 0
-
-        }
-
-
-
-        save_tuning(
-
-            data
+            "Деталь не найдена"
 
         )
 
 
 
-    return data[uid][car_name]
-
-
-
-
-# =========================
-# УЛУЧШЕНИЕ
-# =========================
-
-
-def upgrade_car(
-
-    user_id,
-
-    car_name,
-
-    part
-
-):
-
-
-    if part not in PARTS:
-
-
-        return {
-
-
-            "success":
-
-            False,
-
-
-            "message":
-
-            "❌ Деталь не найдена"
-
-        }
+    part = TUNING_PARTS[part_id]
 
 
 
@@ -248,88 +130,51 @@ def upgrade_car(
 
 
 
-    price = PARTS[part]["price"]
 
 
-
-    if player["coins"] < price:
-
-
-        return {
+    if part_id in player["tuning_parts"]:
 
 
-            "success":
+        raise Exception(
 
-            False,
+            "Деталь уже установлена"
 
-
-            "message":
-
-            "❌ Недостаточно монет"
-
-        }
+        )
 
 
 
 
-    data = load_tuning()
+
+    if player["coins"] < part["price"]:
 
 
-    uid = str(user_id)
+        raise Exception(
 
+            "Недостаточно монет"
 
-
-    if uid not in data:
-
-
-        data[uid] = {}
-
-
-
-    if car_name not in data[uid]:
-
-
-        data[uid][car_name] = {
-
-
-            "engine": 0,
-
-            "turbo": 0,
-
-            "tires": 0,
-
-            "suspension": 0
-
-        }
+        )
 
 
 
 
-    if data[uid][car_name][part] >= 5:
 
+    remove_coins(
 
-        return {
+        user_id,
 
+        part["price"]
 
-            "success":
-
-            False,
-
-
-            "message":
-
-            "❌ Максимальный уровень"
-
-        }
+    )
 
 
 
 
-    player["coins"] -= price
 
+    player["tuning_parts"].append(
 
+        part_id
 
-    data[uid][car_name][part] += 1
+    )
 
 
 
@@ -343,35 +188,17 @@ def upgrade_car(
 
 
 
-    save_tuning(
-
-        data
-
-    )
+    return part
 
 
 
-    return {
 
 
-        "success":
-
-        True,
 
 
-        "message":
 
-
-        f"✅ {PARTS[part]['name']} улучшено\n"
-
-        f"Уровень: "
-
-        f"{data[uid][car_name][part]}/5"
-
-    }
-    
-    # =========================
-# БОНУСЫ ТЮНИНГА
+# =========================
+# BONUS
 # =========================
 
 
@@ -379,162 +206,65 @@ def tuning_bonus(
 
     user_id,
 
-    car_name
+    car_name=None
 
 ):
 
 
-    tuning = get_car_tuning(
+    player = get_player(
 
-        user_id,
-
-        car_name
+        user_id
 
     )
 
 
 
-    power = (
+    power = 0
 
-        tuning.get(
-
-            "engine",
-
-            0
-
-        )
-
-        *
-
-        PARTS["engine"]["power"]
-
-        +
-
-        tuning.get(
-
-            "suspension",
-
-            0
-
-        )
-
-        *
-
-        PARTS["suspension"]["power"]
-
-    )
+    speed = 0
 
 
 
-    speed = (
 
-        tuning.get(
 
-            "turbo",
+    for part_id in player.get(
 
-            0
+        "tuning_parts",
+
+        []
+
+    ):
+
+
+
+        part = TUNING_PARTS.get(
+
+            part_id
 
         )
 
-        *
 
-        PARTS["turbo"]["speed"]
 
-        +
+        if part:
 
-        tuning.get(
 
-            "tires",
+            power += part["power"]
 
-            0
 
-        )
+            speed += part["speed"]
 
-        *
 
-        PARTS["tires"]["speed"]
 
-    )
 
 
 
     return {
 
 
-        "power":
-
-        power,
+        "power": power,
 
 
-        "speed":
+        "speed": speed
 
-        speed
 
     }
-
-
-
-
-# =========================
-# ТЕКСТ ТЮНИНГА
-# =========================
-
-
-def tuning_text(
-
-    user_id,
-
-    car_name
-
-):
-
-
-    tuning = get_car_tuning(
-
-        user_id,
-
-        car_name
-
-    )
-
-
-
-    bonus = tuning_bonus(
-
-        user_id,
-
-        car_name
-
-    )
-
-
-
-    return (
-
-        "🔧 <b>ТЮНИНГ</b>\n\n"
-
-        f"🚗 Машина: {car_name}\n\n"
-
-        f"⚡ Двигатель: "
-
-        f"{tuning['engine']}/5\n"
-
-        f"🔥 Турбо: "
-
-        f"{tuning['turbo']}/5\n"
-
-        f"🛞 Шины: "
-
-        f"{tuning['tires']}/5\n"
-
-        f"🔧 Подвеска: "
-
-        f"{tuning['suspension']}/5\n\n"
-
-        "📈 Бонусы:\n"
-
-        f"⚡ Сила +{bonus['power']}\n"
-
-        f"🚀 Скорость +{bonus['speed']}"
-
-    )
