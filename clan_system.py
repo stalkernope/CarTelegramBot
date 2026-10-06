@@ -380,3 +380,128 @@ def clan_text(
         f"🏆 Победы клуба: {clan['wins']}"
 
     )
+    
+    # =========================
+# CLAN SYSTEM FIX
+# =========================
+
+
+from database import get_player
+
+
+
+
+
+
+# =========================
+# CLAN TEXT
+# =========================
+
+
+def clan_text(user_id):
+
+
+    player = get_player(
+
+        user_id
+
+    )
+
+
+    clan = player.get(
+
+        "clan"
+
+    )
+
+
+
+    text = (
+
+        "⚔️ <b>КЛАНЫ</b>\n\n"
+
+    )
+
+
+
+    if not clan:
+
+
+        text += (
+
+            "❌ Ты не состоишь в клане\n\n"
+
+            "Создай клан или вступи в существующий."
+
+        )
+
+
+        return text
+
+
+
+
+
+    text += (
+
+        f"🏰 Клан: {clan}\n\n"
+
+        "🔥 Участие в войнах\n"
+
+        "🏆 Рейтинг кланов"
+
+    )
+
+
+
+    return text
+
+
+
+
+
+
+
+# =========================
+# TOP CLANS
+# =========================
+
+
+def top_clans():
+
+
+    return [
+
+        {
+
+            "name": "🔥 Night Racers",
+
+            "level": 10,
+
+            "power": 9500
+
+        },
+
+
+        {
+
+            "name": "⚡ Speed Demons",
+
+            "level": 8,
+
+            "power": 7200
+
+        },
+
+
+        {
+
+            "name": "🏎 Street Kings",
+
+            "level": 6,
+
+            "power": 5000
+
+        }
+
+    ]
