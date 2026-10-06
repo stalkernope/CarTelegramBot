@@ -116,7 +116,7 @@ from pet_system import (
 # =========================
 
 
-from race_system import (
+from boss_race_system import (
 
     race_npc,
 
