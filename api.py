@@ -8,6 +8,7 @@ from flask import (
 import os
 
 
+
 from database import (
     get_player,
     update_player
@@ -34,6 +35,7 @@ from race_system import (
 
 
 
+
 # =========================
 # APP
 # =========================
@@ -51,14 +53,18 @@ app = Flask(
 
 
 
+
+
+
 # =========================
-# MINI APP FILES
+# MINI APP
 # =========================
 
 
 @app.route("/")
 
 def home():
+
 
     return send_from_directory(
 
@@ -72,9 +78,11 @@ def home():
 
 
 
+
 @app.route("/<path:path>")
 
 def static_files(path):
+
 
     return send_from_directory(
 
@@ -83,6 +91,7 @@ def static_files(path):
         path
 
     )
+
 
 
 
@@ -102,21 +111,70 @@ def static_files(path):
 
 )
 
-def get_player_api(user_id):
-
-
-    player = get_player(
-
-        user_id
-
-    )
+def player_api(user_id):
 
 
     return jsonify(
 
-        player
+        get_player(
+
+            user_id
+
+        )
 
     )
+
+
+
+
+
+
+
+
+# =========================
+# CAR INFO
+# =========================
+
+
+@app.route(
+
+    "/api/car/<path:name>"
+
+)
+
+def car_api(name):
+
+
+    car = get_car(
+
+        name
+
+    )
+
+
+    if not car:
+
+
+        return jsonify(
+
+            {
+
+                "error":
+
+                "Car not found"
+
+            }
+
+        )
+
+
+
+    return jsonify(
+
+        car
+
+    )
+
 
 
 
@@ -146,11 +204,12 @@ def garage_api(user_id):
     )
 
 
-    result = []
+
+    cars = []
 
 
 
-    for car_name in player.get(
+    for name in player.get(
 
         "garage",
 
@@ -161,14 +220,15 @@ def garage_api(user_id):
 
         car = get_car(
 
-            car_name
+            name
 
         )
 
 
+
         if car:
 
-            result.append(
+            cars.append(
 
                 car
 
@@ -178,7 +238,7 @@ def garage_api(user_id):
 
     return jsonify(
 
-        result
+        cars
 
     )
 
@@ -190,7 +250,7 @@ def garage_api(user_id):
 
 
 # =========================
-# SET MAIN CAR
+# MAIN CAR
 # =========================
 
 
@@ -202,7 +262,7 @@ def garage_api(user_id):
 
 )
 
-def set_main_car():
+def main_car_api():
 
 
     data = request.json
@@ -216,7 +276,7 @@ def set_main_car():
     )
 
 
-    car_name = data["car"]
+    car = data["car"]
 
 
 
@@ -228,16 +288,14 @@ def set_main_car():
 
 
 
-    if car_name not in player["garage"]:
+    if car not in player["garage"]:
 
 
         return jsonify(
 
             {
 
-                "success":False,
-
-                "error":"Car not owned"
+                "success":False
 
             }
 
@@ -245,7 +303,7 @@ def set_main_car():
 
 
 
-    player["main_car"] = car_name
+    player["main_car"] = car
 
 
 
@@ -263,13 +321,12 @@ def set_main_car():
 
         {
 
-            "success":True,
-
-            "main_car":car_name
+            "success":True
 
         }
 
     )
+
 
 
 
@@ -283,11 +340,7 @@ def set_main_car():
 # =========================
 
 
-@app.route(
-
-    "/api/shop"
-
-)
+@app.route("/api/shop")
 
 def shop_api():
 
@@ -304,12 +357,6 @@ def shop_api():
 
 
 
-
-# =========================
-# BUY CAR
-# =========================
-
-
 @app.route(
 
     "/api/shop/buy",
@@ -318,7 +365,7 @@ def shop_api():
 
 )
 
-def buy_car_api():
+def buy_api():
 
 
     data = request.json
@@ -337,6 +384,7 @@ def buy_car_api():
         )
 
 
+
         return jsonify(
 
             {
@@ -348,7 +396,6 @@ def buy_car_api():
             }
 
         )
-
 
 
     except Exception as e:
@@ -373,8 +420,9 @@ def buy_car_api():
 
 
 
+
 # =========================
-# RACE NPC
+# RACES
 # =========================
 
 
@@ -420,11 +468,6 @@ def npc_race_api():
 
 
 
-
-
-# =========================
-# BOSS
-# =========================
 
 
 @app.route(
@@ -474,7 +517,7 @@ def boss_race_api():
 
 
 # =========================
-# UPDATE PLAYER
+# UPDATE
 # =========================
 
 
@@ -486,7 +529,7 @@ def boss_race_api():
 
 )
 
-def update_player_api():
+def update_api():
 
 
     data = request.json
