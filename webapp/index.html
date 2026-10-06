@@ -1,15 +1,25 @@
 <!DOCTYPE html>
+
 <html lang="ru">
+
 
 <head>
 
+
     <meta charset="UTF-8">
 
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 
     <title>
         CAR LEGENDS
     </title>
+
+
+    <!-- Telegram Mini App -->
+
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 
     <link rel="stylesheet" href="style.css">
@@ -18,13 +28,14 @@
 </head>
 
 
+
 <body>
+
 
 
 <div class="game">
 
 
-    <!-- HEADER -->
 
     <header class="top">
 
@@ -36,14 +47,27 @@
         </div>
 
 
-        <div class="profile-mini">
+
+        <div class="player">
 
 
-            👤 ShadowRacer
+            <span id="username">
+
+                PLAYER
+
+            </span>
+
 
             <br>
 
-            ⭐ Level 18
+
+            ⭐ Level
+
+            <span id="level">
+
+                1
+
+            </span>
 
 
         </div>
@@ -55,9 +79,6 @@
 
 
 
-    <!-- PLAYER INFO -->
-
-
     <section class="wallet">
 
 
@@ -67,11 +88,13 @@
 
             <span id="coins">
 
-                125000
+                0
 
             </span>
 
+
         </div>
+
 
 
         <div>
@@ -80,24 +103,28 @@
 
             <span id="gems">
 
-                50
+                0
 
             </span>
 
+
         </div>
+
 
 
         <div>
 
             🔥 REP
 
-            <span id="rep">
+            <span id="xp">
 
-                2450
+                0
 
             </span>
 
+
         </div>
+
 
 
     </section>
@@ -107,10 +134,9 @@
 
 
 
-    <!-- MAIN CAR -->
-
 
     <section class="main-car">
+
 
 
         <div class="car-glow">
@@ -123,34 +149,43 @@
 
 
 
-        <h1 id="car-name">
+        <h1 id="main-car">
 
-            BMW M3 GTR
+
+            Нет машины
+
 
         </h1>
 
 
 
+
         <div class="rarity">
+
 
             LEGENDARY
 
+
         </div>
+
+
 
 
 
         <div class="stats">
 
 
+
             <div>
 
                 ⚡ POWER
 
-                <b>
+                <b id="power">
 
-                    8500
+                    0
 
                 </b>
+
 
             </div>
 
@@ -160,11 +195,12 @@
 
                 🚀 SPEED
 
-                <b>
+                <b id="speed">
 
-                    320
+                    0
 
                 </b>
+
 
             </div>
 
@@ -174,13 +210,15 @@
 
                 🎯 CONTROL
 
-                <b>
+                <b id="control">
 
-                    85
+                    0
 
                 </b>
 
+
             </div>
+
 
 
         </div>
@@ -194,20 +232,18 @@
 
 
 
-    <!-- MENU -->
-
-
     <section class="menu">
 
 
-        <button>
+        <button data-page="race">
 
             🏁 RACE
 
         </button>
 
 
-        <button>
+
+        <button data-page="garage">
 
             🚗 GARAGE
 
@@ -215,7 +251,7 @@
 
 
 
-        <button>
+        <button data-page="tuning">
 
             🔧 TUNING
 
@@ -223,7 +259,7 @@
 
 
 
-        <button>
+        <button data-page="blacklist">
 
             🏆 BLACKLIST
 
@@ -231,7 +267,7 @@
 
 
 
-        <button>
+        <button data-page="shop">
 
             🛒 SHOP
 
@@ -239,11 +275,12 @@
 
 
 
-        <button>
+        <button data-page="profile">
 
             👤 PROFILE
 
         </button>
+
 
 
     </section>
@@ -251,10 +288,6 @@
 
 
 
-
-
-
-    <!-- BOTTOM -->
 
 
     <footer>
@@ -323,7 +356,6 @@
 
 
 
-
 </div>
 
 
@@ -331,6 +363,7 @@
 
 
 <script src="app.js"></script>
+
 
 
 </body>
