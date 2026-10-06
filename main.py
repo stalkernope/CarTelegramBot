@@ -1,8 +1,21 @@
 import os
 import logging
 
+from api import run_api
+
 
 from server import keep_alive
+
+import threading
+
+
+threading.Thread(
+
+    target=run_api,
+
+    daemon=True
+
+).start()
 
 
 from telegram.ext import Application
