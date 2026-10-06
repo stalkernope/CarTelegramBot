@@ -10,16 +10,18 @@ body {
 
     margin: 0;
 
-    padding: 0;
-
     min-height: 100vh;
 
     background:
 
     radial-gradient(
+
         circle at top,
-        #1e293b,
+
+        #334155,
+
         #020617 70%
+
     );
 
     color: white;
@@ -40,7 +42,7 @@ body {
 
     min-height: 100vh;
 
-    padding: 20px;
+    padding: 18px;
 
     padding-bottom: 100px;
 
@@ -50,10 +52,7 @@ body {
 
 
 
-
-/* =====================
-   HEADER
-===================== */
+/* HEADER */
 
 
 .top {
@@ -66,15 +65,17 @@ body {
 
     background:
 
-    rgba(255,255,255,0.06);
+    rgba(0,0,0,0.55);
 
     border:
 
-    1px solid rgba(255,255,255,0.12);
+    1px solid rgba(255,255,255,0.15);
 
     border-radius: 20px;
 
-    padding: 15px;
+    padding: 16px;
+
+    backdrop-filter: blur(10px);
 
 }
 
@@ -86,19 +87,19 @@ body {
 
     font-weight: 900;
 
-    letter-spacing: 1px;
+    letter-spacing: 2px;
 
 }
 
 
 
-.profile-mini {
+.player {
 
     text-align: right;
 
-    color: #cbd5e1;
+    color:
 
-    font-size: 14px;
+    #cbd5e1;
 
 }
 
@@ -106,29 +107,28 @@ body {
 
 
 
-
-/* =====================
-   WALLET
-===================== */
+/* WALLET */
 
 
 .wallet {
 
+    margin-top: 18px;
 
-    display: flex;
+    display:
 
-    justify-content: space-around;
+    flex;
 
-    margin-top: 20px;
+    justify-content:
+
+    space-around;
 
     background:
 
-    rgba(0,0,0,0.35);
+    rgba(0,0,0,0.45);
 
     padding: 15px;
 
     border-radius: 20px;
-
 
 }
 
@@ -136,11 +136,11 @@ body {
 
 .wallet div {
 
+    font-weight: bold;
 
-    font-size: 14px;
+    color:
 
-    color: #e2e8f0;
-
+    #e2e8f0;
 
 }
 
@@ -148,9 +148,9 @@ body {
 
 
 
-/* =====================
-   CAR
-===================== */
+
+
+/* CAR CARD */
 
 
 .main-car {
@@ -167,38 +167,47 @@ body {
 
         180deg,
 
-        rgba(37,99,235,0.15),
+        rgba(37,99,235,0.25),
 
-        rgba(0,0,0,0.8)
+        rgba(0,0,0,0.85)
 
     );
 
 
     border-radius: 35px;
 
-    padding: 30px 20px;
+    padding: 30px 15px;
+
 
     border:
 
-    1px solid rgba(59,130,246,0.3);
+    1px solid rgba(59,130,246,0.35);
+
+
+    box-shadow:
+
+    0 0 40px rgba(37,99,235,0.25);
 
 
 }
 
 
 
+
+
 .car-glow {
 
 
-    font-size: 110px;
+    font-size:
+
+    110px;
 
 
     filter:
 
-
     drop-shadow(
 
-        0 0 25px #2563eb
+        0 0 30px #2563eb
 
     );
 
@@ -207,15 +216,24 @@ body {
 
 
 
+
+
 .main-car h1 {
 
 
-    margin: 10px 0;
+    font-size:
 
-    font-size: 30px;
+    28px;
+
+
+    margin:
+
+    15px 0;
 
 
 }
+
+
 
 
 
@@ -229,7 +247,7 @@ body {
 
     font-weight:
 
-    bold;
+    900;
 
 
     letter-spacing:
@@ -244,25 +262,31 @@ body {
 
 
 
-/* =====================
-   STATS
-===================== */
+
+/* STATS */
 
 
 .stats {
 
 
-    margin-top: 25px;
-
     display:
 
     grid;
+
 
     grid-template-columns:
 
     repeat(3,1fr);
 
-    gap: 10px;
+
+    gap:
+
+    10px;
+
+
+    margin-top:
+
+    25px;
 
 
 }
@@ -277,14 +301,14 @@ body {
     rgba(255,255,255,0.08);
 
 
-    border-radius:
-
-    15px;
-
-
     padding:
 
     15px 5px;
+
+
+    border-radius:
+
+    15px;
 
 
     font-size:
@@ -311,7 +335,7 @@ body {
 
     font-size:
 
-    18px;
+    20px;
 
 
     color:
@@ -327,9 +351,7 @@ body {
 
 
 
-/* =====================
-   MENU
-===================== */
+/* BUTTONS */
 
 
 .menu {
@@ -368,14 +390,19 @@ button {
     none;
 
 
+    padding:
+
+    18px 10px;
+
+
     border-radius:
 
     20px;
 
 
-    padding:
+    color:
 
-    18px 10px;
+    white;
 
 
     background:
@@ -392,11 +419,6 @@ button {
     );
 
 
-    color:
-
-    white;
-
-
     font-size:
 
     15px;
@@ -404,10 +426,17 @@ button {
 
     font-weight:
 
-    bold;
+    900;
+
+
+    box-shadow:
+
+    0 8px 20px rgba(0,0,0,0.4);
 
 
 }
+
+
 
 
 
@@ -427,9 +456,7 @@ button:active {
 
 
 
-/* =====================
-   BOTTOM NAV
-===================== */
+/* BOTTOM NAV */
 
 
 footer {
@@ -477,12 +504,12 @@ footer {
 
     padding:
 
-    15px 5px;
+    14px 5px;
 
 
     border:
 
-    1px solid rgba(255,255,255,0.1);
+    1px solid rgba(255,255,255,0.15);
 
 
 }
