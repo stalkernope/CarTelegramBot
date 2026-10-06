@@ -1,103 +1,165 @@
 from database import (
     get_player,
-    update_player,
-    add_car
+    add_car,
+    remove_coins
 )
 
+
 from car_database import (
-    get_all_cars,
-    get_car
+    get_car,
+    get_all_cars
 )
+
+
 
 
 
 # =========================
-# МАШИНЫ МАГАЗИНА
+# SHOP CARS
 # =========================
 
 
 def get_shop_cars():
 
+
     cars = get_all_cars()
 
 
-    # самые дорогие и редкие впереди
 
-    cars.sort(
-
-        key=lambda x: x.get(
-            "price",
-            0
-        ),
-
-        reverse=True
-
-    )
-
-
-    return cars[:10]
+    shop = []
 
 
 
-# =========================
-# ЦЕНА
-# =========================
+    for car in cars:
 
 
-def get_car_price(car):
+        if car.get(
 
-    if isinstance(car, str):
+            "shop",
 
-        car = get_car(
-            car
-        )
+            True
 
-
-    if not car:
-
-        return 0
+        ):
 
 
-    return car.get(
-        "price",
-        0
-    )
+            shop.append(
+
+                car
+
+            )
+
+
+
+    return shop
+
+
+
+
 
 
 
 # =========================
-# ПОКУПКА
+# FIND SHOP CAR
+# =========================
+
+
+def find_shop_car(name):
+
+
+    cars = get_shop_cars()
+
+
+
+    for car in cars:
+
+
+        if car["name"] == name:
+
+
+            return car
+
+
+
+    return None
+
+
+
+
+
+
+
+# =========================
+# BUY CAR
 # =========================
 
 
 def buy_car(
+
     user_id,
+
     car_name
+
 ):
 
 
-    car = get_car(
+    car = find_shop_car(
+
         car_name
+
     )
+
 
 
     if not car:
 
+
         raise Exception(
+
             "Машина не найдена"
+
         )
 
 
 
+
+
+
     player = get_player(
+
         user_id
+
     )
 
 
 
-    price = get_car_price(
-        car
+
+
+    if car_name in player["garage"]:
+
+
+        raise Exception(
+
+            "У тебя уже есть эта машина"
+
+        )
+
+
+
+
+
+
+
+    price = car.get(
+
+        "price",
+
+        0
+
     )
+
+
+
+
 
 
 
@@ -112,27 +174,35 @@ def buy_car(
 
 
 
-    if car_name in player["garage"]:
+
+
+
+
+
+    success = remove_coins(
+
+        user_id,
+
+        price
+
+    )
+
+
+
+    if not success:
 
 
         raise Exception(
 
-            "Эта машина уже есть в гараже"
+            "Ошибка оплаты"
 
         )
 
 
 
-    player["coins"] -= price
 
 
-    update_player(
 
-        user_id,
-
-        player
-
-    )
 
 
     add_car(
@@ -142,6 +212,9 @@ def buy_car(
         car_name
 
     )
+
+
+
 
 
     return car
