@@ -8,75 +8,105 @@ DATABASE_FILE = "players.json"
 
 
 
+
+
 # =========================
-# СОЗДАНИЕ ИГРОКА
+# CREATE PLAYER
 # =========================
 
 
 def create_player(user_id):
 
+
     return {
+
 
         "id": user_id,
 
+
         "coins": 5000,
+
 
         "gems": 0,
 
 
         "level": 1,
 
+
         "xp": 0,
+
 
 
         "garage": [],
 
+
         "main_car": None,
+
+
+
+        "wins": 0,
+
+
+        "losses": 0,
+
 
 
         "pets": [],
 
+
         "active_pet": None,
+
 
 
         "tuning_parts": [],
 
 
-        "wins": 0,
 
-        "losses": 0,
+        "achievements": [],
+
+
+        "titles": [],
+
 
 
         "clan": None,
 
 
-        "achievements": [],
-
-        "titles": [],
-
 
         "premium": False
+
 
     }
 
 
 
 
+
+
+
+
 # =========================
-# ЗАГРУЗКА БАЗЫ
+# LOAD DATABASE
 # =========================
 
 
 def load_database():
 
 
-    if not os.path.exists(DATABASE_FILE):
+    if not os.path.exists(
+
+        DATABASE_FILE
+
+    ):
+
 
         return {}
 
 
 
+
     try:
+
 
         with open(
 
@@ -93,7 +123,7 @@ def load_database():
 
 
 
-    except:
+    except Exception:
 
 
         return {}
@@ -101,8 +131,13 @@ def load_database():
 
 
 
+
+
+
+
+
 # =========================
-# СОХРАНЕНИЕ БАЗЫ
+# SAVE DATABASE
 # =========================
 
 
@@ -135,8 +170,13 @@ def save_database(data):
 
 
 
+
+
+
+
+
 # =========================
-# ПОЛУЧИТЬ ИГРОКА
+# GET PLAYER
 # =========================
 
 
@@ -144,6 +184,7 @@ def get_player(user_id):
 
 
     data = load_database()
+
 
 
     uid = str(user_id)
@@ -173,8 +214,13 @@ def get_player(user_id):
 
 
 
+
+
+
+
+
 # =========================
-# ОБНОВИТЬ ИГРОКА
+# UPDATE PLAYER
 # =========================
 
 
@@ -190,6 +236,7 @@ def update_player(
     data = load_database()
 
 
+
     data[str(user_id)] = player
 
 
@@ -203,8 +250,13 @@ def update_player(
 
 
 
+
+
+
+
+
 # =========================
-# МОНЕТЫ
+# COINS
 # =========================
 
 
@@ -239,6 +291,9 @@ def add_coins(
 
 
 
+
+
+
 def remove_coins(
 
     user_id,
@@ -255,7 +310,9 @@ def remove_coins(
     )
 
 
+
     if player["coins"] < amount:
+
 
         return False
 
@@ -274,13 +331,17 @@ def remove_coins(
     )
 
 
+
     return True
 
 
 
 
+
+
+
 # =========================
-# ОПЫТ
+# XP
 # =========================
 
 
@@ -300,6 +361,7 @@ def add_xp(
     )
 
 
+
     player["xp"] += amount
 
 
@@ -312,6 +374,7 @@ def add_xp(
 
 
         player["xp"] -= need
+
 
         player["level"] += 1
 
@@ -328,8 +391,12 @@ def add_xp(
 
 
 
+
+
+
+
 # =========================
-# ПОБЕДЫ
+# WINS
 # =========================
 
 
@@ -341,6 +408,7 @@ def add_win(user_id):
         user_id
 
     )
+
 
 
     player["wins"] += 1
@@ -358,6 +426,10 @@ def add_win(user_id):
 
 
 
+
+
+
+
 def add_loss(user_id):
 
 
@@ -366,6 +438,7 @@ def add_loss(user_id):
         user_id
 
     )
+
 
 
     player["losses"] += 1
@@ -383,8 +456,12 @@ def add_loss(user_id):
 
 
 
+
+
+
+
 # =========================
-# ДОБАВИТЬ МАШИНУ
+# GARAGE
 # =========================
 
 
@@ -392,7 +469,7 @@ def add_car(
 
     user_id,
 
-    car
+    car_name
 
 ):
 
@@ -404,12 +481,13 @@ def add_car(
     )
 
 
-    if car not in player["garage"]:
+
+    if car_name not in player["garage"]:
 
 
         player["garage"].append(
 
-            car
+            car_name
 
         )
 
@@ -418,7 +496,7 @@ def add_car(
     if player["main_car"] is None:
 
 
-        player["main_car"] = car
+        player["main_car"] = car_name
 
 
 
@@ -433,8 +511,62 @@ def add_car(
 
 
 
+
+
+
+
+def remove_car(
+
+    user_id,
+
+    car_name
+
+):
+
+
+    player = get_player(
+
+        user_id
+
+    )
+
+
+
+    if car_name in player["garage"]:
+
+
+        player["garage"].remove(
+
+            car_name
+
+        )
+
+
+
+    if player["main_car"] == car_name:
+
+
+        player["main_car"] = None
+
+
+
+    update_player(
+
+        user_id,
+
+        player
+
+    )
+
+
+
+
+
+
+
+
 # =========================
-# ДОБАВИТЬ ПИТОМЦА
+# PETS
 # =========================
 
 
@@ -454,208 +586,13 @@ def add_pet(
     )
 
 
+
     if pet not in player["pets"]:
 
 
         player["pets"].append(
 
             pet
-
-        )
-
-
-
-    update_player(
-
-        user_id,
-
-        player
-
-    )
-    
-    # =========================
-# РЕПУТАЦИЯ
-# =========================
-
-
-def add_rep(
-
-    user_id,
-
-    amount
-
-):
-
-    player = get_player(
-
-        user_id
-
-    )
-
-
-    if "rep" not in player:
-
-        player["rep"] = 0
-
-
-
-    player["rep"] += amount
-
-
-
-    update_player(
-
-        user_id,
-
-        player
-
-    )
-
-
-
-
-# =========================
-# ДОБАВИТЬ ГЕМЫ
-# =========================
-
-
-def add_gems(
-
-    user_id,
-
-    amount
-
-):
-
-    player = get_player(
-
-        user_id
-
-    )
-
-
-    player["gems"] += amount
-
-
-
-    update_player(
-
-        user_id,
-
-        player
-
-    )
-
-
-
-
-# =========================
-# ТЮНИНГ
-# =========================
-
-
-def add_tuning_part(
-
-    user_id,
-
-    part
-
-):
-
-    player = get_player(
-
-        user_id
-
-    )
-
-
-    if part not in player["tuning_parts"]:
-
-        player["tuning_parts"].append(
-
-            part
-
-        )
-
-
-
-    update_player(
-
-        user_id,
-
-        player
-
-    )
-
-
-
-
-# =========================
-# ТИТУЛ
-# =========================
-
-
-def add_title(
-
-    user_id,
-
-    title
-
-):
-
-    player = get_player(
-
-        user_id
-
-    )
-
-
-    if title not in player["titles"]:
-
-        player["titles"].append(
-
-            title
-
-        )
-
-
-
-    update_player(
-
-        user_id,
-
-        player
-
-    )
-
-
-
-
-# =========================
-# ДОСТИЖЕНИЕ
-# =========================
-
-
-def add_achievement(
-
-    user_id,
-
-    achievement
-
-):
-
-    player = get_player(
-
-        user_id
-
-    )
-
-
-    if achievement not in player["achievements"]:
-
-        player["achievements"].append(
-
-            achievement
 
         )
 
