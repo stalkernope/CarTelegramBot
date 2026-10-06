@@ -318,3 +318,84 @@ def tuning_text(user_id):
 
 
     return text
+    
+    # =========================
+# UPGRADE CAR
+# =========================
+
+def upgrade_car(
+    user_id,
+    car_name,
+    part
+):
+
+    from database import (
+        get_player,
+        update_player
+    )
+
+
+    player = get_player(
+        user_id
+    )
+
+
+    if car_name not in player.get(
+        "garage",
+        []
+    ):
+
+        return {
+            "message":
+            "❌ Машина не найдена"
+        }
+
+
+    price = 5000
+
+
+    if player.get(
+        "coins",
+        0
+    ) < price:
+
+        return {
+            "message":
+            "❌ Недостаточно монет"
+        }
+
+
+    player["coins"] -= price
+
+
+    if "tuning" not in player:
+
+        player["tuning"] = {}
+
+
+
+    if car_name not in player["tuning"]:
+
+        player["tuning"][car_name] = []
+
+
+
+    player["tuning"][car_name].append(
+        part
+    )
+
+
+    update_player(
+        user_id,
+        player
+    )
+
+
+    return {
+
+        "message":
+        f"🔧 {car_name}\n\n"
+        f"Установлено: {part}\n"
+        "💰 -5000 монет"
+
+    }
