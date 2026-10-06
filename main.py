@@ -6,14 +6,10 @@ import threading
 from api import run_api
 
 
-from telegram import Update
-
-
 from telegram.ext import (
     Application,
     CommandHandler,
-    CallbackQueryHandler,
-    ContextTypes
+    CallbackQueryHandler
 )
 
 
@@ -23,8 +19,10 @@ from handlers import (
 
 
 
+
+
 # =========================
-# ЛОГИ
+# LOGS
 # =========================
 
 
@@ -38,15 +36,21 @@ logging.basicConfig(
 
 
 
+
+
 TOKEN = os.environ.get(
+
     "BOT_TOKEN"
+
 )
 
 
 
 
+
+
 # =========================
-# MINI APP API
+# MINI APP SERVER
 # =========================
 
 
@@ -61,8 +65,10 @@ threading.Thread(
 
 
 
+
+
 # =========================
-# ЗАПУСК
+# START BOT
 # =========================
 
 
@@ -73,10 +79,13 @@ def main():
 
 
         print(
+
             "❌ BOT_TOKEN отсутствует"
+
         )
 
         return
+
 
 
 
@@ -94,11 +103,16 @@ def main():
 
 
 
+
+
     setup_handlers(
 
         app
 
     )
+
+
+
 
 
 
@@ -110,7 +124,13 @@ def main():
 
 
 
+
+
+
     app.run_polling()
+
+
+
 
 
 
@@ -118,4 +138,18 @@ def main():
 if __name__ == "__main__":
 
 
-    main()
+    try:
+
+
+        main()
+
+
+
+    except Exception as e:
+
+
+        logging.exception(
+
+            e
+
+        )
