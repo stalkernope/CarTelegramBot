@@ -2,23 +2,30 @@ import os
 import logging
 import threading
 
+
 from api import run_api
-from server import keep_alive
 
 
-keep_alive()
+from telegram import Update
 
 
-threading.Thread(
-    target=run_api,
-    daemon=True
-).start()
+from telegram.ext import (
+    Application,
+    CommandHandler,
+    CallbackQueryHandler,
+    ContextTypes
+)
 
 
-from telegram.ext import Application
-from handlers import setup_handlers
+from handlers import (
+    setup_handlers
+)
 
 
+
+# =========================
+# ЛОГИ
+# =========================
 
 
 logging.basicConfig(
@@ -32,12 +39,31 @@ logging.basicConfig(
 
 
 TOKEN = os.environ.get(
-
     "BOT_TOKEN"
-
 )
 
 
+
+
+# =========================
+# MINI APP API
+# =========================
+
+
+threading.Thread(
+
+    target=run_api,
+
+    daemon=True
+
+).start()
+
+
+
+
+# =========================
+# ЗАПУСК
+# =========================
 
 
 def main():
@@ -47,16 +73,10 @@ def main():
 
 
         print(
-
             "❌ BOT_TOKEN отсутствует"
-
         )
 
         return
-
-
-
-    keep_alive()
 
 
 
