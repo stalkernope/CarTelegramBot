@@ -472,3 +472,199 @@ def add_pet(
         player
 
     )
+    
+    # =========================
+# РЕПУТАЦИЯ
+# =========================
+
+
+def add_rep(
+
+    user_id,
+
+    amount
+
+):
+
+    player = get_player(
+
+        user_id
+
+    )
+
+
+    if "rep" not in player:
+
+        player["rep"] = 0
+
+
+
+    player["rep"] += amount
+
+
+
+    update_player(
+
+        user_id,
+
+        player
+
+    )
+
+
+
+
+# =========================
+# ДОБАВИТЬ ГЕМЫ
+# =========================
+
+
+def add_gems(
+
+    user_id,
+
+    amount
+
+):
+
+    player = get_player(
+
+        user_id
+
+    )
+
+
+    player["gems"] += amount
+
+
+
+    update_player(
+
+        user_id,
+
+        player
+
+    )
+
+
+
+
+# =========================
+# ТЮНИНГ
+# =========================
+
+
+def add_tuning_part(
+
+    user_id,
+
+    part
+
+):
+
+    player = get_player(
+
+        user_id
+
+    )
+
+
+    if part not in player["tuning_parts"]:
+
+        player["tuning_parts"].append(
+
+            part
+
+        )
+
+
+
+    update_player(
+
+        user_id,
+
+        player
+
+    )
+
+
+
+
+# =========================
+# ТИТУЛ
+# =========================
+
+
+def add_title(
+
+    user_id,
+
+    title
+
+):
+
+    player = get_player(
+
+        user_id
+
+    )
+
+
+    if title not in player["titles"]:
+
+        player["titles"].append(
+
+            title
+
+        )
+
+
+
+    update_player(
+
+        user_id,
+
+        player
+
+    )
+
+
+
+
+# =========================
+# ДОСТИЖЕНИЕ
+# =========================
+
+
+def add_achievement(
+
+    user_id,
+
+    achievement
+
+):
+
+    player = get_player(
+
+        user_id
+
+    )
+
+
+    if achievement not in player["achievements"]:
+
+        player["achievements"].append(
+
+            achievement
+
+        )
+
+
+
+    update_player(
+
+        user_id,
+
+        player
+
+    )
