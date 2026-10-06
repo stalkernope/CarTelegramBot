@@ -268,3 +268,53 @@ def tuning_bonus(
 
 
     }
+    
+    # =========================
+# TUNING TEXT
+# =========================
+
+def tuning_text(user_id):
+
+    from database import get_player
+
+
+    player = get_player(user_id)
+
+
+    parts = player.get(
+        "tuning_parts",
+        []
+    )
+
+
+    text = (
+        "🔧 <b>ТЮНИНГ</b>\n\n"
+    )
+
+
+    if not parts:
+
+        text += (
+            "❌ Установленных деталей нет\n\n"
+        )
+
+    else:
+
+        text += (
+            "Установлено:\n\n"
+        )
+
+
+        for part in parts:
+
+            text += (
+                f"⚙️ {part}\n"
+            )
+
+
+    text += (
+        "\n💪 Улучшай машину и побеждай!"
+    )
+
+
+    return text
