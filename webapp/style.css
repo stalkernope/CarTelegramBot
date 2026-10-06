@@ -1,0 +1,334 @@
+body {
+
+    margin: 0;
+
+    padding: 0;
+
+    background:
+    linear-gradient(
+        180deg,
+        #050505,
+        #111827
+    );
+
+    color: white;
+
+    font-family:
+    Arial,
+    sans-serif;
+
+}
+
+
+
+.app {
+
+    min-height: 100vh;
+
+    padding: 20px;
+
+}
+
+
+
+/* =====================
+ HEADER
+===================== */
+
+
+header {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    background:
+
+    rgba(255,255,255,0.05);
+
+    padding: 15px;
+
+    border-radius: 20px;
+
+    border:
+
+    1px solid rgba(255,255,255,0.1);
+
+}
+
+
+
+.logo {
+
+    font-size: 24px;
+
+    font-weight: bold;
+
+}
+
+
+
+.player {
+
+    margin-top: 15px;
+
+    color:
+
+    #aaa;
+
+}
+
+
+
+
+/* =====================
+ CAR
+===================== */
+
+
+.car {
+
+    margin-top: 25px;
+
+    text-align: center;
+
+    background:
+
+    radial-gradient(
+        circle,
+        #1f2937,
+        #050505
+    );
+
+    padding: 30px;
+
+    border-radius: 30px;
+
+}
+
+
+
+.car-image {
+
+    font-size: 100px;
+
+    filter:
+
+    drop-shadow(
+        0 0 20px #00aaff
+    );
+
+}
+
+
+
+.car h2 {
+
+    font-size: 28px;
+
+}
+
+
+
+.rarity {
+
+    color:
+
+    #00aaff;
+
+    font-weight:
+
+    bold;
+
+}
+
+
+
+.stats {
+
+    margin-top: 20px;
+
+}
+
+
+
+.stats p {
+
+    background:
+
+    rgba(255,255,255,0.05);
+
+    padding: 12px;
+
+    border-radius: 15px;
+
+}
+
+
+
+
+
+/* =====================
+ BUTTONS
+===================== */
+
+
+.buttons {
+
+    display:
+
+    grid;
+
+    grid-template-columns:
+
+    1fr 1fr;
+
+    gap:
+
+    15px;
+
+    margin-top:
+
+    25px;
+
+}
+
+
+
+button {
+
+
+    background:
+
+    linear-gradient(
+
+        135deg,
+
+        #111827,
+
+        #2563eb
+
+    );
+
+
+    color:
+
+    white;
+
+
+    border:
+
+    none;
+
+
+    padding:
+
+    18px;
+
+
+    border-radius:
+
+    20px;
+
+
+    font-size:
+
+    16px;
+
+
+}
+
+
+
+
+button:active {
+
+
+    transform:
+
+    scale(0.95);
+
+
+}
+
+
+
+
+
+/* =====================
+ NAV
+===================== */
+
+
+nav {
+
+    position:
+
+    fixed;
+
+
+    bottom:
+
+    15px;
+
+
+    left:
+
+    15px;
+
+
+    right:
+
+    15px;
+
+
+    background:
+
+    rgba(0,0,0,0.8);
+
+
+    display:
+
+    flex;
+
+
+    justify-content:
+
+    space-around;
+
+
+    padding:
+
+    15px;
+
+
+    border-radius:
+
+    25px;
+
+
+}
+
+
+
+nav span {
+
+
+    text-align:
+
+    center;
+
+
+    font-size:
+
+    12px;
+
+
+    color:
+
+    #aaa;
+
+
+}
