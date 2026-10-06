@@ -99,11 +99,10 @@ def garage_menu():
 
             InlineKeyboardButton(
                 "🚘 Мои машины",
-                callback_data="garage_select"
+                callback_data="garage_cars"
             )
 
         ],
-
 
         [
 
@@ -114,7 +113,6 @@ def garage_menu():
 
         ],
 
-
         [
 
             InlineKeyboardButton(
@@ -123,17 +121,6 @@ def garage_menu():
             )
 
         ],
-
-
-        [
-
-            InlineKeyboardButton(
-                "🎨 Скины",
-                callback_data="skins"
-            )
-
-        ],
-
 
         [
 
@@ -144,6 +131,14 @@ def garage_menu():
 
         ],
 
+        [
+
+            InlineKeyboardButton(
+                "🎨 Скины",
+                callback_data="skins"
+            )
+
+        ],
 
         [
 
@@ -153,7 +148,6 @@ def garage_menu():
             )
 
         ],
-
 
         [
 
@@ -175,7 +169,7 @@ def garage_menu():
 
 
 # =========================
-# СПИСОК МАШИН
+# МАШИНЫ
 # =========================
 
 
@@ -199,7 +193,7 @@ def garage_cars_menu(cars):
 
                     callback_data=
 
-                    f"car_{car.get('id')}"
+                    f"car_{car['name']}"
 
                 )
 
@@ -238,7 +232,7 @@ def garage_cars_menu(cars):
 # =========================
 
 
-def car_card_menu(car_id):
+def car_menu(car_name):
 
 
     keyboard = [
@@ -251,7 +245,7 @@ def car_card_menu(car_id):
 
                 callback_data=
 
-                f"set_main_{car_id}"
+                f"main_{car_name}"
 
             )
 
@@ -266,7 +260,22 @@ def car_card_menu(car_id):
 
                 callback_data=
 
-                f"upgrade_{car_id}"
+                f"upgrade_{car_name}"
+
+            )
+
+        ],
+
+
+        [
+
+            InlineKeyboardButton(
+
+                "🎨 Внешний вид",
+
+                callback_data=
+
+                f"skin_{car_name}"
 
             )
 
@@ -279,7 +288,7 @@ def car_card_menu(car_id):
 
                 "⬅️ Назад",
 
-                callback_data="garage_select"
+                callback_data="garage_cars"
 
             )
 
@@ -314,16 +323,14 @@ def race_menu():
 
         ],
 
-
         [
 
             InlineKeyboardButton(
-                "👑 БОССЫ",
+                "👑 Боссы",
                 callback_data="boss"
             )
 
         ],
-
 
         [
 
@@ -334,7 +341,6 @@ def race_menu():
 
         ],
 
-
         [
 
             InlineKeyboardButton(
@@ -344,7 +350,6 @@ def race_menu():
 
         ],
 
-
         [
 
             InlineKeyboardButton(
@@ -353,7 +358,6 @@ def race_menu():
             )
 
         ],
-
 
         [
 
@@ -393,7 +397,6 @@ def profile_menu():
 
         ],
 
-
         [
 
             InlineKeyboardButton(
@@ -403,7 +406,6 @@ def profile_menu():
 
         ],
 
-
         [
 
             InlineKeyboardButton(
@@ -412,17 +414,6 @@ def profile_menu():
             )
 
         ],
-
-
-        [
-
-            InlineKeyboardButton(
-                "📜 История",
-                callback_data="history"
-            )
-
-        ],
-
 
         [
 
@@ -462,7 +453,6 @@ def career_menu():
 
         ],
 
-
         [
 
             InlineKeyboardButton(
@@ -472,7 +462,6 @@ def career_menu():
 
         ],
 
-
         [
 
             InlineKeyboardButton(
@@ -481,7 +470,6 @@ def career_menu():
             )
 
         ],
-
 
         [
 
@@ -515,12 +503,11 @@ def cases_menu():
         [
 
             InlineKeyboardButton(
-                "📦 Обычный кейс",
-                callback_data="open_normal_case"
+                "📦 Обычный",
+                callback_data="normal_case"
             )
 
         ],
-
 
         [
 
@@ -531,7 +518,6 @@ def cases_menu():
 
         ],
 
-
         [
 
             InlineKeyboardButton(
@@ -540,7 +526,6 @@ def cases_menu():
             )
 
         ],
-
 
         [
 
@@ -580,7 +565,6 @@ def shop_menu():
 
         ],
 
-
         [
 
             InlineKeyboardButton(
@@ -589,7 +573,6 @@ def shop_menu():
             )
 
         ],
-
 
         [
 
@@ -600,7 +583,6 @@ def shop_menu():
 
         ],
 
-
         [
 
             InlineKeyboardButton(
@@ -609,7 +591,6 @@ def shop_menu():
             )
 
         ],
-
 
         [
 
@@ -649,7 +630,6 @@ def clan_menu():
 
         ],
 
-
         [
 
             InlineKeyboardButton(
@@ -659,7 +639,6 @@ def clan_menu():
 
         ],
 
-
         [
 
             InlineKeyboardButton(
@@ -668,7 +647,6 @@ def clan_menu():
             )
 
         ],
-
 
         [
 
@@ -708,7 +686,6 @@ def social_menu():
 
         ],
 
-
         [
 
             InlineKeyboardButton(
@@ -718,7 +695,6 @@ def social_menu():
 
         ],
 
-
         [
 
             InlineKeyboardButton(
@@ -727,7 +703,6 @@ def social_menu():
             )
 
         ],
-
 
         [
 
