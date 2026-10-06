@@ -8,7 +8,9 @@ from database import (
     add_coins,
     add_xp,
     add_win,
-    add_loss
+    add_loss,
+    add_tuning_part,
+    add_car
 )
 
 
@@ -28,7 +30,6 @@ from pet_system import (
 
 
 
-
 RACE_FILE = "race_history.json"
 
 
@@ -42,7 +43,6 @@ RACE_FILE = "race_history.json"
 BOSSES = [
 
     {
-
         "id": "night_king",
 
         "name": "🌑 Night King",
@@ -52,12 +52,10 @@ BOSSES = [
         "power": 2000,
 
         "reward": "🔥 Shadow Engine"
-
     },
 
 
     {
-
         "id": "speed_lord",
 
         "name": "⚡ Speed Lord",
@@ -67,12 +65,10 @@ BOSSES = [
         "power": 5000,
 
         "reward": "🚀 Turbo Ultimate"
-
     },
 
 
     {
-
         "id": "car_legend",
 
         "name": "👑 Car Legend",
@@ -82,7 +78,6 @@ BOSSES = [
         "power": 10000,
 
         "reward": "🏆 Legendary Car"
-
     }
 
 ]
@@ -98,38 +93,30 @@ BOSSES = [
 NPC_CARS = [
 
     {
-
         "name": "🚗 Honda Civic",
 
         "power": 500
-
     },
 
 
     {
-
         "name": "🏎 BMW M3",
 
         "power": 1500
-
     },
 
 
     {
-
         "name": "🔥 Supra MK5",
 
         "power": 3000
-
     },
 
 
     {
-
         "name": "👑 Bugatti X",
 
         "power": 7000
-
     }
 
 ]
@@ -138,21 +125,18 @@ NPC_CARS = [
 
 
 # =========================
-# ЗАГРУЗКА
+# СОХРАНЕНИЕ
 # =========================
 
 
 def load_history():
-
 
     if not os.path.exists(RACE_FILE):
 
         return {}
 
 
-
     try:
-
 
         with open(
 
@@ -164,13 +148,10 @@ def load_history():
 
         ) as file:
 
-
             return json.load(file)
 
 
-
     except:
-
 
         return {}
 
@@ -178,7 +159,6 @@ def load_history():
 
 
 def save_history(data):
-
 
     with open(
 
@@ -202,11 +182,8 @@ def save_history(data):
             indent=4
 
         )
-
-
-
-
-# =========================
+        
+        # =========================
 # СИЛА МАШИНЫ
 # =========================
 
@@ -266,13 +243,26 @@ def calculate_power(
     )
 
 
+
     power += (
 
-        tune["power"]
+        tune.get(
+
+            "power",
+
+            0
+
+        )
 
         +
 
-        tune["speed"]
+        tune.get(
+
+            "speed",
+
+            0
+
+        )
 
     )
 
@@ -282,29 +272,52 @@ def calculate_power(
 
         user_id
 
-    )
+    ) or {
+
+        "power": 0,
+
+        "speed": 0
+
+    }
+
 
 
     power += (
 
-        pet["power"]
+        pet.get(
+
+            "power",
+
+            0
+
+        )
 
         +
 
-        pet["speed"]
+        pet.get(
+
+            "speed",
+
+            0
+
+        )
 
     )
 
 
 
     return power
-    
-    # =========================
-# ВЫБОР NPC
+
+
+
+
+# =========================
+# NPC
 # =========================
 
 
 def get_npc():
+
 
     return random.choice(
 
@@ -350,6 +363,7 @@ def save_race_result(
     )
 
 
+
     save_history(
 
         data
@@ -380,6 +394,7 @@ def race_npc(
         car_name
 
     )
+
 
 
     enemy = get_npc()
@@ -519,6 +534,7 @@ def race_npc(
         )
 
 
+
         result = {
 
 
@@ -544,7 +560,12 @@ def race_npc(
 
             "enemy_power":
 
-            enemy_power
+            enemy_power,
+
+
+            "reward":
+
+            0
 
         }
 
@@ -561,12 +582,9 @@ def race_npc(
 
 
     return result
-
-
-
-
-# =========================
-# БОСС
+    
+    # =========================
+# БОССЫ
 # =========================
 
 
@@ -599,6 +617,51 @@ def get_boss(
 
 
 
+# =========================
+# НАГРАДА БОССА
+# =========================
+
+
+def give_boss_reward(
+
+    user_id,
+
+    reward
+
+):
+
+
+    if "Car" in reward:
+
+
+        add_car(
+
+            user_id,
+
+            reward
+
+        )
+
+
+    else:
+
+
+        add_tuning_part(
+
+            user_id,
+
+            reward
+
+        )
+
+
+
+
+# =========================
+# БИТВА С БОССОМ
+# =========================
+
+
 def fight_boss(
 
     user_id,
@@ -625,6 +688,7 @@ def fight_boss(
         car_name
 
     )
+
 
 
     boss_power = boss["power"]
@@ -674,6 +738,16 @@ def fight_boss(
 
 
 
+        give_boss_reward(
+
+            user_id,
+
+            reward
+
+        )
+
+
+
         add_coins(
 
             user_id,
@@ -701,6 +775,11 @@ def fight_boss(
 
 
         result = {
+
+
+            "type":
+
+            "boss",
 
 
             "win":
@@ -741,7 +820,13 @@ def fight_boss(
         )
 
 
+
         result = {
+
+
+            "type":
+
+            "boss",
 
 
             "win":
@@ -828,11 +913,12 @@ def race_result_text(result):
 
         text += (
 
-            f"🏎 Соперник:\n"
+            "🏎 Соперник:\n"
 
-            f"{result['enemy']}\n"
+            f"{result['enemy']}\n\n"
 
         )
+
 
 
     if result.get("boss"):
@@ -840,9 +926,9 @@ def race_result_text(result):
 
         text += (
 
-            f"👑 Босс:\n"
+            "👑 Босс:\n"
 
-            f"{result['boss']}\n"
+            f"{result['boss']}\n\n"
 
         )
 
@@ -850,7 +936,7 @@ def race_result_text(result):
 
     text += (
 
-        f"\n⚔️ Сила соперника:\n"
+        "⚔️ Сила соперника:\n"
 
         f"{result.get('enemy_power', result.get('boss_power',0))}\n"
 
@@ -871,7 +957,13 @@ def race_result_text(result):
 
 
 
-    if result.get("reward") is not None and isinstance(result["reward"], int):
+    if isinstance(
+
+        result.get("reward"),
+
+        int
+
+    ):
 
 
         text += (
@@ -890,11 +982,15 @@ def race_result_text(result):
 
 
 # =========================
-# ИСТОРИЯ ГОНЩИКА
+# ИСТОРИЯ
 # =========================
 
 
-def get_race_history(user_id):
+def get_race_history(
+
+    user_id
+
+):
 
 
     data = load_history()
@@ -916,7 +1012,11 @@ def get_race_history(user_id):
 # =========================
 
 
-def race_stats(user_id):
+def race_stats(
+
+    user_id
+
+):
 
 
     history = get_race_history(
@@ -924,7 +1024,6 @@ def race_stats(user_id):
         user_id
 
     )
-
 
 
     wins = 0
@@ -938,12 +1037,9 @@ def race_stats(user_id):
 
         if race.get("win"):
 
-
             wins += 1
 
-
         else:
-
 
             losses += 1
 
@@ -951,20 +1047,11 @@ def race_stats(user_id):
 
     return {
 
+        "races": len(history),
 
-        "races":
+        "wins": wins,
 
-        len(history),
-
-
-        "wins":
-
-        wins,
-
-
-        "losses":
-
-        losses
+        "losses": losses
 
     }
 
@@ -972,7 +1059,7 @@ def race_stats(user_id):
 
 
 # =========================
-# PVP ЗАГОТОВКА
+# PVP
 # =========================
 
 
