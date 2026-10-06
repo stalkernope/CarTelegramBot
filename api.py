@@ -26,7 +26,7 @@ from shop_cars import (
 )
 
 
-from race_system import (
+from boss_race_system import (
     race_npc,
     fight_boss,
     race_result_text
