@@ -558,7 +558,33 @@ def update_api():
 
 
 
+# =========================
+# BLACKLIST
+# =========================
 
+
+@app.route(
+
+    "/api/blacklist/<int:user_id>"
+
+)
+
+def blacklist_api(user_id):
+
+
+    return jsonify(
+
+        {
+
+            "text": blacklist_text(user_id),
+
+            "bosses": get_blacklist(),
+
+            "current": get_current_boss(user_id)
+
+        }
+
+    )
 
 
 
