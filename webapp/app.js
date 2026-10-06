@@ -1,41 +1,14 @@
 // =========================
-// CAR LEGENDS APP
+// CAR LEGENDS MINI APP
 // =========================
 
 
-// данные игрока
-let player = {
-
-    name: "ShadowRacer",
-
-    level: 18,
-
-    rep: 2450,
-
-    coins: 125000,
-
-    gems: 50,
-
-
-    main_car: {
-
-        name: "BMW M3 GTR",
-
-        power: 8500,
-
-        speed: 320,
-
-        rarity: "LEGENDARY"
-
-    }
-
-};
-
+let userId = 1;
 
 
 
 // =========================
-// ЗАГРУЗКА
+// ЗАПУСК
 // =========================
 
 
@@ -45,12 +18,9 @@ document.addEventListener(
 
     () => {
 
-
         loadPlayer();
 
-
         setupButtons();
-
 
     }
 
@@ -61,54 +31,126 @@ document.addEventListener(
 
 
 // =========================
-// ИГРОК
+// ЗАГРУЗКА ИГРОКА
 // =========================
 
 
-function loadPlayer(){
+async function loadPlayer(){
 
 
-    console.log(
-
-        "CAR LEGENDS loaded"
-
-    );
+    try {
 
 
-    updateScreen();
+        let response = await fetch(
+
+            `/api/player/${userId}`
+
+        );
 
 
-}
-
-
+        let player = await response.json();
 
 
 
-function updateScreen(){
+        updatePlayer(player);
 
 
-    let name =
-    document.querySelector(
-        ".player"
-    );
+
+    }
 
 
-    if(name){
+    catch(error){
 
 
-        name.innerHTML =
+        console.log(
 
-        `
-        👤 ${player.name}<br>
-        ⭐ Level ${player.level}<br>
-        🔥 REP ${player.rep}
-        `;
+            "Ошибка загрузки игрока",
+
+            error
+
+        );
 
 
     }
 
 
 }
+
+
+
+
+
+
+// =========================
+// ОТОБРАЖЕНИЕ
+// =========================
+
+
+function updatePlayer(player){
+
+
+
+    let block = document.querySelector(
+
+        ".player"
+
+    );
+
+
+
+    if(block){
+
+
+        block.innerHTML =
+
+        `
+
+        👤 Игрок<br>
+
+        ⭐ Level ${player.level}<br>
+
+        🔥 XP ${player.xp}<br>
+
+        💰 ${player.coins}<br>
+
+        💎 ${player.gems}
+
+        `;
+
+
+    }
+
+
+
+
+
+    let car = document.querySelector(
+
+        ".car h2"
+
+    );
+
+
+
+    if(
+
+        car && player.main_car
+
+    ){
+
+
+        car.innerHTML =
+
+        player.main_car;
+
+
+    }
+
+
+
+}
+
+
 
 
 
@@ -122,9 +164,8 @@ function updateScreen(){
 function setupButtons(){
 
 
-    let buttons =
 
-    document.querySelectorAll(
+    let buttons = document.querySelectorAll(
 
         "button"
 
@@ -140,17 +181,11 @@ function setupButtons(){
             button.onclick = () => {
 
 
-                let action =
-
-                button.innerText;
+                let text = button.innerText;
 
 
 
-                openScreen(
-
-                    action
-
-                );
+                openScreen(text);
 
 
             }
@@ -161,6 +196,7 @@ function setupButtons(){
     );
 
 
+
 }
 
 
@@ -169,7 +205,7 @@ function setupButtons(){
 
 
 // =========================
-// ЭКРАНЫ
+// ПЕРЕХОДЫ
 // =========================
 
 
@@ -177,16 +213,12 @@ function openScreen(action){
 
 
 
-    if(
-
-        action.includes("RACE")
-
-    ){
+    if(action.includes("GARAGE")){
 
 
         alert(
 
-            "🏁 Поиск гонки..."
+            "🚗 Гараж"
 
         );
 
@@ -194,17 +226,12 @@ function openScreen(action){
     }
 
 
-
-    else if(
-
-        action.includes("GARAGE")
-
-    ){
+    else if(action.includes("RACE")){
 
 
         alert(
 
-            "🚗 Открываем гараж"
+            "🏁 Гонка"
 
         );
 
@@ -212,17 +239,12 @@ function openScreen(action){
     }
 
 
-
-    else if(
-
-        action.includes("TUNING")
-
-    ){
+    else if(action.includes("SHOP")){
 
 
         alert(
 
-            "🔧 Мастерская"
+            "🛒 Магазин"
 
         );
 
@@ -230,17 +252,12 @@ function openScreen(action){
     }
 
 
-
-    else if(
-
-        action.includes("BLACKLIST")
-
-    ){
+    else if(action.includes("TUNING")){
 
 
         alert(
 
-            "🏆 Blacklist"
+            "🔧 Тюнинг"
 
         );
 
@@ -248,30 +265,7 @@ function openScreen(action){
     }
 
 
-
-    else if(
-
-        action.includes("SHOP")
-
-    ){
-
-
-        alert(
-
-            "🛒 Автосалон"
-
-        );
-
-
-    }
-
-
-
-    else if(
-
-        action.includes("PROFILE")
-
-    ){
+    else if(action.includes("PROFILE")){
 
 
         alert(
@@ -282,6 +276,7 @@ function openScreen(action){
 
 
     }
+
 
 
 }
