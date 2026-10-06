@@ -564,3 +564,114 @@ def career_stats(user_id):
         )
 
     }
+    
+    # =========================
+# CAREER SYSTEM FIX
+# =========================
+
+
+from database import get_player
+
+
+
+
+
+
+# =========================
+# CAREER TEXT
+# =========================
+
+
+def career_text(user_id):
+
+
+    player = get_player(
+
+        user_id
+
+    )
+
+
+    level = player.get(
+
+        "level",
+
+        1
+
+    )
+
+
+    xp = player.get(
+
+        "xp",
+
+        0
+
+    )
+
+
+    wins = player.get(
+
+        "wins",
+
+        0
+
+    )
+
+
+    text = (
+
+        "🏆 <b>КАРЬЕРА</b>\n\n"
+
+        f"⭐ Уровень: {level}\n"
+
+        f"🔥 Опыт: {xp}\n\n"
+
+        f"🏁 Победы: {wins}\n\n"
+
+    )
+
+
+
+    if level >= 50:
+
+
+        text += (
+
+            "👑 Ранг: CAR LEGEND"
+
+        )
+
+
+    elif level >= 20:
+
+
+        text += (
+
+            "🔥 Ранг: PRO RACER"
+
+        )
+
+
+    elif level >= 5:
+
+
+        text += (
+
+            "⚡ Ранг: STREET RACER"
+
+        )
+
+
+    else:
+
+
+        text += (
+
+            "🚗 Ранг: NOVICE"
+
+        )
+
+
+
+    return text
