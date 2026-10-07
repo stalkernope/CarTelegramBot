@@ -1,5 +1,6 @@
 # =========================
-# BATTLE SYSTEM FINAL
+# BATTLE SYSTEM FINAL COMPLETE
+# CAR LEGENDS
 # =========================
 
 
@@ -12,14 +13,22 @@ from database import (
     add_win,
     add_loss,
     add_coins,
-    add_xp
+    add_xp,
+    add_battle_history,
+    update_player
 )
 
 
-from car_database import (
-    get_car
+
+from garage_system import (
+    get_race_car
 )
 
+
+
+from tuning import (
+    get_upgraded_car_stats
+)
 
 
 
@@ -28,19 +37,34 @@ from car_database import (
 
 
 # =========================
-# PLAYER POWER
+# BATTLE REWARDS
 # =========================
 
 
-def get_car_power(car_name):
+REWARDS = {
 
 
-    car = get_car(
+    "win_coins":5000,
 
-        car_name
+    "win_xp":250,
 
-    )
 
+    "lose_xp":50
+
+}
+
+
+
+
+
+
+
+# =========================
+# CALCULATE POWER
+# =========================
+
+
+def calculate_power(car):
 
 
     if not car:
@@ -50,7 +74,9 @@ def get_car_power(car_name):
 
 
 
-    power = (
+
+
+    return (
 
         car.get(
 
@@ -80,11 +106,19 @@ def get_car_power(car_name):
 
         )
 
+        +
+
+        car.get(
+
+            "nitro",
+
+            0
+
+        )
+
     )
 
 
-    return power
-
 
 
 
@@ -92,89 +126,39 @@ def get_car_power(car_name):
 
 
 # =========================
-# BATTLE START
+# GET PLAYER BATTLE DATA
 # =========================
 
 
-def start_battle(
+def get_battle_power(
 
-    player_id,
-
-    enemy_id
+    user_id
 
 ):
 
 
-    player = get_player(
+    car = get_race_car(
 
-        player_id
-
-    )
-
-
-    enemy = get_player(
-
-        enemy_id
+        user_id
 
     )
 
 
 
-
-
-    player_car = player.get(
-
-        "main_car"
-
-    )
-
-
-    enemy_car = enemy.get(
-
-        "main_car"
-
-    )
-
-
-
-
-
-    if not player_car:
+    if not car:
 
 
         return {
 
 
-            "success":
+            "car":
 
-            False,
-
-
-            "message":
-
-            "Нет главной машины"
-
-        }
+            None,
 
 
+            "power":
 
-
-
-
-    if not enemy_car:
-
-
-        return {
-
-
-            "success":
-
-            False,
-
-
-            "message":
-
-            "У противника нет машины"
+            0
 
         }
 
@@ -184,39 +168,147 @@ def start_battle(
 
 
 
-    player_power = get_car_power(
+    stats = get_upgraded_car_stats(
 
-        player_car
+        user_id,
 
-    )
-
-
-
-    enemy_power = get_car_power(
-
-        enemy_car
+        car["name"]
 
     )
 
 
 
+    return {
 
 
-    player_bonus = random.randint(
+        "car":
 
-        -100,
+        car["name"],
 
-        100
+
+        "power":
+
+        calculate_power(
+
+            stats
+
+        )
+
+    }
+
+
+
+
+
+
+
+# =========================
+# CREATE BATTLE
+# =========================
+
+
+def create_battle(
+
+    player_one,
+
+    player_two
+
+):
+
+
+    return {
+
+
+        "player_one":
+
+        player_one,
+
+
+        "player_two":
+
+        player_two,
+
+
+        "status":
+
+        "waiting"
+
+    }
+    
+    
+    # =========================
+# FIGHT
+# =========================
+
+
+def fight(
+
+    player_one,
+
+    player_two
+
+):
+
+
+    p1 = get_battle_power(
+
+        player_one
+
+    )
+
+
+    p2 = get_battle_power(
+
+        player_two
 
     )
 
 
 
-    enemy_bonus = random.randint(
+    if not p1["car"] or not p2["car"]:
 
-        -100,
 
-        100
+        return {
+
+
+            "success":False,
+
+            "text":
+
+            "❌ У игрока нет машины"
+
+        }
+
+
+
+
+
+
+
+    power_one = p1["power"]
+
+    power_two = p2["power"]
+
+
+
+
+
+
+    chance_one = (
+
+        power_one
+
+        /
+
+        (
+
+            power_one
+
+            +
+
+            power_two
+
+        )
 
     )
 
@@ -224,36 +316,23 @@ def start_battle(
 
 
 
-    final_player = player_power + player_bonus
+    if random.random() < chance_one:
 
 
+        winner = player_one
 
-    final_enemy = enemy_power + enemy_bonus
-
-
-
-
-
-
-    if final_player >= final_enemy:
-
-
-        winner = player_id
-
-        loser = enemy_id
-
-        win = True
+        loser = player_two
 
 
 
     else:
 
 
-        winner = enemy_id
+        winner = player_two
 
-        loser = player_id
+        loser = player_one
 
-        win = False
+
 
 
 
@@ -279,18 +358,90 @@ def start_battle(
 
         winner,
 
-        2000
+        REWARDS["win_coins"]
 
     )
+
 
 
     add_xp(
 
         winner,
 
-        300
+        REWARDS["win_xp"]
 
     )
+
+
+
+    add_xp(
+
+        loser,
+
+        REWARDS["lose_xp"]
+
+    )
+
+
+
+
+
+
+
+    result = {
+
+
+        "winner":
+
+        winner,
+
+
+        "loser":
+
+        loser,
+
+
+        "cars":
+
+        {
+
+
+            player_one:
+
+            p1["car"],
+
+
+            player_two:
+
+            p2["car"]
+
+        }
+
+    }
+
+
+
+
+
+
+
+    add_battle_history(
+
+        player_one,
+
+        result
+
+    )
+
+
+    add_battle_history(
+
+        player_two,
+
+        result
+
+    )
+
 
 
 
@@ -304,29 +455,26 @@ def start_battle(
         True,
 
 
-        "winner":
+        "result":
 
-        winner,
-
-
-        "loser":
-
-        loser,
+        result,
 
 
-        "player_power":
+        "power":
 
-        final_player,
-
-
-        "enemy_power":
-
-        final_enemy,
+        {
 
 
-        "win":
+            player_one:
 
-        win
+            power_one,
+
+
+            player_two:
+
+            power_two
+
+        }
 
     }
 
@@ -339,102 +487,207 @@ def start_battle(
 
 
 # =========================
-# BATTLE TEXT
+# CHANGE RATING
 # =========================
 
 
-def battle_text(result, user_id):
-
-
-    if not result.get(
-
-        "success"
-
-    ):
-
-
-        return result.get(
-
-            "message"
-
-        )
-
-
-
-
-
-    if result["winner"] == user_id:
-
-
-        return f"""
-
-🏆 <b>ПОБЕДА</b>
-
-
-⚡ Твоя сила:
-
-{result['player_power']}
-
-
-💰 Награда:
-
-+2000 монет
-
-
-🔥 XP:
-
-+300
-
-"""
-
-
-
-    else:
-
-
-        return f"""
-
-❌ <b>ПОРАЖЕНИЕ</b>
-
-
-Противник оказался сильнее.
-
-
-Твоя сила:
-
-{result['player_power']}
-
-Сила врага:
-
-{result['enemy_power']}
-
-"""
-
-
-
-
-
-
-
-
-# =========================
-# QUICK BATTLE
-# =========================
-
-
-def quick_battle(
+def update_rating(
 
     user_id,
 
-    enemy_id
+    value
 
 ):
 
 
-    return start_battle(
+    player = get_player(
+
+        user_id
+
+    )
+
+
+
+    player["rating"] = max(
+
+        0,
+
+        player.get(
+
+            "rating",
+
+            1000
+
+        )
+
+        +
+
+        value
+
+    )
+
+
+
+    update_player(
 
         user_id,
 
-        enemy_id
+        player
 
     )
+
+
+
+    return player["rating"]
+
+
+
+
+
+
+
+
+# =========================
+# GET BATTLE HISTORY
+# =========================
+
+
+def get_battle_history(
+
+    user_id
+
+):
+
+
+    player = get_player(
+
+        user_id
+
+    )
+
+
+    return player.get(
+
+        "battle_history",
+
+        []
+
+    )
+
+
+
+
+
+
+
+
+# =========================
+# PROFILE RATING
+# =========================
+
+
+def get_profile_rating(
+
+    user_id
+
+):
+
+
+    player = get_player(
+
+        user_id
+
+    )
+
+
+
+    return {
+
+
+        "rating":
+
+        player.get(
+
+            "rating",
+
+            1000
+
+        ),
+
+
+        "wins":
+
+        player.get(
+
+            "wins",
+
+            0
+
+        ),
+
+
+        "losses":
+
+        player.get(
+
+            "losses",
+
+            0
+
+        )
+
+    }
+
+
+
+
+
+
+
+
+# =========================
+# MINI APP DATA
+# =========================
+
+
+def get_battle_card(
+
+    user_id
+
+):
+
+
+    data = get_profile_rating(
+
+        user_id
+
+    )
+
+
+    return {
+
+
+        "rating":
+
+        data["rating"],
+
+
+        "wins":
+
+        data["wins"],
+
+
+        "losses":
+
+        data["losses"],
+
+
+        "history":
+
+        get_battle_history(
+
+            user_id
+
+        )
+
+    }
