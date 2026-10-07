@@ -90,3 +90,18 @@ def remove_car(player_id, car):
         player["cars"].remove(car)
 
     update_player(player_id, player)
+    
+    
+def add_loss(player_id):
+
+    player = get_player(player_id)
+
+    player["losses"] = player.get(
+        "losses",
+        0
+    ) + 1
+
+    update_player(
+        player_id,
+        player
+    )
