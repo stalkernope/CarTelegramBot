@@ -1,62 +1,43 @@
 // =========================
-// CAR LEGENDS MINI APP
+// CAR LEGENDS MINI APP FINAL
 // =========================
-
-
-
-let userId = null;
 
 
 let tg = window.Telegram.WebApp;
 
 
+let userId = 1;
+
+
+let player = {};
+
+
+
+
 
 // =========================
-// TELEGRAM USER
+// TELEGRAM
 // =========================
 
 
-if(tg){
-
+if (tg) {
 
     tg.ready();
-
 
     tg.expand();
 
 
-
-    if(
-
+    if (
         tg.initDataUnsafe &&
-
         tg.initDataUnsafe.user
+    ) {
 
-    ){
-
-
-        userId = tg.initDataUnsafe.user.id;
-
+        userId =
+        tg.initDataUnsafe.user.id;
 
     }
 
-
 }
-
-
-
-// Для теста через браузер
-
-if(!userId){
-
-
-    userId = 1;
-
-
-}
-
-
-
 
 
 
@@ -68,20 +49,20 @@ if(!userId){
 
 
 document.addEventListener(
-
     "DOMContentLoaded",
-
     ()=>{
+
+
+        setupNavigation();
 
 
         loadPlayer();
 
 
-        setupButtons();
+        setupActions();
 
 
     }
-
 );
 
 
@@ -90,9 +71,8 @@ document.addEventListener(
 
 
 
-
 // =========================
-// LOAD PLAYER
+// PLAYER LOAD
 // =========================
 
 
@@ -102,215 +82,39 @@ async function loadPlayer(){
     try{
 
 
-        let response = await fetch(
+        let res = await fetch(
 
-            "/api/player/" + userId
-
-        );
-
-
-
-        let player = await response.json();
-
-
-
-        updatePlayer(player);
-
-
-
-    }
-
-
-    catch(error){
-
-
-        console.log(
-
-            "PLAYER ERROR",
-
-            error
+            `/api/player/${userId}`
 
         );
 
 
-    }
+        player = await res.json();
 
 
-}
 
+        updatePlayer();
 
 
 
+        if(player.main_car){
 
+            loadCar(
+                player.main_car
+            );
 
+        }
 
-// =========================
-// UPDATE UI
-// =========================
-
-
-function updatePlayer(player){
-
-
-
-    setText(
-
-        "coins",
-
-        player.coins
-
-    );
-
-
-
-    setText(
-
-        "gems",
-
-        player.gems
-
-    );
-
-
-
-    setText(
-
-        "xp",
-
-        player.xp
-
-    );
-
-
-
-    setText(
-
-        "level",
-
-        player.level
-
-    );
-
-
-
-
-
-    if(player.main_car){
-
-
-        setText(
-
-            "main-car",
-
-            player.main_car
-
-        );
-
-
-        loadCar(
-
-            player.main_car
-
-        );
-
-
-    }
-
-
-}
-
-
-
-
-
-
-
-function setText(id,value){
-
-
-
-    let element = document.getElementById(
-
-        id
-
-    );
-
-
-
-    if(element){
-
-
-        element.innerText = value;
-
-
-    }
-
-
-}
-
-
-
-
-
-
-
-
-// =========================
-// CAR INFO
-// =========================
-
-
-async function loadCar(name){
-
-
-
-    try{
-
-
-        let response = await fetch(
-
-            "/api/car/" + name
-
-        );
-
-
-
-        let car = await response.json();
-
-
-
-        setText(
-
-            "power",
-
-            car.power || 0
-
-        );
-
-
-        setText(
-
-            "speed",
-
-            car.speed || 0
-
-        );
-
-
-        setText(
-
-            "control",
-
-            car.handling || 0
-
-        );
 
 
     }
 
     catch(e){
 
-
+        console.log(
+            "PLAYER ERROR",
+            e
+        );
 
     }
 
@@ -323,47 +127,65 @@ async function loadCar(name){
 
 
 
-
 // =========================
-// BUTTONS
+// UPDATE PLAYER UI
 // =========================
 
 
-function setupButtons(){
+function updatePlayer(){
 
 
-
-    document
-
-    .querySelectorAll(
-
-        "button"
-
-    )
-
-    .forEach(
-
-        button => {
+    text(
+        "username",
+        player.username || "PLAYER"
+    );
 
 
-
-            button.onclick = ()=>{
-
-
-                let page =
-
-                button.dataset.page;
+    text(
+        "coins",
+        player.coins || 0
+    );
 
 
+    text(
+        "gems",
+        player.gems || 0
+    );
 
-                openPage(page);
+
+    text(
+        "rep",
+        player.rep || 0
+    );
 
 
-            };
+    text(
+        "level",
+        player.level || 1
+    );
 
 
-        }
+    text(
+        "wins",
+        player.wins || 0
+    );
 
+
+    text(
+        "losses",
+        player.losses || 0
+    );
+
+
+    text(
+        "cars-count",
+        player.garage?.length || 0
+    );
+
+
+    text(
+        "pets-count",
+        player.pets?.length || 0
     );
 
 
@@ -375,31 +197,184 @@ function setupButtons(){
 
 
 
+function text(id,value){
+
+
+    let el =
+    document.getElementById(id);
+
+
+    if(el){
+
+        el.innerText = value;
+
+    }
+
+}
+
+
+
+
+
+
+
+
 
 // =========================
-// PAGES
+// CAR
 // =========================
+
+
+async function loadCar(name){
+
+
+    try{
+
+
+        let res =
+        await fetch(
+            `/api/car/${name}`
+        );
+
+
+        let car =
+        await res.json();
+
+
+
+        text(
+            "main-car",
+            car.name
+        );
+
+
+        text(
+            "power",
+            car.power || 0
+        );
+
+
+        text(
+            "speed",
+            car.speed || 0
+        );
+
+
+        text(
+            "control",
+            car.handling || 0
+        );
+
+
+
+        if(car.image){
+
+
+            document
+            .getElementById(
+                "car-image"
+            )
+            .src = car.image;
+
+
+        }
+
+
+
+    }
+
+    catch(e){}
+
+
+
+}
+
+
+
+
+
+
+
+
+
+// =========================
+// NAVIGATION
+// =========================
+
+
+function setupNavigation(){
+
+
+    document
+    .querySelectorAll(
+        "[data-page]"
+    )
+    .forEach(btn=>{
+
+
+        btn.onclick=()=>{
+
+
+            openPage(
+                btn.dataset.page
+            );
+
+
+        };
+
+
+    });
+
+
+}
+
+
+
+
+
 
 
 function openPage(page){
 
 
+    document
+    .querySelectorAll(
+        ".page"
+    )
+    .forEach(p=>{
 
-    if(page==="garage"){
+
+        p.classList.remove(
+            "active"
+        );
 
 
-        openGarage();
+    });
+
+
+
+    let target =
+    document.getElementById(
+        page+"-page"
+    );
+
+
+
+    if(target){
+
+
+        target.classList.add(
+            "active"
+        );
 
 
     }
 
 
 
-    if(page==="race"){
+    if(page==="garage"){
 
-
-        openRace();
-
+        loadGarage();
 
     }
 
@@ -407,53 +382,10 @@ function openPage(page){
 
     if(page==="shop"){
 
-
-        openShop();
-
+        loadShop();
 
     }
 
-
-
-    if(page==="profile"){
-
-
-        showMessage(
-
-            "👤 Профиль"
-
-        );
-
-
-    }
-
-
-
-    if(page==="tuning"){
-
-
-        showMessage(
-
-            "🔧 Тюнинг"
-
-        );
-
-
-    }
-
-
-
-    if(page==="blacklist"){
-
-
-        showMessage(
-
-            "🏆 Blacklist"
-
-        );
-
-
-    }
 
 
 }
@@ -470,106 +402,72 @@ function openPage(page){
 // =========================
 
 
-async function openGarage(){
+async function loadGarage(){
 
 
-
-    let response = await fetch(
-
-        "/api/garage/" + userId
-
+    let box =
+    document.getElementById(
+        "garage-list"
     );
 
 
-
-    let cars = await response.json();
-
-
-
-    let html = `
-
-
-    <div class="main-car">
-
-
-    <h1>
-
-    🚗 ГАРАЖ
-
-    </h1>
-
-
-    `;
+    box.innerHTML="";
 
 
 
-    cars.forEach(
-
-        car=>{
-
-
-            html += `
+    let res =
+    await fetch(
+        `/api/garage/${userId}`
+    );
 
 
-            <div>
+    let cars =
+    await res.json();
 
 
-            <h2>
 
+
+    cars.forEach(car=>{
+
+
+        box.innerHTML += `
+
+
+        <div class="car-card">
+
+
+            <h3>
             ${car.name}
-
-            </h2>
-
+            </h3>
 
 
             <p>
-
             ⚡ ${car.power}
+            </p>
 
+
+            <p>
             🚀 ${car.speed}
-
             </p>
 
 
 
-            <button onclick="setMainCar('${car.name}')">
+            <button onclick="
+            setMainCar('${car.name}')
+            ">
 
-            👑 Выбрать
+            👑 Сделать главной
 
             </button>
 
 
-
-            </div>
-
-
-            `;
+        </div>
 
 
-        }
-
-    );
+        `;
 
 
-
-    html += `
-
-
-    <button onclick="location.reload()">
-
-    ⬅️ Назад
-
-    </button>
-
-
-    </div>
-
-
-    `;
-
-
-
-    document.querySelector(".game").innerHTML = html;
+    });
 
 
 }
@@ -582,7 +480,6 @@ async function openGarage(){
 
 
 async function setMainCar(car){
-
 
 
     await fetch(
@@ -598,9 +495,8 @@ async function setMainCar(car){
             headers:{
 
 
-                "Content-Type":
-
-                "application/json"
+            "Content-Type":
+            "application/json"
 
 
             },
@@ -610,7 +506,6 @@ async function setMainCar(car){
 
 
                 user_id:userId,
-
 
                 car:car
 
@@ -624,7 +519,163 @@ async function setMainCar(car){
 
 
 
-    location.reload();
+    loadPlayer();
+
+
+    openPage(
+        "home"
+    );
+
+
+}
+
+
+
+
+
+
+
+
+
+// =========================
+// SHOP
+// =========================
+
+
+async function loadShop(){
+
+
+    let box =
+    document.getElementById(
+        "shop-list"
+    );
+
+
+    box.innerHTML="";
+
+
+
+    let res =
+    await fetch(
+        "/api/shop"
+    );
+
+
+    let cars =
+    await res.json();
+
+
+
+    cars.forEach(car=>{
+
+
+        box.innerHTML += `
+
+
+        <div class="car-card">
+
+
+        <h3>
+        ${car.name}
+        </h3>
+
+
+        <p>
+        💰 ${car.price}
+        </p>
+
+
+        <p>
+        ⚡ ${car.power}
+        </p>
+
+
+
+        <button onclick="
+        buyCar('${car.name}')
+        ">
+
+        Купить
+
+        </button>
+
+
+        </div>
+
+
+        `;
+
+
+    });
+
+
+}
+
+
+
+
+
+
+
+
+async function buyCar(car){
+
+
+    let res =
+    await fetch(
+
+        "/api/shop/buy",
+
+        {
+
+
+            method:"POST",
+
+
+            headers:{
+
+
+            "Content-Type":
+            "application/json"
+
+
+            },
+
+
+            body:JSON.stringify({
+
+
+                user_id:userId,
+
+                car:car
+
+
+            })
+
+
+        }
+
+    );
+
+
+
+    let data =
+    await res.json();
+
+
+
+    alert(
+
+        data.success
+        ?
+        "✅ Машина куплена"
+        :
+        "❌ "+data.error
+
+    );
+
+
+    loadPlayer();
 
 
 }
@@ -641,43 +692,44 @@ async function setMainCar(car){
 // =========================
 
 
-function openRace(){
+function setupActions(){
+
+
+    let npc =
+    document.getElementById(
+        "npc-race"
+    );
+
+
+    if(npc){
+
+
+        npc.onclick =
+        ()=>race(
+            "npc"
+        );
+
+
+    }
 
 
 
-    document.querySelector(".game").innerHTML = `
+    let boss =
+    document.getElementById(
+        "boss-race"
+    );
 
 
-    <div class="main-car">
+    if(boss){
 
 
-    <h1>
-
-    🏁 STREET RACE
-
-    </h1>
-
-
-    <button onclick="race()">
-
-    START
-
-    </button>
+        boss.onclick =
+        ()=>race(
+            "boss"
+        );
 
 
-
-    <button onclick="location.reload()">
-
-    ⬅️ Назад
-
-    </button>
-
-
-
-    </div>
-
-
-    `;
+    }
 
 
 }
@@ -687,13 +739,47 @@ function openRace(){
 
 
 
-async function race(){
+
+async function race(type){
+
+
+    let url =
+    type==="boss"
+    ?
+    "/api/race/boss"
+    :
+    "/api/race/npc";
 
 
 
-    let response = await fetch(
+    let body = {
 
-        "/api/race/npc",
+
+        user_id:userId,
+
+
+        car:
+        player.main_car
+
+
+    };
+
+
+
+    if(type==="boss"){
+
+
+        body.boss = 1;
+
+
+    }
+
+
+
+    let res =
+    await fetch(
+
+        url,
 
         {
 
@@ -704,24 +790,15 @@ async function race(){
             headers:{
 
 
-                "Content-Type":
-
-                "application/json"
+            "Content-Type":
+            "application/json"
 
 
             },
 
 
-            body:JSON.stringify({
-
-
-                user_id:userId,
-
-
-                car:""
-
-
-            })
+            body:
+            JSON.stringify(body)
 
 
         }
@@ -730,128 +807,19 @@ async function race(){
 
 
 
-    let data = await response.json();
+    let data =
+    await res.json();
 
 
 
-    alert(
+    document
+    .getElementById(
+        "race-result"
+    )
+    .innerHTML = data.text;
 
-        data.text
 
-    );
-
-
-}
-
-
-
-
-
-
-
-
-// =========================
-// SHOP
-// =========================
-
-
-async function openShop(){
-
-
-
-    let response = await fetch(
-
-        "/api/shop"
-
-    );
-
-
-
-    let cars = await response.json();
-
-
-
-    let html = `
-
-
-    <div class="main-car">
-
-
-    <h1>
-
-    🛒 SHOP
-
-    </h1>
-
-
-    `;
-
-
-
-    cars.forEach(
-
-        car=>{
-
-
-            html += `
-
-
-            <h2>
-
-            ${car.name}
-
-            </h2>
-
-
-            <p>
-
-            💰 ${car.price}
-
-            </p>
-
-
-            `;
-
-
-        }
-
-    );
-
-
-
-    html += `
-
-
-    <button onclick="location.reload()">
-
-    ⬅️ Назад
-
-    </button>
-
-
-    </div>
-
-
-    `;
-
-
-
-    document.querySelector(".game").innerHTML = html;
-
-
-}
-
-
-
-
-
-
-
-
-function showMessage(text){
-
-
-    alert(text);
+    loadPlayer();
 
 
 }
