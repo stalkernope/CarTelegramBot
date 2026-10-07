@@ -1,11 +1,19 @@
+# =========================
+# DATABASE FINAL COMPLETE
+# CAR LEGENDS
+# =========================
+
+
 import json
 import os
+from datetime import datetime
+
+
+
 
 
 DATABASE_FILE = "players.json"
 
-
-START_CAR = "BMW M3 GTR"
 
 
 
@@ -20,57 +28,174 @@ def create_player(user_id):
 
     return {
 
+
+        # BASIC
+
         "id": user_id,
 
-        "username": "PLAYER",
+        "username": "",
+
+        "created":
+
+        str(datetime.now()),
+
+
+
+        # ECONOMY
 
         "coins": 5000,
 
-        "gems": 0,
+        "gems": 50,
 
-        "rep": 0,
+        "tokens": 0,
 
+
+
+        # LEVEL
 
         "level": 1,
 
         "xp": 0,
 
-
-        "garage": [
-
-            START_CAR
-
-        ],
+        "reputation": 0,
 
 
-        "main_car": START_CAR,
 
+        # GARAGE
+
+        "garage": [],
+
+        "main_car": None,
+
+
+
+        # CARS DATA
+
+        "car_upgrades": {},
+
+        "owned_skins": [],
+
+
+
+        # RACE STATS
 
         "wins": 0,
 
         "losses": 0,
 
+        "draws": 0,
+
+
+
+        "race_history": [],
+
+
+
+        # BATTLE
+
+        "battle_history": [],
+
+        "rating": 1000,
+
+
+
+        # CLAN
+
+        "clan": None,
+
+        "clan_role": None,
+
+
+
+        # PETS
 
         "pets": [],
 
         "active_pet": None,
 
 
-        "tuning_parts": {},
 
+        # TUNING
+
+        "tuning_parts": [],
+
+
+
+        # ACHIEVEMENTS
 
         "achievements": [],
 
+
+
+        # TITLES
+
         "titles": [],
 
+        "active_title": None,
 
-        "clan": None,
 
 
-        "premium": False
+        # CAREER
+
+        "career_stage": 1,
+
+        "career_progress": 0,
+
+
+
+        # BLACKLIST
+
+        "boss_progress": 0,
+
+        "defeated_bosses": [],
+
+
+
+        # DAILY
+
+        "daily_claim":
+
+        None,
+
+
+
+        "daily_car":
+
+        None,
+
+
+
+        # CASES
+
+        "opened_cases": 0,
+
+
+
+        # PREMIUM
+
+        "premium": False,
+
+
+        "premium_until": None,
+
+
+
+        # SOCIAL
+
+        "friends": [],
+
+        "messages": [],
+
+
+
+        # SEASON
+
+        "season_xp": 0,
+
+        "battle_pass_level": 1
+
 
     }
-
 
 
 
@@ -85,13 +210,21 @@ def create_player(user_id):
 def load_database():
 
 
-    if not os.path.exists(DATABASE_FILE):
+    if not os.path.exists(
+
+        DATABASE_FILE
+
+    ):
+
 
         return {}
 
 
 
+
+
     try:
+
 
         with open(
 
@@ -112,18 +245,6 @@ def load_database():
 
 
         return {}
-
-
-
-
-
-
-# совместимость
-
-def load_players():
-
-    return load_database()
-
 
 
 
@@ -166,96 +287,6 @@ def save_database(data):
 
 
 
-
-# =========================
-# UPDATE OLD PLAYER
-# =========================
-
-
-def migrate_player(player):
-
-
-    defaults = {
-
-
-        "username": "PLAYER",
-
-        "coins": 5000,
-
-        "gems": 0,
-
-        "rep": 0,
-
-
-        "level": 1,
-
-        "xp": 0,
-
-
-        "garage": [],
-
-        "main_car": None,
-
-
-        "wins": 0,
-
-        "losses": 0,
-
-
-        "pets": [],
-
-        "active_pet": None,
-
-
-        "tuning_parts": {},
-
-
-        "achievements": [],
-
-        "titles": [],
-
-
-        "clan": None,
-
-
-        "premium": False
-
-    }
-
-
-
-    for key, value in defaults.items():
-
-        if key not in player:
-
-            player[key] = value
-
-
-
-    if not player["garage"]:
-
-        player["garage"] = [
-
-            START_CAR
-
-        ]
-
-
-
-    if player["main_car"] is None:
-
-        player["main_car"] = START_CAR
-
-
-
-    return player
-
-
-
-
-
-
-
 # =========================
 # GET PLAYER
 # =========================
@@ -264,50 +295,36 @@ def migrate_player(player):
 def get_player(user_id):
 
 
-    database = load_database()
+    data = load_database()
+
 
 
     uid = str(user_id)
 
 
 
-    if uid not in database:
+    if uid not in data:
 
 
-        database[uid] = create_player(
+        data[uid] = create_player(
 
             user_id
 
         )
 
 
-        save_database(database)
+        save_database(
 
-
-
-    else:
-
-
-        database[uid] = migrate_player(
-
-            database[uid]
+            data
 
         )
 
 
-        save_database(database)
 
-
-
-    return database[uid]
-
-
-
-
-
-
-
-# =========================
+    return data[uid]
+    
+    
+    # =========================
 # UPDATE PLAYER
 # =========================
 
@@ -321,13 +338,23 @@ def update_player(
 ):
 
 
-    database = load_database()
+    data = load_database()
 
 
-    database[str(user_id)] = player
+
+    data[str(user_id)] = player
 
 
-    save_database(database)
+
+    save_database(
+
+        data
+
+    )
+
+
+
+    return True
 
 
 
@@ -336,7 +363,7 @@ def update_player(
 
 
 # =========================
-# COINS
+# ECONOMY
 # =========================
 
 
@@ -349,10 +376,16 @@ def add_coins(
 ):
 
 
-    player = get_player(user_id)
+    player = get_player(
+
+        user_id
+
+    )
+
 
 
     player["coins"] += amount
+
 
 
     update_player(
@@ -362,6 +395,11 @@ def add_coins(
         player
 
     )
+
+
+
+    return player["coins"]
+
 
 
 
@@ -377,17 +415,25 @@ def remove_coins(
 ):
 
 
-    player = get_player(user_id)
+    player = get_player(
+
+        user_id
+
+    )
 
 
 
     if player["coins"] < amount:
 
+
         return False
 
 
 
+
+
     player["coins"] -= amount
+
 
 
     update_player(
@@ -399,17 +445,13 @@ def remove_coins(
     )
 
 
+
     return True
 
 
 
 
 
-
-
-# =========================
-# GEMS
-# =========================
 
 
 def add_gems(
@@ -421,10 +463,16 @@ def add_gems(
 ):
 
 
-    player = get_player(user_id)
+    player = get_player(
+
+        user_id
+
+    )
+
 
 
     player["gems"] += amount
+
 
 
     update_player(
@@ -434,6 +482,7 @@ def add_gems(
         player
 
     )
+
 
 
 
@@ -449,15 +498,25 @@ def remove_gems(
 ):
 
 
-    player = get_player(user_id)
+    player = get_player(
+
+        user_id
+
+    )
+
 
 
     if player["gems"] < amount:
 
+
         return False
 
 
+
+
+
     player["gems"] -= amount
+
 
 
     update_player(
@@ -469,6 +528,7 @@ def remove_gems(
     )
 
 
+
     return True
 
 
@@ -478,7 +538,7 @@ def remove_gems(
 
 
 # =========================
-# XP
+# EXPERIENCE
 # =========================
 
 
@@ -491,7 +551,12 @@ def add_xp(
 ):
 
 
-    player = get_player(user_id)
+    player = get_player(
+
+        user_id
+
+    )
+
 
 
     player["xp"] += amount
@@ -502,14 +567,22 @@ def add_xp(
 
 
 
-    if player["xp"] >= need:
+
+
+    while player["xp"] >= need:
 
 
         player["xp"] -= need
 
+
         player["level"] += 1
 
 
+        need = player["level"] * 1000
+
+
+
+
 
     update_player(
 
@@ -521,92 +594,42 @@ def add_xp(
 
 
 
+    return player["level"]
+
+
+
 
 
 
 
 # =========================
-# REP
+# RACE STATS
 # =========================
 
 
-def add_rep(
+def add_win(
 
-    user_id,
-
-    amount
+    user_id
 
 ):
 
 
-    player = get_player(user_id)
+    player = get_player(
 
-
-    player["rep"] += amount
-
-
-    update_player(
-
-        user_id,
-
-        player
+        user_id
 
     )
 
-
-
-
-
-
-def remove_rep(
-
-    user_id,
-
-    amount
-
-):
-
-
-    player = get_player(user_id)
-
-
-    player["rep"] = max(
-
-        0,
-
-        player["rep"] - amount
-
-    )
-
-
-    update_player(
-
-        user_id,
-
-        player
-
-    )
-
-
-
-
-
-
-
-# =========================
-# WINS / LOSSES
-# =========================
-
-
-def add_win(user_id):
-
-
-    player = get_player(user_id)
 
 
     player["wins"] += 1
 
 
+
+    player["rating"] += 25
+
+
+
     update_player(
 
         user_id,
@@ -620,16 +643,38 @@ def add_win(user_id):
 
 
 
+def add_loss(
 
-def add_loss(user_id):
+    user_id
+
+):
 
 
-    player = get_player(user_id)
+    player = get_player(
+
+        user_id
+
+    )
+
 
 
     player["losses"] += 1
 
 
+
+    player["rating"] -= 10
+
+
+
+    if player["rating"] < 0:
+
+
+        player["rating"] = 0
+
+
+
+
+
     update_player(
 
         user_id,
@@ -637,6 +682,41 @@ def add_loss(user_id):
         player
 
     )
+
+
+
+
+
+
+
+def add_draw(
+
+    user_id
+
+):
+
+
+    player = get_player(
+
+        user_id
+
+    )
+
+
+
+    player["draws"] += 1
+
+
+
+    update_player(
+
+        user_id,
+
+        player
+
+    )
+
+
 
 
 
@@ -658,7 +738,11 @@ def add_car(
 ):
 
 
-    player = get_player(user_id)
+    player = get_player(
+
+        user_id
+
+    )
 
 
 
@@ -673,10 +757,14 @@ def add_car(
 
 
 
-    if not player["main_car"]:
+
+
+    if player["main_car"] is None:
 
 
         player["main_car"] = car_name
+
+
 
 
 
@@ -687,6 +775,11 @@ def add_car(
         player
 
     )
+
+
+
+    return True
+
 
 
 
@@ -703,7 +796,11 @@ def remove_car(
 ):
 
 
-    player = get_player(user_id)
+    player = get_player(
+
+        user_id
+
+    )
 
 
 
@@ -718,10 +815,14 @@ def remove_car(
 
 
 
+
+
     if player["main_car"] == car_name:
 
 
         player["main_car"] = None
+
+
 
 
 
@@ -732,6 +833,175 @@ def remove_car(
         player
 
     )
+
+
+
+    return True
+
+
+
+
+
+
+
+def set_main_car(
+
+    user_id,
+
+    car_name
+
+):
+
+
+    player = get_player(
+
+        user_id
+
+    )
+
+
+
+    if car_name not in player["garage"]:
+
+
+        return False
+
+
+
+
+
+    player["main_car"] = car_name
+
+
+
+    update_player(
+
+        user_id,
+
+        player
+
+    )
+
+
+
+    return True
+    
+    
+    # =========================
+# TUNING SYSTEM
+# =========================
+
+
+def add_tuning_part(
+
+    user_id,
+
+    part
+
+):
+
+
+    player = get_player(
+
+        user_id
+
+    )
+
+
+
+    if part not in player["tuning_parts"]:
+
+
+        player["tuning_parts"].append(
+
+            part
+
+        )
+
+
+
+    update_player(
+
+        user_id,
+
+        player
+
+    )
+
+
+
+    return True
+
+
+
+
+
+
+
+def upgrade_car_data(
+
+    user_id,
+
+    car_name,
+
+    upgrade
+
+):
+
+
+    player = get_player(
+
+        user_id
+
+    )
+
+
+
+    if car_name not in player["garage"]:
+
+
+        return False
+
+
+
+
+
+    if car_name not in player["car_upgrades"]:
+
+
+        player["car_upgrades"][car_name] = {}
+
+
+
+
+
+    current = player["car_upgrades"][car_name].get(
+
+        upgrade,
+
+        0
+
+    )
+
+
+
+    player["car_upgrades"][car_name][upgrade] = current + 1
+
+
+
+
+
+    update_player(
+
+        user_id,
+
+        player
+
+    )
+
+
+
+    return True
 
 
 
@@ -753,7 +1023,12 @@ def add_pet(
 ):
 
 
-    player = get_player(user_id)
+    player = get_player(
+
+        user_id
+
+    )
+
 
 
     if pet not in player["pets"]:
@@ -766,6 +1041,7 @@ def add_pet(
         )
 
 
+
     update_player(
 
         user_id,
@@ -776,11 +1052,15 @@ def add_pet(
 
 
 
+    return True
 
 
 
 
-def remove_pet(
+
+
+
+def set_active_pet(
 
     user_id,
 
@@ -789,60 +1069,24 @@ def remove_pet(
 ):
 
 
-    player = get_player(user_id)
+    player = get_player(
 
-
-    if pet in player["pets"]:
-
-
-        player["pets"].remove(
-
-            pet
-
-        )
-
-
-    update_player(
-
-        user_id,
-
-        player
+        user_id
 
     )
 
 
 
+    if pet not in player["pets"]:
+
+
+        return False
 
 
 
 
-# =========================
-# TUNING
-# =========================
 
-
-def add_tuning(
-
-    user_id,
-
-    part
-
-):
-
-
-    player = get_player(user_id)
-
-
-    if part not in player["tuning_parts"]:
-
-
-        player["tuning_parts"][part] = 1
-
-
-    else:
-
-
-        player["tuning_parts"][part] += 1
+    player["active_pet"] = pet
 
 
 
@@ -856,34 +1100,7 @@ def add_tuning(
 
 
 
-
-
-
-def remove_tuning(
-
-    user_id,
-
-    part
-
-):
-
-
-    player = get_player(user_id)
-
-
-    if part in player["tuning_parts"]:
-
-
-        del player["tuning_parts"][part]
-
-
-    update_player(
-
-        user_id,
-
-        player
-
-    )
+    return True
 
 
 
@@ -905,7 +1122,12 @@ def add_achievement(
 ):
 
 
-    player = get_player(user_id)
+    player = get_player(
+
+        user_id
+
+    )
+
 
 
     if achievement not in player["achievements"]:
@@ -918,6 +1140,7 @@ def add_achievement(
         )
 
 
+
     update_player(
 
         user_id,
@@ -928,8 +1151,17 @@ def add_achievement(
 
 
 
+    return True
 
 
+
+
+
+
+
+# =========================
+# TITLES
+# =========================
 
 
 def add_title(
@@ -941,7 +1173,12 @@ def add_title(
 ):
 
 
-    player = get_player(user_id)
+    player = get_player(
+
+        user_id
+
+    )
+
 
 
     if title not in player["titles"]:
@@ -954,6 +1191,7 @@ def add_title(
         )
 
 
+
     update_player(
 
         user_id,
@@ -961,6 +1199,58 @@ def add_title(
         player
 
     )
+
+
+
+    return True
+
+
+
+
+
+
+
+def set_title(
+
+    user_id,
+
+    title
+
+):
+
+
+    player = get_player(
+
+        user_id
+
+    )
+
+
+
+    if title not in player["titles"]:
+
+
+        return False
+
+
+
+
+
+    player["active_title"] = title
+
+
+
+    update_player(
+
+        user_id,
+
+        player
+
+    )
+
+
+
+    return True
 
 
 
@@ -982,10 +1272,16 @@ def set_clan(
 ):
 
 
-    player = get_player(user_id)
+    player = get_player(
+
+        user_id
+
+    )
+
 
 
     player["clan"] = clan
+
 
 
     update_player(
@@ -995,3 +1291,333 @@ def set_clan(
         player
 
     )
+
+
+
+    return True
+
+
+
+
+
+
+
+def remove_clan(
+
+    user_id
+
+):
+
+
+    player = get_player(
+
+        user_id
+
+    )
+
+
+
+    player["clan"] = None
+
+
+
+    player["clan_role"] = None
+
+
+
+    update_player(
+
+        user_id,
+
+        player
+
+    )
+
+
+
+    return True
+
+
+
+
+
+
+
+# =========================
+# HISTORY
+# =========================
+
+
+def add_race_history(
+
+    user_id,
+
+    result
+
+):
+
+
+    player = get_player(
+
+        user_id
+
+    )
+
+
+
+    player["race_history"].append(
+
+        result
+
+    )
+
+
+
+    player["race_history"] = player["race_history"][-50:]
+
+
+
+    update_player(
+
+        user_id,
+
+        player
+
+    )
+
+
+
+    return True
+
+
+
+
+
+
+
+def add_battle_history(
+
+    user_id,
+
+    result
+
+):
+
+
+    player = get_player(
+
+        user_id
+
+    )
+
+
+
+    player["battle_history"].append(
+
+        result
+
+    )
+
+
+
+    player["battle_history"] = player["battle_history"][-50:]
+
+
+
+    update_player(
+
+        user_id,
+
+        player
+
+    )
+
+
+
+    return True
+
+
+
+
+
+
+
+# =========================
+# DAILY SYSTEM
+# =========================
+
+
+def set_daily_claim(
+
+    user_id,
+
+    date
+
+):
+
+
+    player = get_player(
+
+        user_id
+
+    )
+
+
+
+    player["daily_claim"] = date
+
+
+
+    update_player(
+
+        user_id,
+
+        player
+
+    )
+
+
+
+
+
+
+
+
+def set_daily_car(
+
+    user_id,
+
+    car
+
+):
+
+
+    player = get_player(
+
+        user_id
+
+    )
+
+
+
+    player["daily_car"] = car
+
+
+
+    update_player(
+
+        user_id,
+
+        player
+
+    )
+
+
+
+
+
+
+
+
+# =========================
+# SEASON
+# =========================
+
+
+def add_season_xp(
+
+    user_id,
+
+    amount
+
+):
+
+
+    player = get_player(
+
+        user_id
+
+    )
+
+
+
+    player["season_xp"] += amount
+
+
+
+    if player["season_xp"] >= 1000:
+
+
+        player["season_xp"] -= 1000
+
+
+        player["battle_pass_level"] += 1
+
+
+
+
+
+    update_player(
+
+        user_id,
+
+        player
+
+    )
+
+
+
+    return player["battle_pass_level"]
+
+
+
+
+
+
+
+# =========================
+# BACKUP
+# =========================
+
+
+def backup_database():
+
+
+    data = load_database()
+
+
+
+    backup_file = (
+
+        "players_backup.json"
+
+    )
+
+
+
+    with open(
+
+        backup_file,
+
+        "w",
+
+        encoding="utf-8"
+
+    ) as file:
+
+
+        json.dump(
+
+            data,
+
+            file,
+
+            ensure_ascii=False,
+
+            indent=4
+
+        )
+
+
+
+    return True
