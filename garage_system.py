@@ -857,3 +857,333 @@ def get_full_garage_data(
         )
 
     }
+    
+    
+    # =========================
+# ADD CAR SAFE
+# =========================
+
+
+def add_car_to_garage_safe(
+
+    user_id,
+
+    car_name
+
+):
+
+    player = get_player(
+
+        user_id
+
+    )
+
+
+    if car_name in player.get(
+
+        "garage",
+
+        []
+
+    ):
+
+        return {
+
+            "success": False,
+
+            "text": "🚗 Машина уже есть"
+
+        }
+
+
+
+    add_car(
+
+        user_id,
+
+        car_name
+
+    )
+
+
+    return {
+
+        "success": True,
+
+        "text": f"✅ {car_name} добавлена"
+
+    }
+
+
+
+
+
+# =========================
+# GET CAR UPGRADES
+# =========================
+
+
+def get_car_upgrades(
+
+    user_id,
+
+    car_name
+
+):
+
+    player = get_player(
+
+        user_id
+
+    )
+
+
+    upgrades = player.get(
+
+        "car_upgrades",
+
+        {}
+
+    )
+
+
+    return upgrades.get(
+
+        car_name,
+
+        {}
+
+    )
+
+
+
+
+
+
+
+# =========================
+# CAR POWER SCORE
+# =========================
+
+
+def get_car_power_score(
+
+    user_id,
+
+    car_name
+
+):
+
+    car = get_car(
+
+        car_name
+
+    )
+
+
+    if not car:
+
+        return 0
+
+
+
+    score = (
+
+        car.get("power",0)
+
+        +
+
+        car.get("speed",0)
+
+        +
+
+        car.get("handling",0)
+
+        +
+
+        car.get("nitro",0)
+
+    )
+
+
+
+    upgrades = get_car_upgrades(
+
+        user_id,
+
+        car_name
+
+    )
+
+
+
+    bonus = 0
+
+
+
+    for value in upgrades.values():
+
+        bonus += value * 25
+
+
+
+    return score + bonus
+
+
+
+
+
+
+
+
+# =========================
+# RACE ACTIVE CAR
+# =========================
+
+
+def get_race_car(
+
+    user_id
+
+):
+
+    player = get_player(
+
+        user_id
+
+    )
+
+
+    car = player.get(
+
+        "main_car"
+
+    )
+
+
+    if not car:
+
+        return None
+
+
+
+    return get_car(
+
+        car
+
+    )
+
+
+
+
+
+
+
+
+# =========================
+# FULL CAR CARD
+# MINI APP
+# =========================
+
+
+def get_full_car_card(
+
+    user_id,
+
+    car_name
+
+):
+
+    car = get_car(
+
+        car_name
+
+    )
+
+
+    if not car:
+
+        return None
+
+
+
+    return {
+
+
+        "name":
+
+        car.get("name"),
+
+
+        "brand":
+
+        car.get("brand"),
+
+
+        "image":
+
+        car.get("image"),
+
+
+        "rarity":
+
+        car.get("rarity"),
+
+
+        "class":
+
+        car.get("class"),
+
+
+        "price":
+
+        car.get("price",0),
+
+
+        "stats": {
+
+
+            "power":
+
+            car.get("power",0),
+
+
+            "speed":
+
+            car.get("speed",0),
+
+
+            "handling":
+
+            car.get("handling",0),
+
+
+            "nitro":
+
+            car.get("nitro",0)
+
+        },
+
+
+        "upgrades":
+
+        get_car_upgrades(
+
+            user_id,
+
+            car_name
+
+        ),
+
+
+        "battle_score":
+
+        get_car_power_score(
+
+            user_id,
+
+            car_name
+
+        )
+
+    }
