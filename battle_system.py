@@ -1,21 +1,22 @@
 # =========================
-# BATTLE SYSTEM FINAL COMPLETE
+# BATTLE SYSTEM COMPLETE FINAL
 # CAR LEGENDS
 # =========================
 
 
 import random
+import time
 
 
 
 from database import (
     get_player,
+    update_player,
     add_win,
     add_loss,
     add_coins,
     add_xp,
-    add_battle_history,
-    update_player
+    add_battle_history
 )
 
 
@@ -37,21 +38,21 @@ from tuning import (
 
 
 # =========================
-# BATTLE REWARDS
+# CONFIG
 # =========================
 
 
-REWARDS = {
+WIN_REWARD = 5000
+
+WIN_XP = 250
+
+LOSE_XP = 50
 
 
-    "win_coins":5000,
-
-    "win_xp":250,
+START_RATING = 1000
 
 
-    "lose_xp":50
-
-}
+BATTLE_COOLDOWN = 60
 
 
 
@@ -60,7 +61,7 @@ REWARDS = {
 
 
 # =========================
-# CALCULATE POWER
+# CAR POWER
 # =========================
 
 
@@ -69,52 +70,25 @@ def calculate_power(car):
 
     if not car:
 
-
         return 0
-
-
 
 
 
     return (
 
-        car.get(
-
-            "power",
-
-            0
-
-        )
+        car.get("power", 0)
 
         +
 
-        car.get(
-
-            "speed",
-
-            0
-
-        )
+        car.get("speed", 0)
 
         +
 
-        car.get(
-
-            "handling",
-
-            0
-
-        )
+        car.get("handling", 0)
 
         +
 
-        car.get(
-
-            "nitro",
-
-            0
-
-        )
+        car.get("nitro", 0)
 
     )
 
@@ -124,17 +98,12 @@ def calculate_power(car):
 
 
 
-
 # =========================
-# GET PLAYER BATTLE DATA
+# PLAYER BATTLE DATA
 # =========================
 
 
-def get_battle_power(
-
-    user_id
-
-):
+def get_battle_power(user_id):
 
 
     car = get_race_car(
@@ -151,17 +120,11 @@ def get_battle_power(
         return {
 
 
-            "car":
+            "car": None,
 
-            None,
-
-
-            "power":
-
-            0
+            "power": 0
 
         }
-
 
 
 
@@ -181,18 +144,9 @@ def get_battle_power(
     return {
 
 
-        "car":
+        "car": car["name"],
 
-        car["name"],
-
-
-        "power":
-
-        calculate_power(
-
-            stats
-
-        )
+        "power": calculate_power(stats)
 
     }
 
@@ -203,45 +157,234 @@ def get_battle_power(
 
 
 # =========================
-# CREATE BATTLE
+# CHECK COOLDOWN
 # =========================
 
 
-def create_battle(
-
-    player_one,
-
-    player_two
-
-):
+def check_cooldown(user_id):
 
 
-    return {
+    player = get_player(
+
+        user_id
+
+    )
 
 
-        "player_one":
+    last = player.get(
 
-        player_one,
+        "last_battle",
+
+        0
+
+    )
 
 
-        "player_two":
 
-        player_two,
+    return (
 
+        time.time()
 
-        "status":
+        -
 
-        "waiting"
+        last
 
-    }
+    ) >= BATTLE_COOLDOWN
     
     
     # =========================
-# FIGHT
+# ELO RATING
 # =========================
 
 
-def fight(
+def calculate_elo(
+
+    winner_rating,
+
+    loser_rating
+
+):
+
+
+    k = 32
+
+
+
+    expected_win = (
+
+        1
+
+        /
+
+        (
+
+            1
+
+            +
+
+            10 ** (
+
+                (
+
+                    loser_rating
+
+                    -
+
+                    winner_rating
+
+                )
+
+                /
+
+                400
+
+            )
+
+        )
+
+    )
+
+
+
+    change = int(
+
+        k
+
+        *
+
+        (
+
+            1
+
+            -
+
+            expected_win
+
+        )
+
+    )
+
+
+
+    return change
+
+
+
+
+
+
+
+# =========================
+# FIND OPPONENT
+# =========================
+
+
+def find_opponent(
+
+    user_id,
+
+    players
+
+):
+
+
+    player = get_player(
+
+        user_id
+
+    )
+
+
+    rating = player.get(
+
+        "rating",
+
+        START_RATING
+
+    )
+
+
+
+    candidates = []
+
+
+
+    for opponent_id in players:
+
+
+        if str(opponent_id) == str(user_id):
+
+
+            continue
+
+
+
+
+
+        opponent = get_player(
+
+            opponent_id
+
+        )
+
+
+
+        opponent_rating = opponent.get(
+
+            "rating",
+
+            START_RATING
+
+        )
+
+
+
+        if abs(
+
+            rating - opponent_rating
+
+        ) <= 300:
+
+
+            candidates.append(
+
+                opponent_id
+
+            )
+
+
+
+
+
+    if not candidates:
+
+
+        return None
+
+
+
+
+
+    return random.choice(
+
+        candidates
+
+    )
+
+
+
+
+
+
+
+
+
+# =========================
+# START BATTLE
+# =========================
+
+
+def start_battle(
 
     player_one,
 
@@ -250,22 +393,7 @@ def fight(
 ):
 
 
-    p1 = get_battle_power(
-
-        player_one
-
-    )
-
-
-    p2 = get_battle_power(
-
-        player_two
-
-    )
-
-
-
-    if not p1["car"] or not p2["car"]:
+    if str(player_one) == str(player_two):
 
 
         return {
@@ -275,7 +403,53 @@ def fight(
 
             "text":
 
-            "❌ У игрока нет машины"
+            "❌ Нельзя сражаться с собой"
+
+        }
+
+
+
+
+
+
+    if not check_cooldown(
+
+        player_one
+
+    ):
+
+
+        return {
+
+
+            "success":False,
+
+            "text":
+
+            "⏳ Подожди перед следующим боем"
+
+        }
+
+
+
+
+
+
+    if not check_cooldown(
+
+        player_two
+
+    ):
+
+
+        return {
+
+
+            "success":False,
+
+            "text":
+
+            "⏳ Соперник недавно играл"
 
         }
 
@@ -285,30 +459,16 @@ def fight(
 
 
 
-    power_one = p1["power"]
+    first = get_battle_power(
 
-    power_two = p2["power"]
+        player_one
 
-
-
-
+    )
 
 
-    chance_one = (
+    second = get_battle_power(
 
-        power_one
-
-        /
-
-        (
-
-            power_one
-
-            +
-
-            power_two
-
-        )
+        player_two
 
     )
 
@@ -316,7 +476,27 @@ def fight(
 
 
 
-    if random.random() < chance_one:
+    if not first["car"] or not second["car"]:
+
+
+        return {
+
+
+            "success":False,
+
+            "text":
+
+            "❌ Нет активной машины"
+
+        }
+
+
+
+
+
+
+
+    if first["power"] >= second["power"]:
 
 
         winner = player_one
@@ -334,6 +514,102 @@ def fight(
 
 
 
+
+
+
+    return finish_battle(
+
+        winner,
+
+        loser,
+
+        first,
+
+        second
+
+    )
+    
+    
+    # =========================
+# FINISH BATTLE
+# =========================
+
+
+def finish_battle(
+
+    winner,
+
+    loser,
+
+    first,
+
+    second
+
+):
+
+
+    winner_data = get_player(
+
+        winner
+
+    )
+
+
+    loser_data = get_player(
+
+        loser
+
+    )
+
+
+
+    winner_rating = winner_data.get(
+
+        "rating",
+
+        START_RATING
+
+    )
+
+
+    loser_rating = loser_data.get(
+
+        "rating",
+
+        START_RATING
+
+    )
+
+
+
+    elo_change = calculate_elo(
+
+        winner_rating,
+
+        loser_rating
+
+    )
+
+
+
+
+
+    update_rating(
+
+        winner,
+
+        elo_change
+
+    )
+
+
+    update_rating(
+
+        loser,
+
+        -elo_change
+
+    )
 
 
 
@@ -358,30 +634,74 @@ def fight(
 
         winner,
 
-        REWARDS["win_coins"]
+        WIN_REWARD
 
     )
-
 
 
     add_xp(
 
         winner,
 
-        REWARDS["win_xp"]
+        WIN_XP
 
     )
-
 
 
     add_xp(
 
         loser,
 
-        REWARDS["lose_xp"]
+        LOSE_XP
 
     )
 
+
+
+
+
+
+    now = time.time()
+
+
+
+    winner_player = get_player(
+
+        winner
+
+    )
+
+
+    loser_player = get_player(
+
+        loser
+
+    )
+
+
+
+    winner_player["last_battle"] = now
+
+    loser_player["last_battle"] = now
+
+
+
+    update_player(
+
+        winner,
+
+        winner_player
+
+    )
+
+
+    update_player(
+
+        loser,
+
+        loser_player
+
+    )
 
 
 
@@ -401,21 +721,24 @@ def fight(
         loser,
 
 
-        "cars":
+        "winner_car":
 
-        {
-
-
-            player_one:
-
-            p1["car"],
+        first["car"],
 
 
-            player_two:
+        "loser_car":
 
-            p2["car"]
+        second["car"],
 
-        }
+
+        "reward":
+
+        WIN_REWARD,
+
+
+        "time":
+
+        now
 
     }
 
@@ -424,10 +747,9 @@ def fight(
 
 
 
-
     add_battle_history(
 
-        player_one,
+        winner,
 
         result
 
@@ -436,7 +758,7 @@ def fight(
 
     add_battle_history(
 
-        player_two,
+        loser,
 
         result
 
@@ -455,26 +777,24 @@ def fight(
         True,
 
 
-        "result":
+        "winner":
 
-        result,
-
-
-        "power":
-
-        {
+        winner,
 
 
-            player_one:
+        "loser":
 
-            power_one,
+        loser,
 
 
-            player_two:
+        "reward":
 
-            power_two
+        WIN_REWARD,
 
-        }
+
+        "rating_change":
+
+        elo_change
 
     }
 
@@ -485,9 +805,8 @@ def fight(
 
 
 
-
 # =========================
-# CHANGE RATING
+# UPDATE RATING
 # =========================
 
 
@@ -516,7 +835,7 @@ def update_rating(
 
             "rating",
 
-            1000
+            START_RATING
 
         )
 
@@ -552,7 +871,7 @@ def update_rating(
 # =========================
 
 
-def get_battle_history(
+def get_history(
 
     user_id
 
@@ -564,6 +883,7 @@ def get_battle_history(
         user_id
 
     )
+
 
 
     return player.get(
@@ -582,11 +902,11 @@ def get_battle_history(
 
 
 # =========================
-# PROFILE RATING
+# PROFILE DATA
 # =========================
 
 
-def get_profile_rating(
+def get_battle_profile(
 
     user_id
 
@@ -610,9 +930,10 @@ def get_profile_rating(
 
             "rating",
 
-            1000
+            START_RATING
 
         ),
+
 
 
         "wins":
@@ -626,6 +947,7 @@ def get_profile_rating(
         ),
 
 
+
         "losses":
 
         player.get(
@@ -633,6 +955,16 @@ def get_profile_rating(
             "losses",
 
             0
+
+        ),
+
+
+
+        "history":
+
+        get_history(
+
+            user_id
 
         )
 
@@ -657,11 +989,12 @@ def get_battle_card(
 ):
 
 
-    data = get_profile_rating(
+    profile = get_battle_profile(
 
         user_id
 
     )
+
 
 
     return {
@@ -669,25 +1002,21 @@ def get_battle_card(
 
         "rating":
 
-        data["rating"],
+        profile["rating"],
 
 
         "wins":
 
-        data["wins"],
+        profile["wins"],
 
 
         "losses":
 
-        data["losses"],
+        profile["losses"],
 
 
         "history":
 
-        get_battle_history(
-
-            user_id
-
-        )
+        profile["history"]
 
     }
