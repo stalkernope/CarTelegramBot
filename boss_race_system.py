@@ -7,7 +7,6 @@
 import random
 
 
-
 from database import (
     get_player,
     add_win,
@@ -19,24 +18,14 @@ from database import (
 )
 
 
-
 from garage_system import (
     get_race_car
 )
 
 
-
 from tuning import (
     get_upgraded_car_stats
 )
-
-
-
-from car_database import (
-    get_car
-)
-
-
 
 
 
@@ -118,9 +107,6 @@ BOSSES = {
 
 
 
-
-
-
 # =========================
 # CALCULATE POWER
 # =========================
@@ -131,44 +117,27 @@ def calculate_power(car):
 
     if not car:
 
-
         return 0
-
 
 
 
     return (
 
-        car.get(
-            "power",
-            0
-        )
+        car.get("power", 0)
 
         +
 
-        car.get(
-            "speed",
-            0
-        )
+        car.get("speed", 0)
 
         +
 
-        car.get(
-            "handling",
-            0
-        )
+        car.get("handling", 0)
 
         +
 
-        car.get(
-            "nitro",
-            0
-        )
+        car.get("nitro", 0)
 
     )
-
-
-
 
 
 
@@ -179,39 +148,22 @@ def calculate_power(car):
 # =========================
 
 
-def get_player_power(
-
-    user_id
-
-):
+def get_player_power(user_id):
 
 
-    car = get_race_car(
-
-        user_id
-
-    )
+    car = get_race_car(user_id)
 
 
 
     if not car:
 
-
         return {
 
+            "car": None,
 
-            "car":
-
-            None,
-
-
-            "power":
-
-            0
+            "power": 0
 
         }
-
-
 
 
 
@@ -235,32 +187,19 @@ def get_player_power(
 
         "power":
 
-        calculate_power(
-
-            stats
-
-        )
+        calculate_power(stats)
 
     }
-    
     
     # =========================
 # STREET RACE
 # =========================
 
 
-def start_street_race(
-
-    user_id
-
-):
+def start_street_race(user_id):
 
 
-    player = get_player_power(
-
-        user_id
-
-    )
+    player = get_player_power(user_id)
 
 
 
@@ -270,7 +209,10 @@ def start_street_race(
         return {
 
 
-            "success":False,
+            "success":
+
+            False,
+
 
             "text":
 
@@ -282,12 +224,14 @@ def start_street_race(
 
 
 
-
     enemy_power = random.randint(
+
 
         player["power"] - 300,
 
+
         player["power"] + 300
+
 
     )
 
@@ -295,9 +239,12 @@ def start_street_race(
 
     enemy_power = max(
 
+
         enemy_power,
 
+
         500
+
 
     )
 
@@ -322,6 +269,8 @@ def start_street_race(
         )
 
     )
+
+
 
 
 
@@ -397,7 +346,6 @@ def start_street_race(
         )
 
 
-
         add_xp(
 
             user_id,
@@ -405,6 +353,7 @@ def start_street_race(
             50
 
         )
+
 
 
         result = {
@@ -420,7 +369,6 @@ def start_street_race(
             0
 
         }
-
 
 
 
@@ -450,17 +398,14 @@ def start_street_race(
         player["car"],
 
 
-
         "player_power":
 
         player["power"],
 
 
-
         "enemy_power":
 
         enemy_power,
-
 
 
         "result":
@@ -475,25 +420,15 @@ def start_street_race(
 
 
 
-
-
 # =========================
-# GET CURRENT BOSS
+# CURRENT BOSS
 # =========================
 
 
-def get_current_boss(
-
-    user_id
-
-):
+def get_current_boss(user_id):
 
 
-    player = get_player(
-
-        user_id
-
-    )
+    player = get_player(user_id)
 
 
 
@@ -511,8 +446,6 @@ def get_current_boss(
 
 
 
-
-
     if boss_id not in BOSSES:
 
 
@@ -520,11 +453,7 @@ def get_current_boss(
 
 
 
-
-
     return BOSSES[boss_id]
-
-
 
 
 
@@ -537,18 +466,10 @@ def get_current_boss(
 # =========================
 
 
-def start_boss_race(
-
-    user_id
-
-):
+def start_boss_race(user_id):
 
 
-    boss = get_current_boss(
-
-        user_id
-
-    )
+    boss = get_current_boss(user_id)
 
 
 
@@ -558,7 +479,10 @@ def start_boss_race(
         return {
 
 
-            "success":False,
+            "success":
+
+            False,
+
 
             "text":
 
@@ -571,13 +495,7 @@ def start_boss_race(
 
 
 
-
-
-    player = get_player_power(
-
-        user_id
-
-    )
+    player = get_player_power(user_id)
 
 
 
@@ -587,7 +505,10 @@ def start_boss_race(
         return {
 
 
-            "success":False,
+            "success":
+
+            False,
+
 
             "text":
 
@@ -600,13 +521,11 @@ def start_boss_race(
 
 
 
-
     player_power = player["power"]
 
 
 
     boss_power = boss["power"]
-
 
 
 
@@ -632,17 +551,10 @@ def start_boss_race(
 
 
 
-
-
     win = random.random() < win_chance
     
     
-    # =========================
-# FINISH BOSS RACE
-# =========================
-
-
-    if win:
+        if win:
 
 
         reward = boss["reward"]
@@ -701,22 +613,20 @@ def start_boss_race(
 
 
 
-        if boss["car"] not in player_data.get(
+        player_data.setdefault(
 
             "defeated_bosses",
 
             []
 
-        ):
+        )
 
 
-            player_data.setdefault(
 
-                "defeated_bosses",
+        if boss["car"] not in player_data["defeated_bosses"]:
 
-                []
 
-            ).append(
+            player_data["defeated_bosses"].append(
 
                 boss["car"]
 
@@ -800,8 +710,6 @@ def start_boss_race(
 
 
 
-
-
     add_race_history(
 
         user_id,
@@ -858,16 +766,104 @@ def start_boss_race(
 
 
 # =========================
-# GET ALL BOSSES
-# MINI APP
+# API COMPATIBILITY
 # =========================
 
 
-def get_boss_list(
+def race_npc(user_id, boss_id=None):
 
-    user_id
 
-):
+    return start_boss_race(
+
+        user_id
+
+    )
+
+
+
+
+
+def fight_boss(user_id, boss_id=None):
+
+
+    return start_boss_race(
+
+        user_id
+
+    )
+
+
+
+
+
+
+
+def race_result_text(result):
+
+
+    if not result:
+
+
+        return "❌ Ошибка гонки"
+
+
+
+
+    data = result.get(
+
+        "result",
+
+        {}
+
+    )
+
+
+
+    status = data.get(
+
+        "result",
+
+        ""
+
+    )
+
+
+
+    if status == "WIN":
+
+
+        return (
+
+            "🏆 ПОБЕДА!\n"
+
+            f"💰 Награда: {data.get('reward', data.get('coins', 0))}"
+
+        )
+
+
+
+    if status == "LOSE":
+
+
+        return "💀 ПОРАЖЕНИЕ"
+
+
+
+    return str(result)
+
+
+
+
+
+
+
+
+# =========================
+# ALL BOSSES
+# =========================
+
+
+def get_boss_list(user_id):
 
 
     player = get_player(
@@ -896,7 +892,6 @@ def get_boss_list(
 
 
         result.append(
-
 
             {
 
@@ -937,7 +932,6 @@ def get_boss_list(
 
             }
 
-
         )
 
 
@@ -951,16 +945,7 @@ def get_boss_list(
 
 
 
-# =========================
-# BOSS PROGRESS
-# =========================
-
-
-def get_boss_progress(
-
-    user_id
-
-):
+def get_boss_progress(user_id):
 
 
     player = get_player(
@@ -994,45 +979,3 @@ def get_boss_progress(
         )
 
     }
-    
-    
-    # =========================
-# COMPATIBILITY FUNCTION
-# API COMPATIBILITY
-# =========================
-
-def race_npc(user_id, boss_id=None):
-
-    if boss_id:
-
-        boss = BOSSES.get(boss_id)
-
-        if not boss:
-            return {
-                "success": False,
-                "text": "Boss not found"
-            }
-
-
-    return start_boss_race(user_id)
-    
-    
-    # =========================
-# API COMPATIBILITY
-# FIGHT BOSS
-# =========================
-
-def fight_boss(user_id, boss_id=None):
-
-    if boss_id is not None:
-
-        boss = BOSSES.get(boss_id)
-
-        if not boss:
-            return {
-                "success": False,
-                "text": "❌ Босс не найден"
-            }
-
-
-    return start_boss_race(user_id)
