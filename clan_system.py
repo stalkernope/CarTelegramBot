@@ -1,6 +1,27 @@
+# =========================
+# CLAN SYSTEM FINAL
+# =========================
+
+
 import json
 import os
 
+
+
+from database import (
+    get_player,
+    update_player
+)
+
+
+
+
+
+
+
+# =========================
+# DATABASE
+# =========================
 
 
 CLAN_FILE = "clans.json"
@@ -8,14 +29,19 @@ CLAN_FILE = "clans.json"
 
 
 
-# =========================
-# ЗАГРУЗКА
-# =========================
+
+
 
 
 def load_clans():
 
-    if not os.path.exists(CLAN_FILE):
+
+    if not os.path.exists(
+
+        CLAN_FILE
+
+    ):
+
 
         return {}
 
@@ -23,34 +49,47 @@ def load_clans():
 
     try:
 
+
         with open(
+
             CLAN_FILE,
+
             "r",
+
             encoding="utf-8"
+
         ) as file:
+
 
             return json.load(file)
 
 
+
     except:
+
 
         return {}
 
 
 
 
-# =========================
-# СОХРАНЕНИЕ
-# =========================
+
+
 
 
 def save_clans(data):
 
+
     with open(
+
         CLAN_FILE,
+
         "w",
+
         encoding="utf-8"
+
     ) as file:
+
 
         json.dump(
 
@@ -67,53 +106,119 @@ def save_clans(data):
 
 
 
+
+
+
+
+
 # =========================
-# СОЗДАТЬ КЛАН
+# CREATE CLAN
 # =========================
 
 
 def create_clan(
+
     user_id,
+
     name
+
 ):
+
 
     clans = load_clans()
 
 
 
+    for clan in clans.values():
+
+
+        if clan["name"].lower() == name.lower():
+
+
+            return False
+
+
+
+
+
+
     clan_id = str(
+
         len(clans)+1
+
     )
 
 
 
     clans[clan_id] = {
 
-        "name": name,
 
-        "owner": user_id,
+        "id":
 
-        "members": [
+        clan_id,
+
+
+        "name":
+
+        name,
+
+
+        "leader":
+
+        user_id,
+
+
+        "members":
+
+        [
 
             user_id
 
         ],
 
-        "level": 1,
 
-        "xp": 0,
+        "level":
 
-        "wins": 0,
+        1,
 
-        "rating": 0
+
+        "power":
+
+        100
 
     }
 
 
 
     save_clans(
+
         clans
+
     )
+
+
+
+
+
+    player = get_player(
+
+        user_id
+
+    )
+
+
+    player["clan"] = clan_id
+
+
+
+    update_player(
+
+        user_id,
+
+        player
+
+    )
+
 
 
     return clans[clan_id]
@@ -121,15 +226,24 @@ def create_clan(
 
 
 
+
+
+
+
+
 # =========================
-# ВСТУПИТЬ
+# JOIN CLAN
 # =========================
 
 
 def join_clan(
-    clan_id,
-    user_id
+
+    user_id,
+
+    clan_id
+
 ):
+
 
     clans = load_clans()
 
@@ -137,7 +251,10 @@ def join_clan(
 
     if clan_id not in clans:
 
+
         return False
+
+
 
 
 
@@ -145,22 +262,48 @@ def join_clan(
 
 
 
-    if user_id in clan["members"]:
-
-        return False
+    if user_id not in clan["members"]:
 
 
+        clan["members"].append(
 
-    clan["members"].append(
+            user_id
+
+        )
+
+
+
+    clans[clan_id] = clan
+
+
+
+    save_clans(
+
+        clans
+
+    )
+
+
+
+
+
+    player = get_player(
 
         user_id
 
     )
 
 
+    player["clan"] = clan_id
 
-    save_clans(
-        clans
+
+
+    update_player(
+
+        user_id,
+
+        player
+
     )
 
 
@@ -170,223 +313,135 @@ def join_clan(
 
 
 
-# =========================
-# НАЙТИ КЛАН ИГРОКА
-# =========================
-
-
-def get_player_clan(
-    user_id
-):
-
-    clans = load_clans()
-
-
-
-    for clan_id, clan in clans.items():
-
-
-        if user_id in clan["members"]:
-
-            return clan_id, clan
-
-
-
-    return None, None
-
 
 
 
 # =========================
-# ОПЫТ КЛАНА
+# LEAVE CLAN
 # =========================
 
 
-def add_clan_xp(
-    clan_id,
-    amount
-):
+def leave_clan(user_id):
 
-    clans = load_clans()
 
+    player = get_player(
 
-
-    if clan_id not in clans:
-
-        return
-
-
-
-    clan = clans[clan_id]
-
-
-
-    clan["xp"] += amount
-
-
-
-    need = clan["level"] * 1000
-
-
-
-    if clan["xp"] >= need:
-
-
-        clan["xp"] -= need
-
-        clan["level"] += 1
-
-
-
-    save_clans(
-        clans
-    )
-
-
-
-
-# =========================
-# КЛАНОВЫЙ РЕЙТИНГ
-# =========================
-
-
-def clan_power(clan):
-
-
-    power = (
-
-        clan["level"] * 1000
-
-        +
-
-        len(clan["members"]) * 100
-
-        +
-
-        clan["wins"] * 50
-
-    )
-
-
-    return power
-
-
-
-
-# =========================
-# ТОП КЛАНОВ
-# =========================
-
-
-def top_clans(limit=10):
-
-    clans = load_clans()
-
-
-
-    result = []
-
-
-
-    for clan_id, clan in clans.items():
-
-
-        result.append(
-
-            {
-
-                "name":
-
-                clan["name"],
-
-
-                "level":
-
-                clan["level"],
-
-
-                "members":
-
-                len(
-                    clan["members"]
-                ),
-
-
-                "power":
-
-                clan_power(
-                    clan
-                )
-
-            }
-
-        )
-
-
-
-    result.sort(
-
-        key=lambda x:
-
-        x["power"],
-
-        reverse=True
-
-    )
-
-
-
-    return result[:limit]
-
-
-
-
-# =========================
-# ТЕКСТ
-# =========================
-
-
-def clan_text(
-    user_id
-):
-
-    clan_id, clan = get_player_clan(
         user_id
+
     )
 
 
-    if not clan:
+    clan_id = player.get(
 
-        return (
+        "clan"
 
-            "❌ Ты не состоишь в автоклубе"
+    )
+
+
+
+    if not clan_id:
+
+
+        return False
+
+
+
+
+
+    clans = load_clans()
+
+
+
+    if clan_id in clans:
+
+
+        if user_id in clans[clan_id]["members"]:
+
+
+            clans[clan_id]["members"].remove(
+
+                user_id
+
+            )
+
+
+
+        save_clans(
+
+            clans
 
         )
 
 
 
-    return (
 
-        "🏎 <b>AUTO CLUB</b>\n\n"
 
-        f"🔥 Название: {clan['name']}\n"
+    player["clan"] = None
 
-        f"⭐ Уровень: {clan['level']}\n"
 
-        f"⚡ Опыт: {clan['xp']}\n"
 
-        f"👥 Участники: {len(clan['members'])}\n"
+    update_player(
 
-        f"🏆 Победы клуба: {clan['wins']}"
+        user_id,
+
+        player
 
     )
-    
-    # =========================
-# CLAN SYSTEM FIX
+
+
+
+    return True
+
+
+
+
+
+
+
+# =========================
+# GET PLAYER CLAN
 # =========================
 
 
-from database import get_player
+def get_player_clan(user_id):
+
+
+    player = get_player(
+
+        user_id
+
+    )
+
+
+    clan_id = player.get(
+
+        "clan"
+
+    )
+
+
+
+    if not clan_id:
+
+
+        return None
+
+
+
+
+
+    clans = load_clans()
+
+
+
+    return clans.get(
+
+        clan_id
+
+    )
+
+
+
 
 
 
@@ -401,24 +456,9 @@ from database import get_player
 def clan_text(user_id):
 
 
-    player = get_player(
+    clan = get_player_clan(
 
         user_id
-
-    )
-
-
-    clan = player.get(
-
-        "clan"
-
-    )
-
-
-
-    text = (
-
-        "⚔️ <b>КЛАНЫ</b>\n\n"
 
     )
 
@@ -427,34 +467,49 @@ def clan_text(user_id):
     if not clan:
 
 
-        text += (
+        return """
 
-            "❌ Ты не состоишь в клане\n\n"
-
-            "Создай клан или вступи в существующий."
-
-        )
+⚔️ <b>КЛАН</b>
 
 
-        return text
+У тебя нет клана.
 
 
+Создай свой или вступи в существующий.
 
-
-
-    text += (
-
-        f"🏰 Клан: {clan}\n\n"
-
-        "🔥 Участие в войнах\n"
-
-        "🏆 Рейтинг кланов"
-
-    )
+"""
 
 
 
-    return text
+
+
+    return f"""
+
+⚔️ <b>{clan['name']}</b>
+
+
+👑 Лидер:
+
+{clan['leader']}
+
+
+👥 Участники:
+
+{len(clan['members'])}
+
+
+⭐ Уровень:
+
+{clan['level']}
+
+
+🔥 Сила:
+
+{clan['power']}
+
+"""
+
+
 
 
 
@@ -470,38 +525,34 @@ def clan_text(user_id):
 def top_clans():
 
 
-    return [
-
-        {
-
-            "name": "🔥 Night Racers",
-
-            "level": 10,
-
-            "power": 9500
-
-        },
+    clans = load_clans()
 
 
-        {
 
-            "name": "⚡ Speed Demons",
+    result = list(
 
-            "level": 8,
+        clans.values()
 
-            "power": 7200
-
-        },
+    )
 
 
-        {
 
-            "name": "🏎 Street Kings",
+    result.sort(
 
-            "level": 6,
+        key=lambda x:
 
-            "power": 5000
+        x.get(
 
-        }
+            "power",
 
-    ]
+            0
+
+        ),
+
+        reverse=True
+
+    )
+
+
+
+    return result[:10]
