@@ -1,5 +1,5 @@
 # =========================
-# BOSS RACE SYSTEM FINAL COMPLETE
+# BOSS RACE SYSTEM FINAL
 # CAR LEGENDS
 # =========================
 
@@ -41,18 +41,14 @@ BOSSES = {
 
     1: {
 
-
         "name":
         "Shadow Racer",
-
 
         "car":
         "Nissan Skyline R34",
 
-
         "power":
         1200,
-
 
         "reward":
         10000
@@ -62,18 +58,14 @@ BOSSES = {
 
     2: {
 
-
         "name":
         "Night King",
-
 
         "car":
         "Lamborghini Aventador SVJ",
 
-
         "power":
         1800,
-
 
         "reward":
         25000
@@ -83,18 +75,14 @@ BOSSES = {
 
     3: {
 
-
         "name":
         "Black Legend",
-
 
         "car":
         "Bugatti Chiron",
 
-
         "power":
         2500,
-
 
         "reward":
         50000
@@ -102,6 +90,7 @@ BOSSES = {
     }
 
 }
+
 
 
 
@@ -123,21 +112,35 @@ def calculate_power(car):
 
     return (
 
-        car.get("power", 0)
+        car.get(
+            "power",
+            0
+        )
 
         +
 
-        car.get("speed", 0)
+        car.get(
+            "speed",
+            0
+        )
 
         +
 
-        car.get("handling", 0)
+        car.get(
+            "handling",
+            0
+        )
 
         +
 
-        car.get("nitro", 0)
+        car.get(
+            "nitro",
+            0
+        )
 
     )
+
+
 
 
 
@@ -151,19 +154,31 @@ def calculate_power(car):
 def get_player_power(user_id):
 
 
-    car = get_race_car(user_id)
+    car = get_race_car(
 
+        user_id
+
+    )
 
 
     if not car:
 
+
         return {
 
-            "car": None,
 
-            "power": 0
+            "car":
+
+            None,
+
+
+            "power":
+
+            0
 
         }
+
+
 
 
 
@@ -187,9 +202,15 @@ def get_player_power(user_id):
 
         "power":
 
-        calculate_power(stats)
+        calculate_power(
+
+            stats
+
+        )
 
     }
+    
+    
     
     # =========================
 # STREET RACE
@@ -199,7 +220,11 @@ def get_player_power(user_id):
 def start_street_race(user_id):
 
 
-    player = get_player_power(user_id)
+    player = get_player_power(
+
+        user_id
+
+    )
 
 
 
@@ -224,27 +249,15 @@ def start_street_race(user_id):
 
 
 
+
     enemy_power = random.randint(
 
-
-        player["power"] - 300,
-
+        max(
+            500,
+            player["power"] - 300
+        ),
 
         player["power"] + 300
-
-
-    )
-
-
-
-    enemy_power = max(
-
-
-        enemy_power,
-
-
-        500
-
 
     )
 
@@ -269,8 +282,6 @@ def start_street_race(user_id):
         )
 
     )
-
-
 
 
 
@@ -333,6 +344,8 @@ def start_street_race(user_id):
             reward
 
         }
+
+
 
 
 
@@ -420,6 +433,7 @@ def start_street_race(user_id):
 
 
 
+
 # =========================
 # CURRENT BOSS
 # =========================
@@ -428,7 +442,11 @@ def start_street_race(user_id):
 def get_current_boss(user_id):
 
 
-    player = get_player(user_id)
+    player = get_player(
+
+        user_id
+
+    )
 
 
 
@@ -446,14 +464,12 @@ def get_current_boss(user_id):
 
 
 
-    if boss_id not in BOSSES:
+    return BOSSES.get(
 
+        boss_id
 
-        return None
+    )
 
-
-
-    return BOSSES[boss_id]
 
 
 
@@ -469,7 +485,11 @@ def get_current_boss(user_id):
 def start_boss_race(user_id):
 
 
-    boss = get_current_boss(user_id)
+    boss = get_current_boss(
+
+        user_id
+
+    )
 
 
 
@@ -495,7 +515,11 @@ def start_boss_race(user_id):
 
 
 
-    player = get_player_power(user_id)
+    player = get_player_power(
+
+        user_id
+
+    )
 
 
 
@@ -521,11 +545,13 @@ def start_boss_race(user_id):
 
 
 
+
     player_power = player["power"]
 
 
 
     boss_power = boss["power"]
+
 
 
 
@@ -551,10 +577,13 @@ def start_boss_race(user_id):
 
 
 
+
+
     win = random.random() < win_chance
     
     
-    if win:
+    
+        if win:
 
 
         reward = boss["reward"]
@@ -623,7 +652,7 @@ def start_boss_race(user_id):
 
 
 
-    if boss["car"] not in player_data["defeated_bosses"]:
+        if boss["car"] not in player_data["defeated_bosses"]:
 
 
             player_data["defeated_bosses"].append(
@@ -710,6 +739,8 @@ def start_boss_race(user_id):
 
 
 
+
+
     add_race_history(
 
         user_id,
@@ -765,12 +796,43 @@ def start_boss_race(user_id):
 
 
 
+
+
 # =========================
 # API COMPATIBILITY
 # =========================
 
 
-def race_npc(user_id, boss_id=None):
+def race_npc(
+
+    user_id,
+
+    car=None
+
+):
+
+
+    return start_street_race(
+
+        user_id
+
+    )
+
+
+
+
+
+
+
+def fight_boss(
+
+    user_id,
+
+    car=None,
+
+    boss_id=1
+
+):
 
 
     return start_boss_race(
@@ -779,18 +841,6 @@ def race_npc(user_id, boss_id=None):
 
     )
 
-
-
-
-
-def fight_boss(user_id, boss_id=None):
-
-
-    return start_boss_race(
-
-        user_id
-
-    )
 
 
 
@@ -805,6 +855,7 @@ def race_result_text(result):
 
 
         return "❌ Ошибка гонки"
+
 
 
 
@@ -849,6 +900,7 @@ def race_result_text(result):
 
 
 
+
     return str(result)
 
 
@@ -858,8 +910,9 @@ def race_result_text(result):
 
 
 
+
 # =========================
-# ALL BOSSES
+# BOSSES LIST
 # =========================
 
 
@@ -871,7 +924,6 @@ def get_boss_list(user_id):
         user_id
 
     )
-
 
 
     progress = player.get(
