@@ -1,3 +1,8 @@
+# =========================
+# TUNING SYSTEM FINAL
+# =========================
+
+
 from database import (
     get_player,
     update_player,
@@ -5,67 +10,56 @@ from database import (
 )
 
 
+from car_database import (
+    get_car
+)
+
+
+
+
 
 
 
 # =========================
-# TUNING PARTS
+# DEFAULT PARTS
 # =========================
 
 
 TUNING_PARTS = {
 
 
-    "engine_1": {
+    "engine": {
 
-        "name": "⚡ Stage 1 Engine",
+        "name": "Двигатель",
 
-        "price": 5000,
+        "price": 1000,
 
-        "power": 300,
-
-        "speed": 20
-
-    },
-
-
-    "engine_2": {
-
-        "name": "🔥 Stage 2 Engine",
-
-        "price": 15000,
-
-        "power": 800,
-
-        "speed": 50
+        "power": 50
 
     },
 
 
     "turbo": {
 
-        "name": "🚀 Turbo",
+        "name": "Турбо",
 
-        "price": 25000,
+        "price": 1500,
 
-        "power": 1200,
-
-        "speed": 80
+        "speed": 30
 
     },
 
 
-    "race_kit": {
+    "handling": {
 
-        "name": "🏎 Race Kit",
+        "name": "Управление",
 
-        "price": 50000,
+        "price": 1200,
 
-        "power": 2000,
-
-        "speed": 120
+        "handling": 20
 
     }
+
 
 }
 
@@ -75,327 +69,397 @@ TUNING_PARTS = {
 
 
 
-
 # =========================
-# GET PARTS
-# =========================
-
-
-def get_tuning_parts():
-
-
-    return TUNING_PARTS
-
-
-
-
-
-
-
-
-# =========================
-# BUY TUNING
-# =========================
-
-
-def buy_tuning(
-
-    user_id,
-
-    part_id
-
-):
-
-
-    if part_id not in TUNING_PARTS:
-
-
-        raise Exception(
-
-            "Деталь не найдена"
-
-        )
-
-
-
-    part = TUNING_PARTS[part_id]
-
-
-
-    player = get_player(
-
-        user_id
-
-    )
-
-
-
-
-
-    if part_id in player["tuning_parts"]:
-
-
-        raise Exception(
-
-            "Деталь уже установлена"
-
-        )
-
-
-
-
-
-    if player["coins"] < part["price"]:
-
-
-        raise Exception(
-
-            "Недостаточно монет"
-
-        )
-
-
-
-
-
-    remove_coins(
-
-        user_id,
-
-        part["price"]
-
-    )
-
-
-
-
-
-    player["tuning_parts"].append(
-
-        part_id
-
-    )
-
-
-
-    update_player(
-
-        user_id,
-
-        player
-
-    )
-
-
-
-    return part
-
-
-
-
-
-
-
-
-# =========================
-# BONUS
-# =========================
-
-
-def tuning_bonus(
-
-    user_id,
-
-    car_name=None
-
-):
-
-
-    player = get_player(
-
-        user_id
-
-    )
-
-
-
-    power = 0
-
-    speed = 0
-
-
-
-
-
-    for part_id in player.get(
-
-        "tuning_parts",
-
-        []
-
-    ):
-
-
-
-        part = TUNING_PARTS.get(
-
-            part_id
-
-        )
-
-
-
-        if part:
-
-
-            power += part["power"]
-
-
-            speed += part["speed"]
-
-
-
-
-
-
-    return {
-
-
-        "power": power,
-
-
-        "speed": speed
-
-
-    }
-    
-    # =========================
 # TUNING TEXT
 # =========================
 
-def tuning_text(user_id):
 
-    from database import get_player
+def tuning_text(
+
+    user_id,
+
+    car_name
+
+):
 
 
-    player = get_player(user_id)
+    player = get_player(
+
+        user_id
+
+    )
 
 
     parts = player.get(
+
         "tuning_parts",
-        []
+
+        {}
+
     )
 
 
     text = (
-        "🔧 <b>ТЮНИНГ</b>\n\n"
+
+        f"🔧 <b>ТЮНИНГ</b>\n\n"
+
+        f"🚗 {car_name}\n\n"
+
     )
 
 
-    if not parts:
 
-        text += (
-            "❌ Установленных деталей нет\n\n"
+    for key, part in TUNING_PARTS.items():
+
+
+        level = parts.get(
+
+            key,
+
+            0
+
         )
 
-    else:
 
         text += (
-            "Установлено:\n\n"
+
+            f"{part['name']}: "
+
+            f"Lv.{level}\n"
+
+            f"💰 {part['price']} монет\n\n"
+
         )
 
-
-        for part in parts:
-
-            text += (
-                f"⚙️ {part}\n"
-            )
-
-
-    text += (
-        "\n💪 Улучшай машину и побеждай!"
-    )
 
 
     return text
-    
-    # =========================
-# UPGRADE CAR
+
+
+
+
+
+
+
+# =========================
+# GET PART LEVEL
 # =========================
 
-def upgrade_car(
-    user_id,
-    car_name,
-    part
-):
 
-    from database import (
-        get_player,
-        update_player
-    )
+def get_tuning_level(
+
+    user_id,
+
+    part
+
+):
 
 
     player = get_player(
+
         user_id
+
     )
 
 
+    return player.get(
+
+        "tuning_parts",
+
+        {}
+
+    ).get(
+
+        part,
+
+        0
+
+    )
+
+
+
+
+
+
+
+
+# =========================
+# UPGRADE CAR
+# =========================
+
+
+def upgrade_car(
+
+    user_id,
+
+    car_name,
+
+    part
+
+):
+
+
+    player = get_player(
+
+        user_id
+
+    )
+
+
+
     if car_name not in player.get(
+
         "garage",
+
         []
+
     ):
 
+
         return {
+
+            "success":False,
+
             "message":
             "❌ Машина не найдена"
+
         }
 
 
-    price = 5000
+
+
+
+
+    if part not in TUNING_PARTS:
+
+
+        return {
+
+            "success":False,
+
+            "message":
+            "❌ Деталь не найдена"
+
+        }
+
+
+
+
+
+
+    data = TUNING_PARTS[part]
+
+
+
+    price = data["price"]
+
 
 
     if player.get(
+
         "coins",
+
         0
+
     ) < price:
 
+
         return {
+
+            "success":False,
+
             "message":
             "❌ Недостаточно монет"
+
         }
+
+
+
+
 
 
     player["coins"] -= price
 
 
-    if "tuning" not in player:
-
-        player["tuning"] = {}
 
 
+    if "tuning_parts" not in player:
 
-    if car_name not in player["tuning"]:
 
-        player["tuning"][car_name] = []
+        player["tuning_parts"] = {}
 
 
 
-    player["tuning"][car_name].append(
-        part
+
+
+    player["tuning_parts"][part] = (
+
+        player["tuning_parts"].get(
+
+            part,
+
+            0
+
+        ) + 1
+
     )
+
+
 
 
     update_player(
+
         user_id,
+
         player
+
     )
+
 
 
     return {
 
+
+        "success":True,
+
+
         "message":
-        f"🔧 {car_name}\n\n"
-        f"Установлено: {part}\n"
-        "💰 -5000 монет"
+
+        (
+
+            f"✅ {data['name']} улучшен\n"
+
+            f"Новый уровень: "
+
+            f"{player['tuning_parts'][part]}"
+
+        )
 
     }
+
+
+
+
+
+
+
+# =========================
+# APPLY STATS
+# =========================
+
+
+def apply_tuning(
+
+    user_id,
+
+    car
+
+):
+
+
+    player = get_player(
+
+        user_id
+
+    )
+
+
+    parts = player.get(
+
+        "tuning_parts",
+
+        {}
+
+    )
+
+
+
+    result = dict(car)
+
+
+
+
+
+    engine = parts.get(
+
+        "engine",
+
+        0
+
+    )
+
+
+    turbo = parts.get(
+
+        "turbo",
+
+        0
+
+    )
+
+
+    handling = parts.get(
+
+        "handling",
+
+        0
+
+    )
+
+
+
+    result["power"] = (
+
+        result.get(
+
+            "power",
+
+            0
+
+        )
+
+        +
+
+        engine * 50
+
+    )
+
+
+
+    result["speed"] = (
+
+        result.get(
+
+            "speed",
+
+            0
+
+        )
+
+        +
+
+        turbo * 30
+
+    )
+
+
+
+    result["handling"] = (
+
+        result.get(
+
+            "handling",
+
+            0
+
+        )
+
+        +
+
+        handling * 20
+
+    )
+
+
+
+    return result
