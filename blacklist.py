@@ -1,11 +1,24 @@
 # =========================
-# BLACKLIST SYSTEM FINAL
+# BLACKLIST FINAL COMPLETE
+# CAR LEGENDS
 # =========================
 
 
 from database import (
     get_player,
-    update_player
+    update_player,
+    add_coins,
+    add_xp
+)
+
+
+from boss_race_system import (
+    BOSSES
+)
+
+
+from car_database import (
+    get_car
 )
 
 
@@ -14,148 +27,54 @@ from database import (
 
 
 
+
 # =========================
-# BLACKLIST BOSSES
+# BLACKLIST REWARDS
 # =========================
 
 
-BLACKLIST = [
+BLACKLIST_REWARDS = {
 
 
-    {
+    1: {
 
 
-        "id":1,
+        "coins":10000,
 
-
-        "name":
-
-        "Shadow",
-
+        "xp":500,
 
         "car":
-
-        "Nissan GTR",
-
-
-        "need_wins":
-
-        0,
-
-
-        "reward":
-
-        5000,
-
-
-        "power":
-
-        600
+        "Nissan Skyline R34"
 
     },
 
 
-
-    {
-
-
-        "id":2,
+    2: {
 
 
-        "name":
+        "coins":25000,
 
-        "Night Wolf",
-
+        "xp":1000,
 
         "car":
-
-        "BMW M4",
-
-
-        "need_wins":
-
-        5,
-
-
-        "reward":
-
-        10000,
-
-
-        "power":
-
-        850
+        "Lamborghini Aventador SVJ"
 
     },
 
 
-
-    {
-
-
-        "id":3,
+    3: {
 
 
-        "name":
+        "coins":50000,
 
-        "Dark Legend",
-
+        "xp":2000,
 
         "car":
-
-        "Bugatti Chiron",
-
-
-        "need_wins":
-
-        15,
-
-
-        "reward":
-
-        25000,
-
-
-        "power":
-
-        1300
-
-    },
-
-
-    {
-
-
-        "id":4,
-
-
-        "name":
-
-        "Final Boss",
-
-
-        "car":
-
-        "Koenigsegg Jesko",
-
-
-        "need_wins":
-
-        30,
-
-
-        "reward":
-
-        100000,
-
-
-        "power":
-
-        1800
+        "Bugatti Chiron"
 
     }
 
-]
+}
 
 
 
@@ -172,140 +91,56 @@ BLACKLIST = [
 def get_blacklist():
 
 
-    return BLACKLIST
 
+    result = []
 
 
 
+    for level, boss in BOSSES.items():
 
 
+        result.append(
 
-# =========================
-# CURRENT BOSS
-# =========================
+            {
 
 
-def get_current_boss(user_id):
+                "level":
 
+                level,
 
-    player = get_player(
 
-        user_id
+                "name":
 
-    )
+                boss["name"],
 
 
+                "car":
 
-    wins = player.get(
+                boss["car"],
 
-        "wins",
 
-        0
+                "power":
 
-    )
+                boss["power"],
 
 
+                "reward":
 
-    available = None
+                BLACKLIST_REWARDS.get(
 
+                    level,
 
+                    {}
 
+                )
 
-
-    for boss in BLACKLIST:
-
-
-        if wins >= boss["need_wins"]:
-
-
-            available = boss
-
-
-
-    if not available:
-
-
-        available = BLACKLIST[0]
-
-
-
-    return available
-
-
-
-
-
-
-
-
-# =========================
-# BLACKLIST TEXT
-# =========================
-
-
-def blacklist_text(user_id):
-
-
-    player = get_player(
-
-        user_id
-
-    )
-
-
-    wins = player.get(
-
-        "wins",
-
-        0
-
-    )
-
-
-
-    text = (
-
-        "🏆 <b>BLACKLIST</b>\n\n"
-
-    )
-
-
-
-    for boss in BLACKLIST:
-
-
-
-        if wins >= boss["need_wins"]:
-
-
-            status = "🔓"
-
-
-
-        else:
-
-
-            status = "🔒"
-
-
-
-
-
-        text += (
-
-            f"{status} {boss['name']}\n"
-
-            f"🚗 {boss['car']}\n"
-
-            f"⚡ Power: {boss['power']}\n"
-
-            f"🏁 Нужно побед: {boss['need_wins']}\n\n"
+            }
 
         )
 
 
 
-    return text
+    return result
 
 
 
@@ -314,15 +149,82 @@ def blacklist_text(user_id):
 
 
 # =========================
-# DEFEAT BOSS
+# CURRENT OPPONENT
 # =========================
 
 
-def defeat_boss(
+def get_current_opponent(
 
-    user_id,
+    user_id
 
-    boss_id
+):
+
+
+    player = get_player(
+
+        user_id
+
+    )
+
+
+    level = player.get(
+
+        "boss_progress",
+
+        0
+
+    ) + 1
+
+
+
+
+
+    if level not in BOSSES:
+
+
+        return None
+
+
+
+
+
+    boss = BOSSES[level]
+
+
+
+    return {
+
+
+        "level":
+
+        level,
+
+
+        "name":
+
+        boss["name"],
+
+
+        "car":
+
+        boss["car"],
+
+
+        "power":
+
+        boss["power"]
+
+    }
+    
+    
+    # =========================
+# DEFEAT OPPONENT
+# =========================
+
+
+def defeat_opponent(
+
+    user_id
 
 ):
 
@@ -335,23 +237,106 @@ def defeat_boss(
 
 
 
-    if "bosses" not in player:
+    current_level = player.get(
+
+        "boss_progress",
+
+        0
+
+    ) + 1
 
 
-        player["bosses"] = []
+
+
+
+    if current_level not in BLACKLIST_REWARDS:
+
+
+        return {
+
+
+            "success":False,
+
+            "text":
+
+            "🏆 Все соперники побеждены"
+
+        }
 
 
 
 
 
-    if boss_id not in player["bosses"]:
 
 
-        player["bosses"].append(
+    reward = BLACKLIST_REWARDS[current_level]
 
-            boss_id
+
+
+
+
+    add_coins(
+
+        user_id,
+
+        reward["coins"]
+
+    )
+
+
+    add_xp(
+
+        user_id,
+
+        reward["xp"]
+
+    )
+
+
+
+
+
+
+    player = get_player(
+
+        user_id
+
+    )
+
+
+
+    player["boss_progress"] = current_level
+
+
+
+
+
+    if "defeated_bosses" not in player:
+
+
+        player["defeated_bosses"] = []
+
+
+
+
+
+    opponent = BOSSES[current_level]
+
+
+
+
+
+    if opponent["name"] not in player["defeated_bosses"]:
+
+
+        player["defeated_bosses"].append(
+
+            opponent["name"]
 
         )
+
+
+
 
 
 
@@ -365,17 +350,25 @@ def defeat_boss(
 
 
 
-    for boss in BLACKLIST:
 
 
-        if boss["id"] == boss_id:
+    return {
 
 
-            return boss
+        "success":True,
 
 
+        "level":
 
-    return None
+        current_level,
+
+
+        "reward":
+
+        reward
+
+    }
+
 
 
 
@@ -384,15 +377,15 @@ def defeat_boss(
 
 
 # =========================
-# CHECK DEFEATED
+# CHECK UNLOCKED LEVEL
 # =========================
 
 
-def is_boss_defeated(
+def is_level_unlocked(
 
     user_id,
 
-    boss_id
+    level
 
 ):
 
@@ -404,10 +397,160 @@ def is_boss_defeated(
     )
 
 
-    return boss_id in player.get(
+    progress = player.get(
 
-        "bosses",
+        "boss_progress",
 
-        []
+        0
 
     )
+
+
+
+    return level <= progress + 1
+
+
+
+
+
+
+
+# =========================
+# GET PLAYER BLACKLIST DATA
+# =========================
+
+
+def get_blacklist_progress(
+
+    user_id
+
+):
+
+
+    player = get_player(
+
+        user_id
+
+    )
+
+
+    progress = player.get(
+
+        "boss_progress",
+
+        0
+
+    )
+
+
+
+    return {
+
+
+        "current":
+
+        progress,
+
+
+        "total":
+
+        len(
+
+            BLACKLIST_REWARDS
+
+        ),
+
+
+        "defeated":
+
+        player.get(
+
+            "defeated_bosses",
+
+            []
+
+        )
+
+    }
+
+
+
+
+
+
+
+
+# =========================
+# MINI APP DATA
+# =========================
+
+
+def get_blacklist_cards(
+
+    user_id
+
+):
+
+
+    progress = get_blacklist_progress(
+
+        user_id
+
+    )
+
+
+
+    result = []
+
+
+
+    for level, boss in BOSSES.items():
+
+
+        result.append(
+
+            {
+
+
+                "level":
+
+                level,
+
+
+                "name":
+
+                boss["name"],
+
+
+                "car":
+
+                boss["car"],
+
+
+                "power":
+
+                boss["power"],
+
+
+                "unlocked":
+
+                is_level_unlocked(
+
+                    user_id,
+
+                    level
+
+                ),
+
+
+                "defeated":
+
+                level <= progress["current"]
+
+            }
+
+        )
+
+
+
+    return result
