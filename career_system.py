@@ -1,69 +1,110 @@
-import json
-import os
+# =========================
+# CAREER SYSTEM FINAL
+# =========================
 
 
 from database import (
     get_player,
-    update_player
+    update_player,
+    add_coins,
+    add_xp
 )
 
 
 
 
-CAREER_FILE = "career.json"
 
 
 
 
 # =========================
-# НАГРАДЫ УРОВНЕЙ
+# CAREER LEVELS
 # =========================
 
 
-LEVEL_REWARDS = {
+CAREER_LEVELS = {
+
+
+    1: {
+
+        "name":
+        "Rookie",
+
+        "need_xp":
+        0,
+
+        "reward":
+        500
+
+    },
 
 
     2: {
 
-        "coins": 1000,
+        "name":
+        "Street Driver",
 
-        "title": "🚗 Новичок"
+        "need_xp":
+        1000,
+
+        "reward":
+        1000
+
+    },
+
+
+    3: {
+
+        "name":
+        "Racer",
+
+        "need_xp":
+        3000,
+
+        "reward":
+        2000
+
+    },
+
+
+    4: {
+
+        "name":
+        "Pro Racer",
+
+        "need_xp":
+        6000,
+
+        "reward":
+        5000
 
     },
 
 
     5: {
 
-        "coins": 5000,
+        "name":
+        "Elite Driver",
 
-        "title": "🏁 Street Racer"
+        "need_xp":
+        10000,
+
+        "reward":
+        10000
 
     },
 
 
     10: {
 
-        "coins": 15000,
+        "name":
+        "Car Legend",
 
-        "title": "🔥 Speed Master"
+        "need_xp":
+        50000,
 
-    },
-
-
-    25: {
-
-        "coins": 50000,
-
-        "title": "💎 Elite Driver"
-
-    },
-
-
-    50: {
-
-        "coins": 200000,
-
-        "title": "👑 Car Legend"
+        "reward":
+        50000
 
     }
 
@@ -72,505 +113,34 @@ LEVEL_REWARDS = {
 
 
 
-# =========================
-# ЗАГРУЗКА
-# =========================
-
-
-def load_career():
-
-
-    if not os.path.exists(CAREER_FILE):
-
-        return {}
-
-
-
-    try:
-
-
-        with open(
-
-            CAREER_FILE,
-
-            "r",
-
-            encoding="utf-8"
-
-        ) as file:
-
-
-            return json.load(file)
-
-
-
-    except:
-
-
-        return {}
 
 
 
 
 # =========================
-# СОХРАНЕНИЕ
+# GET CAREER RANK
 # =========================
 
 
-def save_career(data):
+def get_career_rank(level):
 
 
-    with open(
+    rank = "Rookie"
 
-        CAREER_FILE,
 
-        "w",
 
-        encoding="utf-8"
+    for lvl, data in CAREER_LEVELS.items():
 
-    ) as file:
 
+        if level >= lvl:
 
-        json.dump(
 
-            data,
+            rank = data["name"]
 
-            file,
 
-            ensure_ascii=False,
 
-            indent=4
+    return rank
 
-        )
-
-
-
-
-# =========================
-# ПРОФИЛЬ КАРЬЕРЫ
-# =========================
-
-
-def get_career(user_id):
-
-
-    data = load_career()
-
-
-    uid = str(user_id)
-
-
-
-    if uid not in data:
-
-
-        data[uid] = {
-
-
-            "level": 1,
-
-
-            "xp": 0,
-
-
-            "titles": [],
-
-
-            "claimed": []
-
-        }
-
-
-        save_career(data)
-
-
-
-    return data[uid]
-    
-    # =========================
-# ДОБАВИТЬ XP
-# =========================
-
-
-def add_career_xp(
-
-    user_id,
-
-    amount
-
-):
-
-
-    data = load_career()
-
-
-    career = get_career(
-
-        user_id
-
-    )
-
-
-    career["xp"] += amount
-
-
-
-    leveled = False
-
-
-
-    while career["xp"] >= need_xp(
-
-        career["level"]
-
-    ):
-
-
-        career["xp"] -= need_xp(
-
-            career["level"]
-
-        )
-
-
-        career["level"] += 1
-
-
-        leveled = True
-
-
-
-    data[str(user_id)] = career
-
-
-    save_career(
-
-        data
-
-    )
-
-
-
-    rewards = check_rewards(
-
-        user_id
-
-    )
-
-
-
-    return {
-
-
-        "level":
-
-        career["level"],
-
-
-        "leveled":
-
-        leveled,
-
-
-        "rewards":
-
-        rewards
-
-    }
-
-
-
-
-# =========================
-# XP ДЛЯ УРОВНЯ
-# =========================
-
-
-def need_xp(level):
-
-
-    return level * 1000
-
-
-
-
-# =========================
-# ПРОВЕРКА НАГРАД
-# =========================
-
-
-def check_rewards(
-
-    user_id
-
-):
-
-
-    data = load_career()
-
-
-    career = get_career(
-
-        user_id
-
-    )
-
-
-    rewards = []
-
-
-
-    for level, reward in LEVEL_REWARDS.items():
-
-
-        if level <= career["level"] and level not in career["claimed"]:
-
-
-
-            career["claimed"].append(
-
-                level
-
-            )
-
-
-
-            if reward.get("title"):
-
-
-                career["titles"].append(
-
-                    reward["title"]
-
-                )
-
-
-
-            rewards.append(
-
-                reward
-
-            )
-
-
-
-    data[str(user_id)] = career
-
-
-    save_career(
-
-        data
-
-    )
-
-
-
-    return rewards
-
-
-
-
-# =========================
-# ДОБАВИТЬ ТИТУЛ
-# =========================
-
-
-def get_titles(user_id):
-
-
-    career = get_career(
-
-        user_id
-
-    )
-
-
-    return career.get(
-
-        "titles",
-
-        []
-
-    )
-    # =========================
-# ТЕКСТ КАРЬЕРЫ
-# =========================
-
-
-def career_text(user_id):
-
-
-    career = get_career(
-
-        user_id
-
-    )
-
-
-
-    level = career["level"]
-
-    xp = career["xp"]
-
-
-
-    need = need_xp(
-
-        level
-
-    )
-
-
-
-    text = (
-
-        "🏆 <b>КАРЬЕРА</b>\n\n"
-
-        f"⭐ Уровень: {level}\n"
-
-        f"📈 XP: {xp}/{need}\n\n"
-
-    )
-
-
-
-    titles = career.get(
-
-        "titles",
-
-        []
-
-    )
-
-
-
-    if titles:
-
-
-        text += (
-
-            "🎖 Титулы:\n"
-
-        )
-
-
-        for title in titles:
-
-
-            text += (
-
-                f"{title}\n"
-
-            )
-
-
-    else:
-
-
-        text += (
-
-            "🎖 Титулы:\n"
-
-            "Нет\n"
-
-        )
-
-
-
-    text += (
-
-        "\n🎁 Следующие награды:\n"
-
-    )
-
-
-
-    found = False
-
-
-
-    for lvl, reward in LEVEL_REWARDS.items():
-
-
-        if lvl > level:
-
-
-            text += (
-
-                f"⭐ {lvl} уровень\n"
-
-                f"🎁 {reward.get('coins',0)} 🪙\n"
-
-            )
-
-
-            found = True
-
-
-            break
-
-
-
-    if not found:
-
-
-        text += (
-
-            "👑 Ты достиг вершины!"
-
-        )
-
-
-
-    return text
-
-
-
-
-# =========================
-# СТАТИСТИКА КАРЬЕРЫ
-# =========================
-
-
-def career_stats(user_id):
-
-
-    career = get_career(
-
-        user_id
-
-    )
-
-
-    return {
-
-
-        "level":
-
-        career["level"],
-
-
-        "xp":
-
-        career["xp"],
-
-
-        "titles":
-
-        len(
-
-            career["titles"]
-
-        )
-
-    }
-    
-    # =========================
-# CAREER SYSTEM FIX
-# =========================
-
-
-from database import get_player
 
 
 
@@ -592,6 +162,7 @@ def career_text(user_id):
     )
 
 
+
     level = player.get(
 
         "level",
@@ -610,68 +181,232 @@ def career_text(user_id):
     )
 
 
-    wins = player.get(
 
-        "wins",
+    rank = get_career_rank(
 
-        0
-
-    )
-
-
-    text = (
-
-        "🏆 <b>КАРЬЕРА</b>\n\n"
-
-        f"⭐ Уровень: {level}\n"
-
-        f"🔥 Опыт: {xp}\n\n"
-
-        f"🏁 Победы: {wins}\n\n"
+        level
 
     )
 
 
 
-    if level >= 50:
+    next_level = level + 1
 
 
-        text += (
 
-            "👑 Ранг: CAR LEGEND"
-
-        )
+    need = next_level * 1000
 
 
-    elif level >= 20:
+
+    text = f"""
+
+🏆 <b>КАРЬЕРА</b>
 
 
-        text += (
+🎖 Ранг:
 
-            "🔥 Ранг: PRO RACER"
-
-        )
+{rank}
 
 
-    elif level >= 5:
+⭐ Уровень:
+
+{level}
 
 
-        text += (
+🔥 XP:
 
-            "⚡ Ранг: STREET RACER"
-
-        )
+{xp}/{need}
 
 
-    else:
+🎁 Следующая награда:
+
+{need-xp} XP
 
 
-        text += (
-
-            "🚗 Ранг: NOVICE"
-
-        )
+"""
 
 
 
     return text
+
+
+
+
+
+
+
+# =========================
+# CHECK LEVEL UP
+# =========================
+
+
+def check_level(user_id):
+
+
+    player = get_player(
+
+        user_id
+
+    )
+
+
+
+    level_up = False
+
+
+
+
+    while player["xp"] >= player["level"] * 1000:
+
+
+        player["xp"] -= (
+
+            player["level"]
+
+            *
+
+            1000
+
+        )
+
+
+        player["level"] += 1
+
+
+        level_up = True
+
+
+
+
+
+
+    if level_up:
+
+
+        update_player(
+
+            user_id,
+
+            player
+
+        )
+
+
+
+    return level_up
+
+
+
+
+
+
+
+# =========================
+# CLAIM LEVEL REWARD
+# =========================
+
+
+def claim_level_reward(user_id):
+
+
+    player = get_player(
+
+        user_id
+
+    )
+
+
+
+    level = player.get(
+
+        "level",
+
+        1
+
+    )
+
+
+
+    if "career_rewards" not in player:
+
+
+        player["career_rewards"] = []
+
+
+
+
+
+    if level in player["career_rewards"]:
+
+
+        return {
+
+
+            "success":False,
+
+            "message":
+
+            "Награда уже получена"
+
+        }
+
+
+
+
+
+
+    reward = 0
+
+
+
+    if level in CAREER_LEVELS:
+
+
+        reward = CAREER_LEVELS[level]["reward"]
+
+
+
+
+
+    player["career_rewards"].append(
+
+        level
+
+    )
+
+
+
+    update_player(
+
+        user_id,
+
+        player
+
+    )
+
+
+
+    add_coins(
+
+        user_id,
+
+        reward
+
+    )
+
+
+
+    return {
+
+
+        "success":True,
+
+
+        "reward":reward,
+
+
+        "message":
+
+        f"🎁 Получено {reward} монет"
+
+    }
