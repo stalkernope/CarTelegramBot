@@ -8,15 +8,38 @@ from flask import (
 import os
 
 
+
+# =========================
+# DATABASE
+# =========================
+
+
 from database import (
     get_player,
     update_player
 )
 
 
+
+
+
+# =========================
+# CARS
+# =========================
+
+
 from car_database import (
-    get_car
+    get_car,
+    get_all_cars
 )
+
+
+
+
+
+# =========================
+# SHOP
+# =========================
 
 
 from shop_cars import (
@@ -25,12 +48,21 @@ from shop_cars import (
 )
 
 
+
+
+
+# =========================
+# RACES
+# =========================
+
+
 from boss_race_system import (
     race_npc,
     fight_boss,
-    race_result_text,
-    get_boss
+    race_result_text
 )
+
+
 
 
 
@@ -54,6 +86,8 @@ app = Flask(
 
 
 
+
+
 # =========================
 # MINI APP
 # =========================
@@ -62,6 +96,7 @@ app = Flask(
 @app.route("/")
 
 def home():
+
 
     return send_from_directory(
 
@@ -79,6 +114,7 @@ def home():
 
 def static_files(path):
 
+
     return send_from_directory(
 
         "webapp",
@@ -86,6 +122,7 @@ def static_files(path):
         path
 
     )
+
 
 
 
@@ -114,117 +151,11 @@ def player_api(user_id):
     )
 
 
-    main_car = player.get(
-
-        "main_car"
-
-    )
-
-
-    car_data = None
-
-
-
-    if main_car:
-
-
-        car_data = get_car(
-
-            main_car
-
-        )
-
-
-
-    response = {
-
-
-        "id":
-
-            user_id,
-
-
-        "name":
-
-            player.get(
-
-                "username",
-
-                "PLAYER"
-
-            ),
-
-
-        "level":
-
-            player.get(
-
-                "level",
-
-                1
-
-            ),
-
-
-        "coins":
-
-            player.get(
-
-                "coins",
-
-                5000
-
-            ),
-
-
-        "gems":
-
-            player.get(
-
-                "gems",
-
-                0
-
-            ),
-
-
-        "rep":
-
-            player.get(
-
-                "rep",
-
-                0
-
-            ),
-
-
-        "garage":
-
-            player.get(
-
-                "garage",
-
-                []
-
-            ),
-
-
-        "main_car":
-
-            car_data
-
-
-    }
-
-
-
     return jsonify(
 
-        response
+        player
 
     )
-
 
 
 
@@ -233,7 +164,7 @@ def player_api(user_id):
 
 
 # =========================
-# CAR INFO
+# CAR
 # =========================
 
 
@@ -253,6 +184,7 @@ def car_api(name):
     )
 
 
+
     if not car:
 
 
@@ -261,12 +193,11 @@ def car_api(name):
             {
 
                 "error":
-
                 "Car not found"
 
             }
 
-        )
+        ),404
 
 
 
@@ -304,11 +235,11 @@ def garage_api(user_id):
     )
 
 
-    cars = []
+    result = []
 
 
 
-    for name in player.get(
+    for car_name in player.get(
 
         "garage",
 
@@ -319,14 +250,15 @@ def garage_api(user_id):
 
         car = get_car(
 
-            name
+            car_name
 
         )
 
 
         if car:
 
-            cars.append(
+
+            result.append(
 
                 car
 
@@ -336,7 +268,7 @@ def garage_api(user_id):
 
     return jsonify(
 
-        cars
+        result
 
     )
 
@@ -347,8 +279,9 @@ def garage_api(user_id):
 
 
 
+
 # =========================
-# SET MAIN CAR
+# MAIN CAR
 # =========================
 
 
@@ -364,6 +297,7 @@ def main_car_api():
 
 
     data = request.json
+
 
 
     user_id = int(
@@ -398,7 +332,10 @@ def main_car_api():
 
             {
 
-                "success": False
+                "success":False,
+
+                "error":
+                "Car not owned"
 
             }
 
@@ -424,11 +361,12 @@ def main_car_api():
 
         {
 
-            "success": True
+            "success":True
 
         }
 
     )
+
 
 
 
@@ -442,7 +380,11 @@ def main_car_api():
 # =========================
 
 
-@app.route("/api/shop")
+@app.route(
+
+    "/api/shop"
+
+)
 
 def shop_api():
 
@@ -458,6 +400,8 @@ def shop_api():
 
 
 
+
+
 @app.route(
 
     "/api/shop/buy",
@@ -466,7 +410,7 @@ def shop_api():
 
 )
 
-def buy_api():
+def shop_buy_api():
 
 
     data = request.json
@@ -485,13 +429,14 @@ def buy_api():
         )
 
 
+
         return jsonify(
 
             {
 
-                "success": True,
+                "success":True,
 
-                "car": car
+                "car":car
 
             }
 
@@ -506,9 +451,9 @@ def buy_api():
 
             {
 
-                "success": False,
+                "success":False,
 
-                "error": str(e)
+                "error":str(e)
 
             }
 
@@ -521,8 +466,9 @@ def buy_api():
 
 
 
+
 # =========================
-# RACES
+# NPC RACE
 # =========================
 
 
@@ -555,9 +501,15 @@ def npc_race_api():
 
         {
 
-            "result": result,
+            "result":result,
 
-            "text": race_result_text(result)
+            "text":
+
+            race_result_text(
+
+                result
+
+            )
 
         }
 
@@ -568,6 +520,12 @@ def npc_race_api():
 
 
 
+
+
+
+# =========================
+# BOSS RACE
+# =========================
 
 
 @app.route(
@@ -591,7 +549,13 @@ def boss_race_api():
 
         data["car"],
 
-        data["boss"]
+        data.get(
+
+            "boss",
+
+            1
+
+        )
 
     )
 
@@ -601,13 +565,20 @@ def boss_race_api():
 
         {
 
-            "result": result,
+            "result":result,
 
-            "text": race_result_text(result)
+            "text":
+
+            race_result_text(
+
+                result
+
+            )
 
         }
 
     )
+
 
 
 
@@ -650,38 +621,12 @@ def update_api():
 
         {
 
-            "success": True
+            "success":True
 
         }
 
     )
 
-
-
-
-
-
-
-
-# =========================
-# BOSS INFO
-# =========================
-
-
-@app.route(
-
-    "/api/boss"
-
-)
-
-def boss_api():
-
-
-    return jsonify(
-
-        get_boss()
-
-    )
 
 
 
@@ -697,11 +642,12 @@ def boss_api():
 
 @app.route(
 
-    "/api/status"
+    "/health"
 
 )
 
-def status():
+def health():
+
 
     return jsonify(
 
@@ -709,7 +655,7 @@ def status():
 
             "status":
 
-            "online"
+            "ok"
 
         }
 
