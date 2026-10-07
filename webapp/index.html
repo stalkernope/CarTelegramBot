@@ -1,358 +1,513 @@
 <!DOCTYPE html>
-
 <html lang="ru">
-
 
 <head>
 
+<meta charset="UTF-8">
 
-    <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-
-    <title>
-        CAR LEGENDS
-    </title>
+<title>CAR LEGENDS</title>
 
 
-    <!-- Telegram Mini App -->
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
-
-    <link rel="stylesheet" href="style.css">
-
+<link rel="stylesheet" href="style.css">
 
 </head>
-
 
 
 <body>
 
 
-
 <div class="game">
 
 
+<!-- =========================
+HEADER
+========================= -->
 
-    <header class="top">
 
+<header class="top">
 
-        <div class="logo">
 
-            🏎 CAR LEGENDS
+<div class="logo">
 
-        </div>
+🏎 CAR LEGENDS
 
+</div>
 
 
-        <div class="player">
+<div class="player">
 
 
-            <span id="username">
+<div id="username">
+PLAYER
+</div>
 
-                PLAYER
 
-            </span>
+<div>
 
+⭐ LVL
 
-            <br>
+<span id="level">
+1
+</span>
 
+</div>
 
-            ⭐ Level
 
-            <span id="level">
+</div>
 
-                1
 
-            </span>
+</header>
 
 
-        </div>
 
 
-    </header>
 
+<!-- =========================
+WALLET
+========================= -->
 
 
+<section class="wallet">
 
 
-    <section class="wallet">
+<div>
 
+💰
 
-        <div>
+<span id="coins">
+0
+</span>
 
-            💰
+</div>
 
-            <span id="coins">
 
-                0
 
-            </span>
+<div>
 
+💎
 
-        </div>
+<span id="gems">
+0
+</span>
 
+</div>
 
 
-        <div>
 
-            💎
+<div>
 
-            <span id="gems">
+🔥 REP
 
-                0
+<span id="rep">
+0
+</span>
 
-            </span>
+</div>
 
 
-        </div>
+</section>
 
 
 
-        <div>
 
-            🔥 REP
 
-            <span id="xp">
 
-                0
+<!-- =========================
+PAGE CONTAINER
+========================= -->
 
-            </span>
 
+<main id="app">
 
-        </div>
 
+<!-- HOME -->
 
 
-    </section>
+<section id="home-page" class="page active">
 
 
+<div class="main-car">
 
 
+<div class="car-image">
 
 
+<img id="car-image"
+src="assets/cars/default.png">
 
-    <section class="main-car">
 
+</div>
 
 
-        <div class="car-glow">
 
+<h1 id="main-car">
 
-            🏎
+Нет машины
 
+</h1>
 
-        </div>
 
 
+<div class="rarity" id="rarity">
 
-        <h1 id="main-car">
+COMMON
 
+</div>
 
-            Нет машины
 
 
-        </h1>
 
 
+<div class="stats">
 
 
-        <div class="rarity">
+<div>
 
+⚡ POWER
 
-            LEGENDARY
+<b id="power">
+0
+</b>
 
+</div>
 
-        </div>
 
 
+<div>
 
+🚀 SPEED
 
+<b id="speed">
+0
+</b>
 
-        <div class="stats">
+</div>
 
 
 
-            <div>
+<div>
 
-                ⚡ POWER
+🎯 CONTROL
 
-                <b id="power">
+<b id="control">
+0
+</b>
 
-                    0
+</div>
 
-                </b>
 
+</div>
 
-            </div>
 
+</div>
 
 
-            <div>
 
-                🚀 SPEED
 
-                <b id="speed">
 
-                    0
+<div class="quick-buttons">
 
-                </b>
 
+<button data-page="garage">
 
-            </div>
+🚗 GARAGE
 
+</button>
 
 
-            <div>
+<button data-page="race">
 
-                🎯 CONTROL
+🏁 RACE
 
-                <b id="control">
+</button>
 
-                    0
 
-                </b>
+<button data-page="shop">
 
+🛒 SHOP
 
-            </div>
+</button>
 
 
+<button data-page="tuning">
 
-        </div>
+🔧 TUNING
 
+</button>
 
-    </section>
 
+</div>
 
 
+</section>
 
 
 
 
-    <section class="menu">
 
 
-        <button data-page="race">
+<!-- GARAGE -->
 
-            🏁 RACE
 
-        </button>
+<section id="garage-page" class="page">
 
 
+<h2>
+🚗 GARAGE
+</h2>
 
-        <button data-page="garage">
 
-            🚗 GARAGE
+<div id="garage-list">
 
-        </button>
+</div>
 
 
+</section>
 
-        <button data-page="tuning">
 
-            🔧 TUNING
 
-        </button>
 
 
 
-        <button data-page="blacklist">
 
-            🏆 BLACKLIST
+<!-- SHOP -->
 
-        </button>
 
+<section id="shop-page" class="page">
 
 
-        <button data-page="shop">
+<h2>
+🛒 SHOP
+</h2>
 
-            🛒 SHOP
 
-        </button>
+<div id="shop-list">
 
+</div>
 
 
-        <button data-page="profile">
+</section>
 
-            👤 PROFILE
 
-        </button>
 
 
 
-    </section>
 
 
+<!-- TUNING -->
 
 
+<section id="tuning-page" class="page">
 
 
-    <footer>
+<h2>
+🔧 TUNING
+</h2>
 
 
-        <div>
+<div id="tuning-list">
 
-            🏠
+</div>
 
-            <br>
 
-            HOME
+</section>
 
-        </div>
 
 
 
-        <div>
 
-            🏁
 
-            <br>
 
-            RACE
+<!-- RACE -->
 
-        </div>
 
+<section id="race-page" class="page">
 
 
-        <div>
+<h2>
+🏁 RACE
+</h2>
 
-            🚗
 
-            <br>
+<button id="npc-race">
 
-            GARAGE
+START RACE
 
-        </div>
+</button>
 
 
 
-        <div>
+<button id="boss-race">
 
-            🛒
+BOSS RACE
 
-            <br>
+</button>
 
-            SHOP
 
-        </div>
 
+<div id="race-result">
 
+</div>
 
-        <div>
 
-            👤
+</section>
 
-            <br>
 
-            PROFILE
 
-        </div>
 
 
-    </footer>
+
+
+<!-- PROFILE -->
+
+
+<section id="profile-page" class="page">
+
+
+<h2>
+
+👤 PROFILE
+
+</h2>
+
+
+<div class="profile-card">
+
+
+<p>
+🏆 Wins:
+<span id="wins">
+0
+</span>
+</p>
+
+
+<p>
+❌ Losses:
+<span id="losses">
+0
+</span>
+</p>
+
+
+<p>
+🚗 Cars:
+<span id="cars-count">
+0
+</span>
+</p>
+
+
+<p>
+🐾 Pets:
+<span id="pets-count">
+0
+</span>
+</p>
+
+
+</div>
+
+
+</section>
+
+
+
+
+
+
+
+<!-- BLACKLIST -->
+
+
+<section id="blacklist-page" class="page">
+
+
+<h2>
+
+🏆 BLACKLIST
+
+</h2>
+
+
+<div id="blacklist-list">
+
+</div>
+
+
+</section>
+
+
+
+</main>
+
+
+
+
+
+
+<!-- =========================
+BOTTOM MENU
+========================= -->
+
+
+<footer>
+
+
+<div data-page="home">
+
+🏠
+<br>
+HOME
+
+</div>
+
+
+
+<div data-page="race">
+
+🏁
+<br>
+RACE
+
+</div>
+
+
+
+<div data-page="garage">
+
+🚗
+<br>
+GARAGE
+
+</div>
+
+
+
+<div data-page="shop">
+
+🛒
+<br>
+SHOP
+
+</div>
+
+
+
+<div data-page="profile">
+
+👤
+<br>
+PROFILE
+
+</div>
+
+
+</footer>
 
 
 
@@ -365,8 +520,6 @@
 <script src="app.js"></script>
 
 
-
 </body>
-
 
 </html>
