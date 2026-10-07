@@ -1,3 +1,8 @@
+# =========================
+# BLACKLIST SYSTEM FINAL
+# =========================
+
+
 from database import (
     get_player,
     update_player
@@ -7,8 +12,10 @@ from database import (
 
 
 
+
+
 # =========================
-# BLACKLIST
+# BLACKLIST BOSSES
 # =========================
 
 
@@ -17,89 +24,139 @@ BLACKLIST = [
 
     {
 
-        "rank":15,
 
-        "name":"🌑 Razor",
+        "id":1,
 
-        "car":"Shadow GT",
 
-        "power":2500,
+        "name":
 
-        "reward_coins":5000,
+        "Shadow",
 
-        "reward_car":"Shadow GT"
+
+        "car":
+
+        "Nissan GTR",
+
+
+        "need_wins":
+
+        0,
+
+
+        "reward":
+
+        5000,
+
+
+        "power":
+
+        600
+
+    },
+
+
+
+    {
+
+
+        "id":2,
+
+
+        "name":
+
+        "Night Wolf",
+
+
+        "car":
+
+        "BMW M4",
+
+
+        "need_wins":
+
+        5,
+
+
+        "reward":
+
+        10000,
+
+
+        "power":
+
+        850
+
+    },
+
+
+
+    {
+
+
+        "id":3,
+
+
+        "name":
+
+        "Dark Legend",
+
+
+        "car":
+
+        "Bugatti Chiron",
+
+
+        "need_wins":
+
+        15,
+
+
+        "reward":
+
+        25000,
+
+
+        "power":
+
+        1300
 
     },
 
 
     {
 
-        "rank":14,
 
-        "name":"⚡ Bull",
-
-        "car":"Lightning X",
-
-        "power":3500,
-
-        "reward_coins":7000,
-
-        "reward_car":"Lightning X"
-
-    },
+        "id":4,
 
 
-    {
+        "name":
 
-        "rank":10,
-
-        "name":"🔥 Ronnie",
-
-        "car":"Supra MK5",
-
-        "power":6000,
-
-        "reward_coins":15000,
-
-        "reward_car":"Supra MK5"
-
-    },
+        "Final Boss",
 
 
-    {
+        "car":
 
-        "rank":5,
-
-        "name":"👑 Baron",
-
-        "car":"Black Phantom",
-
-        "power":9000,
-
-        "reward_coins":30000,
-
-        "reward_car":"Black Phantom"
-
-    },
+        "Koenigsegg Jesko",
 
 
-    {
+        "need_wins":
 
-        "rank":1,
+        30,
 
-        "name":"🏆 Black King",
 
-        "car":"Legend X1",
+        "reward":
 
-        "power":15000,
+        100000,
 
-        "reward_coins":100000,
 
-        "reward_car":"Legend X1"
+        "power":
+
+        1800
 
     }
 
 ]
+
 
 
 
@@ -123,7 +180,6 @@ def get_blacklist():
 
 
 
-
 # =========================
 # CURRENT BOSS
 # =========================
@@ -140,83 +196,40 @@ def get_current_boss(user_id):
 
 
 
-    defeated = player.get(
+    wins = player.get(
 
-        "blacklist_defeated",
+        "wins",
 
-        []
+        0
 
     )
+
+
+
+    available = None
+
+
 
 
 
     for boss in BLACKLIST:
 
 
-        if boss["rank"] not in defeated:
+        if wins >= boss["need_wins"]:
 
 
-            return boss
-
-
-
-    return None
+            available = boss
 
 
 
+    if not available:
+
+
+        available = BLACKLIST[0]
 
 
 
-
-# =========================
-# BOSS DEFEATED
-# =========================
-
-
-def defeat_boss(
-
-    user_id,
-
-    rank
-
-):
-
-
-    player = get_player(
-
-        user_id
-
-    )
-
-
-
-    if "blacklist_defeated" not in player:
-
-
-        player["blacklist_defeated"] = []
-
-
-
-
-
-    if rank not in player["blacklist_defeated"]:
-
-
-        player["blacklist_defeated"].append(
-
-            rank
-
-        )
-
-
-
-    update_player(
-
-        user_id,
-
-        player
-
-    )
+    return available
 
 
 
@@ -226,58 +239,7 @@ def defeat_boss(
 
 
 # =========================
-# CHECK UNLOCK
-# =========================
-
-
-def is_unlocked(
-
-    user_id,
-
-    rank
-
-):
-
-
-    player = get_player(
-
-        user_id
-
-    )
-
-
-
-    defeated = player.get(
-
-        "blacklist_defeated",
-
-        []
-
-    )
-
-
-
-    if rank == 15:
-
-
-        return True
-
-
-
-    previous = rank + 1
-
-
-
-    return previous in defeated
-
-
-
-
-
-
-
-# =========================
-# TEXT
+# BLACKLIST TEXT
 # =========================
 
 
@@ -291,12 +253,11 @@ def blacklist_text(user_id):
     )
 
 
+    wins = player.get(
 
-    defeated = player.get(
+        "wins",
 
-        "blacklist_defeated",
-
-        []
+        0
 
     )
 
@@ -313,22 +274,140 @@ def blacklist_text(user_id):
     for boss in BLACKLIST:
 
 
-        status = "✅" if boss["rank"] in defeated else "🔒"
+
+        if wins >= boss["need_wins"]:
+
+
+            status = "🔓"
+
+
+
+        else:
+
+
+            status = "🔒"
+
+
 
 
 
         text += (
 
-            f"{status} #{boss['rank']} "
-
-            f"{boss['name']}\n"
+            f"{status} {boss['name']}\n"
 
             f"🚗 {boss['car']}\n"
 
-            f"⚡ {boss['power']}\n\n"
+            f"⚡ Power: {boss['power']}\n"
+
+            f"🏁 Нужно побед: {boss['need_wins']}\n\n"
 
         )
 
 
 
     return text
+
+
+
+
+
+
+
+# =========================
+# DEFEAT BOSS
+# =========================
+
+
+def defeat_boss(
+
+    user_id,
+
+    boss_id
+
+):
+
+
+    player = get_player(
+
+        user_id
+
+    )
+
+
+
+    if "bosses" not in player:
+
+
+        player["bosses"] = []
+
+
+
+
+
+    if boss_id not in player["bosses"]:
+
+
+        player["bosses"].append(
+
+            boss_id
+
+        )
+
+
+
+    update_player(
+
+        user_id,
+
+        player
+
+    )
+
+
+
+    for boss in BLACKLIST:
+
+
+        if boss["id"] == boss_id:
+
+
+            return boss
+
+
+
+    return None
+
+
+
+
+
+
+
+# =========================
+# CHECK DEFEATED
+# =========================
+
+
+def is_boss_defeated(
+
+    user_id,
+
+    boss_id
+
+):
+
+
+    player = get_player(
+
+        user_id
+
+    )
+
+
+    return boss_id in player.get(
+
+        "bosses",
+
+        []
+
+    )
