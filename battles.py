@@ -1,6 +1,12 @@
 # =========================
-# BATTLES SYSTEM FINAL
+# BATTLES COMPLETE
+# CAR LEGENDS
 # =========================
+
+
+import random
+import time
+
 
 
 from database import (
@@ -9,9 +15,10 @@ from database import (
 )
 
 
-from battle_system import (
+
+from Battle_system import (
     start_battle,
-    battle_text
+    find_opponent
 )
 
 
@@ -21,58 +28,17 @@ from battle_system import (
 
 
 # =========================
-# BATTLE MODES
+# CONFIG
 # =========================
 
 
-BATTLE_MODES = {
+ARENA_REWARD = 1000
 
 
-    "quick":
-
-    {
-
-        "name":
-
-        "⚔️ Быстрый бой",
-
-        "reward":
-
-        2000
-
-    },
+WIN_STREAK_REWARD = 5000
 
 
-    "ranked":
-
-    {
-
-        "name":
-
-        "🏆 Рейтинговый бой",
-
-        "reward":
-
-        5000
-
-    },
-
-
-    "clan":
-
-    {
-
-        "name":
-
-        "⚔️ Клановая битва",
-
-        "reward":
-
-        10000
-
-    }
-
-}
+TOURNAMENT_PLAYERS = 8
 
 
 
@@ -81,14 +47,11 @@ BATTLE_MODES = {
 
 
 # =========================
-# GET MODES
+# ARENA QUEUE
 # =========================
 
 
-def get_battle_modes():
-
-
-    return BATTLE_MODES
+ARENA_QUEUE = []
 
 
 
@@ -97,115 +60,169 @@ def get_battle_modes():
 
 
 # =========================
-# BATTLE TEXT MENU
+# JOIN ARENA
 # =========================
 
 
-def battles_text():
-
-
-    text = (
-
-        "⚔️ <b>БИТВЫ</b>\n\n"
-
-    )
-
-
-
-    for key, mode in BATTLE_MODES.items():
-
-
-        text += (
-
-            f"{mode['name']}\n"
-
-            f"🎁 Награда: "
-
-            f"{mode['reward']}\n\n"
-
-        )
-
-
-
-    return text
-
-
-
-
-
-
-
-# =========================
-# START PVP
-# =========================
-
-
-def create_battle(
-
-    player_id,
-
-    enemy_id
-
-):
-
-
-    result = start_battle(
-
-        player_id,
-
-        enemy_id
-
-    )
-
-
-
-    return result
-
-
-
-
-
-
-
-# =========================
-# RESULT TEXT
-# =========================
-
-
-def get_battle_result_text(
-
-    result,
+def join_arena(
 
     user_id
 
 ):
 
 
-    return battle_text(
+    if user_id not in ARENA_QUEUE:
 
-        result,
 
-        user_id
+        ARENA_QUEUE.append(
+
+            user_id
+
+        )
+
+
+
+    return {
+
+
+        "success":
+
+        True,
+
+
+        "players":
+
+        len(
+
+            ARENA_QUEUE
+
+        )
+
+    }
+
+
+
+
+
+
+
+
+
+# =========================
+# LEAVE ARENA
+# =========================
+
+
+def leave_arena(
+
+    user_id
+
+):
+
+
+    if user_id in ARENA_QUEUE:
+
+
+        ARENA_QUEUE.remove(
+
+            user_id
+
+        )
+
+
+
+    return True
+
+
+
+
+
+
+
+# =========================
+# FIND ARENA MATCH
+# =========================
+
+
+def find_match(
+
+):
+
+
+    if len(ARENA_QUEUE) < 2:
+
+
+        return None
+
+
+
+
+
+    player_one = ARENA_QUEUE.pop(0)
+
+
+    player_two = ARENA_QUEUE.pop(0)
+
+
+
+
+
+    return {
+
+
+        "player_one":
+
+        player_one,
+
+
+        "player_two":
+
+        player_two
+
+    }
+
+
+
+
+
+
+
+# =========================
+# START ARENA BATTLE
+# =========================
+
+
+def start_arena_battle(
+
+    player_one,
+
+    player_two
+
+):
+
+
+    result = start_battle(
+
+        player_one,
+
+        player_two
 
     )
 
 
 
-
-
-
-
-
-# =========================
-# SAVE HISTORY
+    return result
+    
+    # =========================
+# WIN STREAK
 # =========================
 
 
-def save_battle_history(
+def update_win_streak(
 
     user_id,
 
-    result
+    win
 
 ):
 
@@ -218,50 +235,29 @@ def save_battle_history(
 
 
 
-    if "battle_history" not in player:
+    if "win_streak" not in player:
 
 
-        player["battle_history"] = []
-
-
-
-
-
-    player["battle_history"].append(
-
-        {
-
-
-            "winner":
-
-            result.get(
-
-                "winner"
-
-            ),
-
-
-            "loser":
-
-            result.get(
-
-                "loser"
-
-            )
-
-        }
-
-    )
+        player["win_streak"] = 0
 
 
 
-    # ограничиваем историю
 
-    player["battle_history"] = (
 
-        player["battle_history"][-20:]
+    if win:
 
-    )
+
+        player["win_streak"] += 1
+
+
+
+    else:
+
+
+        player["win_streak"] = 0
+
+
+
 
 
 
@@ -275,7 +271,8 @@ def save_battle_history(
 
 
 
-    return True
+    return player["win_streak"]
+
 
 
 
@@ -284,11 +281,180 @@ def save_battle_history(
 
 
 # =========================
-# GET HISTORY
+# ARENA REWARD
 # =========================
 
 
-def get_history(user_id):
+def get_arena_reward(
+
+    streak
+
+):
+
+
+    reward = ARENA_REWARD
+
+
+
+    if streak >= 5:
+
+
+        reward += WIN_STREAK_REWARD
+
+
+
+
+
+    return reward
+
+
+
+
+
+
+
+# =========================
+# TOURNAMENT CREATE
+# =========================
+
+
+def create_tournament(
+
+    players
+
+):
+
+
+    if len(players) < TOURNAMENT_PLAYERS:
+
+
+        return {
+
+
+            "success":False,
+
+            "text":
+
+            "❌ Недостаточно игроков"
+
+        }
+
+
+
+
+
+
+
+    return {
+
+
+        "success":
+
+        True,
+
+
+        "players":
+
+        players[:TOURNAMENT_PLAYERS],
+
+
+        "round":
+
+        1
+
+    }
+
+
+
+
+
+
+
+
+# =========================
+# TOURNAMENT ROUND
+# =========================
+
+
+def tournament_round(
+
+    tournament
+
+):
+
+
+    players = tournament.get(
+
+        "players",
+
+        []
+
+    )
+
+
+
+    random.shuffle(
+
+        players
+
+    )
+
+
+
+    pairs = []
+
+
+
+    for i in range(
+
+        0,
+
+        len(players),
+
+        2
+
+    ):
+
+
+        pairs.append(
+
+            {
+
+
+                "player_one":
+
+                players[i],
+
+
+                "player_two":
+
+                players[i+1]
+
+            }
+
+        )
+
+
+
+    return pairs
+
+
+
+
+
+
+
+
+# =========================
+# ARENA PROFILE
+# =========================
+
+
+def get_arena_profile(
+
+    user_id
+
+):
 
 
     player = get_player(
@@ -298,10 +464,92 @@ def get_history(user_id):
     )
 
 
-    return player.get(
 
-        "battle_history",
+    return {
 
-        []
 
-    )
+        "rating":
+
+        player.get(
+
+            "rating",
+
+            1000
+
+        ),
+
+
+        "wins":
+
+        player.get(
+
+            "wins",
+
+            0
+
+        ),
+
+
+        "losses":
+
+        player.get(
+
+            "losses",
+
+            0
+
+        ),
+
+
+        "streak":
+
+        player.get(
+
+            "win_streak",
+
+            0
+
+        )
+
+    }
+
+
+
+
+
+
+
+
+# =========================
+# MINI APP DATA
+# =========================
+
+
+def get_battles_data(
+
+    user_id
+
+):
+
+
+    return {
+
+
+        "arena":
+
+        get_arena_profile(
+
+            user_id
+
+        ),
+
+
+        "queue":
+
+        len(
+
+            ARENA_QUEUE
+
+        )
+
+    }
