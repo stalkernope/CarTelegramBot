@@ -1,430 +1,331 @@
-import json
-import os
+# =========================
+# ACHIEVEMENT SYSTEM FINAL
+# =========================
+
+
+from database import (
+    get_player,
+    update_player,
+    add_coins,
+    add_xp
+)
 
 
 
-ACH_FILE = "achievements.json"
+
 
 
 
 # =========================
-# ДОСТИЖЕНИЯ
+# ACHIEVEMENTS DATABASE
 # =========================
 
 
-ACHIEVEMENTS = [
+ACHIEVEMENTS = {
 
-    {
-        "id": "first_win",
 
-        "name": "🏁 Первая победа",
+    "first_win": {
+
+
+        "name":
+        "🏁 Первая победа",
+
 
         "description":
         "Выиграть первую гонку",
 
-        "type":
-        "wins",
 
-        "need":
-        1,
+        "reward_coins":
+        1000,
 
-        "reward":
-        100,
 
-        "rarity":
-        "Common"
+        "reward_xp":
+        200,
+
+
+        "title":
+        "Street Racer"
+
     },
 
 
-    {
-        "id": "racer_10",
 
-        "name": "🔥 Гонщик",
+    "collector": {
 
-        "description":
-        "Получить 10 побед",
-
-        "type":
-        "wins",
-
-        "need":
-        10,
-
-        "reward":
-        500,
-
-        "rarity":
-        "Rare"
-    },
-
-
-    {
-        "id": "collector",
 
         "name":
         "🚗 Коллекционер",
 
-        "description":
-        "Собрать 20 машин",
-
-        "type":
-        "cars",
-
-        "need":
-        20,
-
-        "reward":
-        1000,
-
-        "rarity":
-        "Epic"
-    },
-
-
-    {
-        "id": "legend",
-
-        "name":
-        "👑 Легенда трассы",
 
         "description":
-        "100 побед",
-
-        "type":
-        "wins",
-
-        "need":
-        100,
-
-        "reward":
-        10000,
-
-        "rarity":
-        "Legendary"
-    },
+        "Собрать 5 машин",
 
 
-    {
-        "id":
-        "garage_master",
-
-        "name":
-        "🏠 Король гаража",
-
-        "description":
-        "Максимальный гараж",
-
-        "type":
-        "garage",
-
-        "need":
-        5,
-
-        "reward":
+        "reward_coins":
         5000,
 
-        "rarity":
-        "Mythic"
+
+        "reward_xp":
+        500,
+
+
+        "title":
+        "Car Collector"
+
+    },
+
+
+
+    "legend": {
+
+
+        "name":
+        "👑 Легенда",
+
+
+        "description":
+        "Достичь 10 уровня",
+
+
+        "reward_coins":
+        25000,
+
+
+        "reward_xp":
+        3000,
+
+
+        "title":
+        "Car Legend"
+
     }
 
-]
+}
+
+
+
+
 
 
 
 
 # =========================
-# ЗАГРУЗКА
+# CHECK ACHIEVEMENTS
 # =========================
 
 
-def load_achievements():
+def check_achievements(user_id):
 
-    if not os.path.exists(ACH_FILE):
 
-        return {}
+    player = get_player(
 
-
-    try:
-
-        with open(
-            ACH_FILE,
-            "r",
-            encoding="utf-8"
-        ) as file:
-
-            return json.load(file)
-
-
-    except:
-
-        return {}
-
-
-
-
-# =========================
-# СОХРАНЕНИЕ
-# =========================
-
-
-def save_achievements(data):
-
-    with open(
-        ACH_FILE,
-        "w",
-        encoding="utf-8"
-    ) as file:
-
-        json.dump(
-
-            data,
-
-            file,
-
-            ensure_ascii=False,
-
-            indent=4
-
-        )
-
-
-
-
-# =========================
-# ПРОФИЛЬ
-# =========================
-
-
-def get_achievement_player(user_id):
-
-    data = load_achievements()
-
-
-    uid = str(user_id)
-
-
-
-    if uid not in data:
-
-
-        data[uid] = {
-
-            "completed": [],
-
-            "points": 0
-
-        }
-
-
-        save_achievements(data)
-
-
-
-    return data[uid]
-
-
-
-
-# =========================
-# ПРОВЕРКА
-# =========================
-
-
-def check_condition(
-    player,
-    achievement
-):
-
-
-    if achievement["type"] == "wins":
-
-        return (
-
-            player.get(
-                "wins",
-                0
-            )
-
-            >=
-
-            achievement["need"]
-
-        )
-
-
-
-    if achievement["type"] == "cars":
-
-        return (
-
-            len(
-                player.get(
-                    "garage",
-                    []
-                )
-            )
-
-            >=
-
-            achievement["need"]
-
-        )
-
-
-
-    if achievement["type"] == "garage":
-
-        return (
-
-            player.get(
-                "garage_level",
-                1
-            )
-
-            >=
-
-            achievement["need"]
-
-        )
-
-
-
-    return False
-
-
-
-
-# =========================
-# ПРОВЕРИТЬ ВСЕ
-# =========================
-
-
-def check_achievements(
-
-    user_id,
-
-    player
-
-):
-
-    data = load_achievements()
-
-
-    profile = get_achievement_player(
         user_id
+
     )
 
 
-    completed = []
+
+    unlocked = player.get(
+
+        "achievements",
+
+        []
+
+    )
 
 
 
-    for ach in ACHIEVEMENTS:
+    new = []
 
 
-        if ach["id"] in profile["completed"]:
+
+
+
+    for key, data in ACHIEVEMENTS.items():
+
+
+
+        if key in unlocked:
 
             continue
 
 
 
-        if check_condition(
-
-            player,
-
-            ach
-
-        ):
 
 
-            profile["completed"].append(
+        result = False
 
-                ach["id"]
+
+
+
+
+        if key == "first_win":
+
+
+            if player.get(
+
+                "wins",
+
+                0
+
+            ) >= 1:
+
+
+                result = True
+
+
+
+
+
+        elif key == "collector":
+
+
+            if len(
+
+                player.get(
+
+                    "garage",
+
+                    []
+
+                )
+
+            ) >= 5:
+
+
+                result = True
+
+
+
+
+
+        elif key == "legend":
+
+
+            if player.get(
+
+                "level",
+
+                1
+
+            ) >= 10:
+
+
+                result = True
+
+
+
+
+
+
+        if result:
+
+
+            unlocked.append(
+
+                key
 
             )
 
 
-            profile["points"] += ach["reward"]
+            new.append(
 
+                key
 
-
-            completed.append(
-                ach
             )
 
 
 
-    data[str(user_id)] = profile
+            if data.get(
+
+                "reward_coins"
+
+            ):
 
 
-    save_achievements(data)
+                add_coins(
+
+                    user_id,
+
+                    data["reward_coins"]
+
+                )
 
 
 
-    return completed
+
+
+            if data.get(
+
+                "reward_xp"
+
+            ):
+
+
+                add_xp(
+
+                    user_id,
+
+                    data["reward_xp"]
+
+                )
 
 
 
 
-# =========================
-# ТЕКСТ
-# =========================
+
+            if data.get(
+
+                "title"
+
+            ):
 
 
-def achievement_text(user_id):
+                if "titles" not in player:
 
-    player = get_achievement_player(
-        user_id
+
+                    player["titles"] = []
+
+
+
+                if data["title"] not in player["titles"]:
+
+
+                    player["titles"].append(
+
+                        data["title"]
+
+                    )
+
+
+
+
+
+
+    player["achievements"] = unlocked
+
+
+
+    update_player(
+
+        user_id,
+
+        player
+
     )
 
 
-    text = (
 
-        "🏆 <b>ДОСТИЖЕНИЯ</b>\n\n"
-
-        f"⭐ Очки: {player['points']}\n\n"
-
-    )
+    return new
 
 
-    for ach in ACHIEVEMENTS:
-
-
-        if ach["id"] in player["completed"]:
-
-            status = "✅"
-
-        else:
-
-            status = "🔒"
-
-
-
-        text += (
-
-            f"{status} {ach['name']}\n"
-
-            f"💎 {ach['rarity']}\n\n"
-
-        )
-
-
-
-    return text
-    
-    # =========================
-# ACHIEVEMENT SYSTEM FIX
-# =========================
-
-
-from database import get_player
 
 
 
 
 
 # =========================
-# ACHIEVEMENTS TEXT
+# ACHIEVEMENT TEXT
 # =========================
 
 
@@ -438,26 +339,14 @@ def achievement_text(user_id):
     )
 
 
-    wins = player.get(
+    unlocked = player.get(
 
-        "wins",
+        "achievements",
 
-        0
-
-    )
-
-
-    garage = len(
-
-        player.get(
-
-            "garage",
-
-            []
-
-        )
+        []
 
     )
+
 
 
     text = (
@@ -468,63 +357,63 @@ def achievement_text(user_id):
 
 
 
-    if wins >= 1:
 
 
-        text += "✅ Первая победа\n"
+    for key, data in ACHIEVEMENTS.items():
 
 
-    else:
+        if key in unlocked:
 
 
-        text += "🔒 Первая победа\n"
+            status = "✅"
 
 
+        else:
 
 
-    if wins >= 50:
-
-
-        text += "✅ Гонщик PRO\n"
-
-
-    else:
-
-
-        text += "🔒 Гонщик PRO\n"
+            status = "🔒"
 
 
 
 
 
-    if garage >= 10:
+        text += (
 
+            f"{status} {data['name']}\n"
 
-        text += "✅ Коллекционер машин\n"
+            f"{data['description']}\n\n"
 
-
-    else:
-
-
-        text += "🔒 Коллекционер машин\n"
-
-
-
-
-
-    if wins >= 100:
-
-
-        text += "✅ Легенда улиц\n"
-
-
-    else:
-
-
-        text += "🔒 Легенда улиц\n"
-
-
+        )
 
 
 
     return text
+
+
+
+
+
+
+
+# =========================
+# TITLES
+# =========================
+
+
+def get_titles(user_id):
+
+
+    player = get_player(
+
+        user_id
+
+    )
+
+
+    return player.get(
+
+        "titles",
+
+        []
+
+    )
