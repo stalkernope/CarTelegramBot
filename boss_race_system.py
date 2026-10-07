@@ -554,7 +554,7 @@ def start_boss_race(user_id):
     win = random.random() < win_chance
     
     
-        if win:
+    if win:
 
 
         reward = boss["reward"]
@@ -623,7 +623,7 @@ def start_boss_race(user_id):
 
 
 
-        if boss["car"] not in player_data["defeated_bosses"]:
+    if boss["car"] not in player_data["defeated_bosses"]:
 
 
             player_data["defeated_bosses"].append(
