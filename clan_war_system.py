@@ -1,442 +1,463 @@
-import json
-import os
+# =========================
+# CLAN WAR SYSTEM FINAL
+# =========================
+
+
 import random
-import time
 
 
 
-CLAN_FILE = "clan_wars.json"
+from clan_system import (
+    load_clans,
+    save_clans,
+    get_player_clan
+)
 
 
 
 
-# =========================
-# ТЕРРИТОРИИ
-# =========================
-
-
-TERRITORIES = [
-
-    {
-        "id": "garage_city",
-
-        "name": "🏙 Garage City",
-
-        "reward": 1000
-
-    },
-
-
-    {
-        "id": "night_street",
-
-        "name": "🌃 Night Street",
-
-        "reward": 5000
-
-    },
-
-
-    {
-        "id": "speed_valley",
-
-        "name": "🏔 Speed Valley",
-
-        "reward": 10000
-
-    },
-
-
-    {
-        "id": "legend_zone",
-
-        "name": "👑 Legend Zone",
-
-        "reward": 50000
-
-    }
-
-]
 
 
 
 
 # =========================
-# ЗАГРУЗКА
+# CLAN WAR CONFIG
 # =========================
 
 
-def load_clans():
-
-    if not os.path.exists(CLAN_FILE):
-
-        return {
-
-            "clans": {},
-
-            "territories": {}
-
-        }
+WAR_REWARDS = {
 
 
+    "coins":
 
-    try:
-
-        with open(
-
-            CLAN_FILE,
-
-            "r",
-
-            encoding="utf-8"
-
-        ) as file:
-
-            return json.load(file)
+    25000,
 
 
-    except:
+    "xp":
 
-        return {
+    2000
 
-            "clans": {},
+}
 
-            "territories": {}
 
-        }
+
+
 
 
 
 
 # =========================
-# СОХРАНЕНИЕ
+# CLAN POWER
 # =========================
 
 
-def save_clans(data):
-
-    with open(
-
-        CLAN_FILE,
-
-        "w",
-
-        encoding="utf-8"
-
-    ) as file:
-
-
-        json.dump(
-
-            data,
-
-            file,
-
-            ensure_ascii=False,
-
-            indent=4
-
-        )
-
-
-
-
-# =========================
-# СОЗДАТЬ КЛАН
-# =========================
-
-
-def create_clan(
-
-    user_id,
-
-    name
-
-):
-
-    data = load_clans()
-
-
-    uid = str(user_id)
-
-
-
-    if uid in data["clans"]:
-
-        return False
-
-
-
-    data["clans"][uid] = {
-
-        "name": name,
-
-        "members": [
-
-            user_id
-
-        ],
-
-        "points": 0,
-
-        "wins": 0,
-
-        "territories": []
-
-    }
-
-
-
-    save_clans(data)
-
-
-
-    return True
-
-
-
-
-# =========================
-# ПОЛУЧИТЬ КЛАН
-# =========================
-
-
-def get_clan(user_id):
-
-    data = load_clans()
-
-
-    return data["clans"].get(
-
-        str(user_id)
-
-    )
-
-
-
-
-# =========================
-# ДОБАВИТЬ УЧАСТНИКА
-# =========================
-
-
-def join_clan(
-
-    owner_id,
-
-    player_id
-
-):
-
-    data = load_clans()
-
-
-    clan = get_clan(
-
-        owner_id
-
-    )
+def get_clan_power(clan):
 
 
     if not clan:
 
-        return False
+
+        return 0
 
 
 
-    if player_id not in clan["members"]:
 
-        clan["members"].append(
 
-            player_id
+    power = clan.get(
+
+        "power",
+
+        0
+
+    )
+
+
+
+    members = len(
+
+        clan.get(
+
+            "members",
+
+            []
 
         )
 
-
-
-    data["clans"][str(owner_id)] = clan
-
-
-    save_clans(data)
+    )
 
 
 
-    return True
+    return power + members * 100
+
+
+
 
 
 
 
 # =========================
-# АТАКА ТЕРРИТОРИИ
+# FIND ENEMY
 # =========================
 
 
-def attack_territory(
-
-    user_id,
-
-    territory_id
-
-):
-
-    data = load_clans()
+def find_enemy_clan(clan_id):
 
 
-    clan = get_clan(
+    clans = load_clans()
+
+
+
+    if clan_id not in clans:
+
+
+        return None
+
+
+
+
+
+    enemies = []
+
+
+
+    for cid, clan in clans.items():
+
+
+        if cid != clan_id:
+
+
+            enemies.append(
+
+                clan
+
+            )
+
+
+
+    if not enemies:
+
+
+        return None
+
+
+
+    return random.choice(
+
+        enemies
+
+    )
+
+
+
+
+
+
+
+
+# =========================
+# START WAR
+# =========================
+
+
+def start_clan_war(user_id):
+
+
+    clan = get_player_clan(
 
         user_id
 
     )
 
 
+
     if not clan:
 
-        return False
+
+        return {
+
+
+            "success":
+
+            False,
+
+
+            "message":
+
+            "Нет клана"
+
+        }
 
 
 
 
-    chance = random.randint(
 
-        1,
 
-        100
+
+    enemy = find_enemy_clan(
+
+        clan["id"]
 
     )
 
 
 
-    if chance >= 50:
+    if not enemy:
 
 
-        clan["wins"] += 1
+        return {
 
 
-        clan["points"] += 500
+            "success":
 
+            False,
 
-
-        if territory_id not in clan["territories"]:
-
-            clan["territories"].append(
-
-                territory_id
-
-            )
-
-
-        result = {
-
-            "success": True,
 
             "message":
 
-            "⚔️ Территория захвачена!"
+            "Нет соперников"
 
         }
+
+
+
+
+
+
+
+    my_power = get_clan_power(
+
+        clan
+
+    )
+
+
+
+    enemy_power = get_clan_power(
+
+        enemy
+
+    )
+
+
+
+
+
+
+    if my_power >= enemy_power:
+
+
+        winner = clan
+
+
+        loser = enemy
+
+
+        win = True
 
 
 
     else:
 
 
-        clan["points"] += 50
+        winner = enemy
 
 
+        loser = clan
 
-        result = {
 
-            "success": False,
-
-            "message":
-
-            "❌ Атака провалена"
-
-        }
+        win = False
 
 
 
 
-    data["clans"][str(user_id)] = clan
-
-
-    save_clans(data)
 
 
 
-    return result
+    return {
+
+
+        "success":
+
+        True,
+
+
+        "winner":
+
+        winner["name"],
+
+
+        "loser":
+
+        loser["name"],
+
+
+        "my_power":
+
+        my_power,
+
+
+        "enemy_power":
+
+        enemy_power,
+
+
+        "win":
+
+        win
+
+    }
 
 
 
 
-# =========================
-# КЛАНОВЫЙ РЕЙТИНГ
-# =========================
 
-
-def clan_rating():
-
-    data = load_clans()
-
-
-
-    clans = list(
-
-        data["clans"].values()
-
-    )
-
-
-
-    clans.sort(
-
-        key=lambda x:
-
-        x["points"],
-
-        reverse=True
-
-    )
-
-
-
-    return clans
 
 
 
 
 # =========================
-# ТЕКСТ
+# WAR TEXT
 # =========================
 
 
 def clan_war_text(user_id):
 
-    clan = get_clan(
+
+    result = start_clan_war(
 
         user_id
 
     )
 
 
-    if not clan:
 
-        return "❌ Ты не в клане"
-
+    if not result["success"]:
 
 
-    return (
+        return (
 
-        "⚔️ <b>КЛАН</b>\n\n"
+            "⚔️ "
 
-        f"🏴 {clan['name']}\n"
+            +
 
-        f"👥 Участники: {len(clan['members'])}\n"
+            result["message"]
 
-        f"🏆 Победы: {clan['wins']}\n"
+        )
 
-        f"⭐ Очки: {clan['points']}\n"
 
-        f"🌍 Территории: {len(clan['territories'])}"
+
+
+
+    if result["win"]:
+
+
+        status = "🏆 ПОБЕДА"
+
+
+
+    else:
+
+
+        status = "❌ ПОРАЖЕНИЕ"
+
+
+
+
+
+
+    return f"""
+
+⚔️ <b>ВОЙНА КЛАНОВ</b>
+
+
+{status}
+
+
+🔥 Твой клан:
+
+Сила: {result['my_power']}
+
+
+⚔️ Враг:
+
+Сила: {result['enemy_power']}
+
+
+🏆 Победитель:
+
+{result['winner']}
+
+"""
+
+
+
+
+
+
+
+
+# =========================
+# SAVE WAR RESULT
+# =========================
+
+
+def save_war_result(
+
+    clan_id,
+
+    result
+
+):
+
+
+    clans = load_clans()
+
+
+
+    if clan_id not in clans:
+
+
+        return False
+
+
+
+
+
+    clan = clans[clan_id]
+
+
+
+    if "wars" not in clan:
+
+
+        clan["wars"] = []
+
+
+
+
+
+    clan["wars"].append(
+
+        result
 
     )
+
+
+
+    clan["wars"] = clan["wars"][-20:]
+
+
+
+    clans[clan_id] = clan
+
+
+
+    save_clans(
+
+        clans
+
+    )
+
+
+
+    return True
