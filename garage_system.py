@@ -1,306 +1,5 @@
-from database import (
-    get_player,
-    update_player
-)
-
-
-from car_database import (
-    get_car
-)
-
-
-
-
 # =========================
-# МАШИНЫ ИГРОКА
-# =========================
-
-
-def get_garage_cars(user_id):
-
-
-    player = get_player(
-
-        user_id
-
-    )
-
-
-    cars = []
-
-
-
-    for car_name in player.get("garage", []):
-
-
-        car = get_car(
-
-            car_name
-
-        )
-
-
-        if car:
-
-            cars.append(car)
-
-
-
-    return cars
-
-
-
-
-# =========================
-# ТЕКСТ ГАРАЖА
-# =========================
-
-
-def garage_text(user_id):
-
-
-    player = get_player(
-
-        user_id
-
-    )
-
-
-    text = (
-
-        "🚗 <b>ГАРАЖ</b>\n\n"
-
-    )
-
-
-
-    text += (
-
-        f"🚘 Машин: "
-
-        f"{len(player['garage'])}\n\n"
-
-    )
-
-
-
-    if player["main_car"]:
-
-
-        text += (
-
-            "👑 Главная машина:\n"
-
-            f"{player['main_car']}\n"
-
-        )
-
-
-    else:
-
-
-        text += (
-
-            "❌ Главная машина не выбрана\n"
-
-        )
-
-
-
-    return text
-
-
-
-
-# =========================
-# КАРТОЧКА МАШИНЫ
-# =========================
-
-
-def car_text(
-
-    user_id,
-
-    car_name
-
-):
-
-
-    player = get_player(
-
-        user_id
-
-    )
-
-
-    car = get_car(
-
-        car_name
-
-    )
-
-
-
-    if not car:
-
-
-        return "❌ Машина не найдена"
-
-
-
-    text = (
-
-        f"{car['name']}\n\n"
-
-        f"💎 Редкость: "
-
-        f"{car.get('rarity','-')}\n\n"
-
-        f"⭐ Уровень: "
-
-        f"{car.get('level',1)}\n\n"
-
-        f"⚡ Мощность: "
-
-        f"{car.get('power',0)}\n"
-
-        f"🚀 Скорость: "
-
-        f"{car.get('speed',0)}\n"
-
-        f"🎯 Управление: "
-
-        f"{car.get('handling',0)}\n\n"
-
-    )
-
-
-
-    if player["main_car"] == car_name:
-
-
-        text += (
-
-            "👑 Главная машина\n"
-
-        )
-
-
-
-    else:
-
-
-        text += (
-
-            "🚗 Не выбрана"
-
-        )
-
-
-
-    return text
-
-
-
-
-# =========================
-# СДЕЛАТЬ ГЛАВНОЙ
-# =========================
-
-
-def set_main_car(
-
-    user_id,
-
-    car_name
-
-):
-
-
-    player = get_player(
-
-        user_id
-
-    )
-
-
-    if car_name not in player["garage"]:
-
-
-        return False
-
-
-
-    player["main_car"] = car_name
-
-
-
-    update_player(
-
-        user_id,
-
-        player
-
-    )
-
-
-    return True
-
-
-
-
-# =========================
-# ДОБАВИТЬ МАШИНУ
-# =========================
-
-
-def add_car_to_garage(
-
-    user_id,
-
-    car_name
-
-):
-
-
-    player = get_player(
-
-        user_id
-
-    )
-
-
-    if car_name not in player["garage"]:
-
-
-        player["garage"].append(
-
-            car_name
-
-        )
-
-
-
-    if player["main_car"] is None:
-
-
-        player["main_car"] = car_name
-
-
-
-    update_player(
-
-        user_id,
-
-        player
-
-    )
-
-
-    return True
-    
-    # =========================
-# GARAGE SYSTEM FIX
+# GARAGE SYSTEM FINAL
 # =========================
 
 
@@ -313,6 +12,9 @@ from database import (
 from car_database import (
     get_car
 )
+
+
+
 
 
 
@@ -336,7 +38,8 @@ def get_garage_cars(user_id):
     cars = []
 
 
-    for name in player.get(
+
+    for car_name in player.get(
 
         "garage",
 
@@ -347,18 +50,20 @@ def get_garage_cars(user_id):
 
         car = get_car(
 
-            name
+            car_name
 
         )
 
 
         if car:
 
+
             cars.append(
 
                 car
 
             )
+
 
 
     return cars
@@ -384,6 +89,7 @@ def garage_text(user_id):
     )
 
 
+
     cars = player.get(
 
         "garage",
@@ -393,59 +99,57 @@ def garage_text(user_id):
     )
 
 
+
+    main = player.get(
+
+        "main_car",
+
+        "нет"
+
+    )
+
+
+
     text = (
 
         "🚗 <b>ГАРАЖ</b>\n\n"
 
+        f"Всего машин: {len(cars)}\n\n"
+
+        f"👑 Главная:\n{main}\n\n"
+
     )
+
 
 
     if not cars:
 
 
-        text += (
-
-            "❌ Машин нет\n"
-
-            "Открой кейс или купи машину"
-
-        )
-
-
-        return text
+        text += "Гараж пуст"
 
 
 
+    else:
 
-    for car in cars:
 
+        for i, car in enumerate(
 
-        if car == player.get(
+            cars,
 
-            "main_car"
+            1
 
         ):
 
 
             text += (
 
-                f"👑 {car}\n"
-
-            )
-
-        else:
-
-
-            text += (
-
-                f"🚗 {car}\n"
+                f"{i}. 🚘 {car}\n"
 
             )
 
 
 
     return text
-
 
 
 
@@ -467,14 +171,21 @@ def car_text(
 ):
 
 
-    car = get_car(
+    player = get_player(
 
-        car_name
+        user_id
 
     )
 
 
-    if not car:
+
+    if car_name not in player.get(
+
+        "garage",
+
+        []
+
+    ):
 
 
         return (
@@ -485,22 +196,48 @@ def car_text(
 
 
 
-    text = (
+    car = get_car(
 
-        f"🚗 <b>{car.get('name')}</b>\n\n"
-
-        f"⚡ Мощность: {car.get('power',0)}\n"
-
-        f"🚀 Скорость: {car.get('speed',0)}\n"
-
-        f"🎯 Управление: {car.get('handling',0)}\n\n"
-
-        f"💰 Цена: {car.get('price',0)}"
+        car_name
 
     )
 
 
-    return text
+
+    if not car:
+
+
+        return (
+
+            "❌ Данные машины отсутствуют"
+
+        )
+
+
+
+
+
+    return f"""
+
+🚗 <b>{car['name']}</b>
+
+
+⚡ POWER:
+{car.get('power',0)}
+
+
+🚀 SPEED:
+{car.get('speed',0)}
+
+
+🎯 CONTROL:
+{car.get('handling',0)}
+
+
+💰 Цена:
+{car.get('price',0)}
+
+"""
 
 
 
@@ -530,6 +267,7 @@ def set_main_car(
     )
 
 
+
     if car_name not in player.get(
 
         "garage",
@@ -540,6 +278,8 @@ def set_main_car(
 
 
         return False
+
+
 
 
 
@@ -554,6 +294,75 @@ def set_main_car(
         player
 
     )
+
+
+
+    return True
+
+
+
+
+
+
+
+# =========================
+# REMOVE FROM GARAGE
+# =========================
+
+
+def remove_from_garage(
+
+    user_id,
+
+    car_name
+
+):
+
+
+    player = get_player(
+
+        user_id
+
+    )
+
+
+
+    if car_name in player.get(
+
+        "garage",
+
+        []
+
+    ):
+
+
+        player["garage"].remove(
+
+            car_name
+
+        )
+
+
+
+    if player.get(
+
+        "main_car"
+
+    ) == car_name:
+
+
+        player["main_car"] = None
+
+
+
+    update_player(
+
+        user_id,
+
+        player
+
+    )
+
 
 
     return True
