@@ -1,165 +1,369 @@
-import json
-import os
+# =========================
+# DAILY CAR SYSTEM FINAL
+# =========================
 
-from datetime import date
+
+import random
+import datetime
+
+
+
+from database import (
+    get_player,
+    update_player
+)
 
 
 from car_database import (
-    get_random_car
+    get_all_cars
 )
 
 
 
-DAILY_FILE = "daily_car.json"
 
-
-
-# =========================
-# ЗАГРУЗКА
-# =========================
-
-
-def load_daily():
-
-    if not os.path.exists(DAILY_FILE):
-
-        return None
-
-
-
-    try:
-
-        with open(
-            DAILY_FILE,
-            "r",
-            encoding="utf-8"
-        ) as file:
-
-            return json.load(file)
-
-
-
-    except Exception:
-
-        return None
 
 
 
 # =========================
-# СОХРАНЕНИЕ
+# DAILY CONFIG
 # =========================
 
 
-def save_daily(data):
+DAILY_REWARD = {
 
-    with open(
-        DAILY_FILE,
-        "w",
-        encoding="utf-8"
-    ) as file:
 
-        json.dump(
+    "coins":
 
-            data,
+    1000,
 
-            file,
 
-            ensure_ascii=False,
+    "gems":
 
-            indent=4
+    5
 
-        )
+}
+
+
+
+
+
 
 
 
 # =========================
-# МАШИНА ДНЯ
+# GET TODAY
+# =========================
+
+
+def today():
+
+
+    return str(
+
+        datetime.date.today()
+
+    )
+
+
+
+
+
+
+
+
+# =========================
+# AVAILABLE CARS
 # =========================
 
 
 def get_daily_car():
 
 
-    today = str(
-        date.today()
-    )
-
-
-    data = load_daily()
+    cars = get_all_cars()
 
 
 
-    if data:
+    if not cars:
 
-
-        if data.get("date") == today:
-
-
-            return data.get(
-                "car"
-            )
-
-
-
-    car = get_random_car()
-
-
-
-    if not car:
 
         return None
 
 
 
-    save_daily(
+    return random.choice(
 
-        {
-
-            "date": today,
-
-            "car": car
-
-        }
+        cars
 
     )
 
 
-    return car
-    
-    # =========================
-# ТЕКСТ МАШИНЫ ДНЯ
+
+
+
+
+
+
+
+# =========================
+# CLAIM DAILY CAR
 # =========================
 
 
-def daily_car_text():
+def claim_daily_car(user_id):
+
+
+    player = get_player(
+
+        user_id
+
+    )
+
+
+
+    current_day = today()
+
+
+
+    daily = player.get(
+
+        "daily_car",
+
+        {}
+
+    )
+
+
+
+
+
+    if daily.get(
+
+        "date"
+
+    ) == current_day:
+
+
+        return {
+
+
+            "success":
+
+            False,
+
+
+            "message":
+
+            "🚗 Машина уже получена сегодня"
+
+        }
+
+
+
+
+
+
 
     car = get_daily_car()
 
 
+
     if not car:
 
-        return "❌ Машина дня недоступна"
+
+        return {
+
+
+            "success":
+
+            False,
+
+
+            "message":
+
+            "Нет доступных машин"
+
+        }
 
 
 
-    return (
 
-        "🔥 <b>МАШИНА ДНЯ</b>\n\n"
 
-        f"{car['name']}\n\n"
 
-        f"💎 Редкость: {car.get('rarity','')}\n"
 
-        f"⚡ Мощность: {car.get('power',0)}\n"
+    if "garage" not in player:
 
-        f"🚀 Скорость: {car.get('speed',0)}\n\n"
 
-        "🎁 Бонусы сегодня:\n"
+        player["garage"] = []
 
-        "💰 +50% награды за гонки\n"
 
-        "🏁 Особый рейтинг\n"
 
-        "🛒 Скидка 10% в магазине"
+
+
+
+    if car["name"] not in player["garage"]:
+
+
+        player["garage"].append(
+
+            car["name"]
+
+        )
+
+
+
+
+
+    if not player.get(
+
+        "main_car"
+
+    ):
+
+
+        player["main_car"] = car["name"]
+
+
+
+
+
+
+
+    player["daily_car"] = {
+
+
+        "date":
+
+        current_day,
+
+
+        "car":
+
+        car["name"]
+
+    }
+
+
+
+
+
+    player["coins"] += DAILY_REWARD["coins"]
+
+
+
+    player["gems"] += DAILY_REWARD["gems"]
+
+
+
+
+
+    update_player(
+
+        user_id,
+
+        player
 
     )
+
+
+
+
+
+    return {
+
+
+        "success":
+
+        True,
+
+
+        "car":
+
+        car,
+
+
+        "coins":
+
+        DAILY_REWARD["coins"],
+
+
+        "gems":
+
+        DAILY_REWARD["gems"]
+
+    }
+
+
+
+
+
+
+
+
+# =========================
+# DAILY TEXT
+# =========================
+
+
+def daily_car_text(user_id):
+
+
+    player = get_player(
+
+        user_id
+
+    )
+
+
+
+    daily = player.get(
+
+        "daily_car",
+
+        {}
+
+    )
+
+
+
+    if daily.get(
+
+        "date"
+
+    ) == today():
+
+
+        return f"""
+
+🚗 <b>ЕЖЕДНЕВНАЯ МАШИНА</b>
+
+
+Сегодня уже получено:
+
+
+🏎 {daily.get('car')}
+
+
+Возвращайся завтра.
+
+"""
+
+
+
+
+
+    return """
+
+🚗 <b>ЕЖЕДНЕВНАЯ МАШИНА</b>
+
+
+🎁 Бесплатный автомобиль каждый день
+
+
+💰 +1000 монет
+
+💎 +5 кристаллов
+
+
+Жми получить!
+
+"""
