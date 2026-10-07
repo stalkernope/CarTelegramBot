@@ -1,209 +1,130 @@
-import json
-import os
-from datetime import datetime
+# =========================
+# ECONOMY SYSTEM FINAL
+# =========================
 
 
 from database import (
     get_player,
-    update_player,
-    add_coins,
-    add_xp
+    update_player
 )
 
 
 
-ECONOMY_FILE = "economy.json"
 
 
 
 
 # =========================
-# ЗАГРУЗКА
+# COINS
 # =========================
 
 
-def load_data():
-
-    if not os.path.exists(ECONOMY_FILE):
-
-        return {}
+def get_coins(user_id):
 
 
-    try:
+    player = get_player(
 
-        with open(
-            ECONOMY_FILE,
-            "r",
-            encoding="utf-8"
-        ) as file:
+        user_id
 
-            return json.load(file)
+    )
 
 
-    except:
+    return player.get(
 
-        return {}
+        "coins",
+
+        0
+
+    )
 
 
 
 
-# =========================
-# СОХРАНЕНИЕ
-# =========================
 
 
-def save_data(data):
 
-    with open(
-        ECONOMY_FILE,
-        "w",
-        encoding="utf-8"
-    ) as file:
+def add_coins(
 
-        json.dump(
+    user_id,
 
-            data,
+    amount
 
-            file,
+):
 
-            ensure_ascii=False,
 
-            indent=4
+    player = get_player(
+
+        user_id
+
+    )
+
+
+
+    player["coins"] = (
+
+        player.get(
+
+            "coins",
+
+            0
 
         )
 
-
-
-
-# =========================
-# ЕЖЕДНЕВНАЯ НАГРАДА
-# =========================
-
-
-def daily_reward(user_id):
-
-    data = load_data()
-
-
-    uid = str(user_id)
-
-
-    today = str(
-        datetime.now().date()
-    )
-
-
-
-    if uid not in data:
-
-        data[uid] = {
-
-            "daily": "",
-
-            "streak": 0,
-
-            "bank": 0
-
-        }
-
-
-
-    if data[uid]["daily"] == today:
-
-        return {
-
-            "success": False,
-
-            "message":
-            "🎁 Награда уже получена"
-
-        }
-
-
-
-    if data[uid]["daily"]:
-
-        data[uid]["streak"] += 1
-
-    else:
-
-        data[uid]["streak"] = 1
-
-
-
-    data[uid]["daily"] = today
-
-
-
-    reward = (
-
-        500
-
         +
 
-        data[uid]["streak"] * 100
+        amount
 
     )
 
 
 
-    save_data(
-        data
-    )
-
-
-    add_coins(
+    update_player(
 
         user_id,
 
-        reward
-
-    )
-
-
-    add_xp(
-
-        user_id,
-
-        50
+        player
 
     )
 
 
 
-    return {
-
-        "success": True,
-
-        "coins": reward,
-
-        "streak":
-
-        data[uid]["streak"]
-
-    }
+    return player["coins"]
 
 
 
 
-# =========================
-# БАНК
-# =========================
 
 
-def deposit(
+
+def spend_coins(
+
     user_id,
+
     amount
+
 ):
 
+
     player = get_player(
+
         user_id
+
     )
 
 
-    if player["coins"] < amount:
+
+    if player.get(
+
+        "coins",
+
+        0
+
+    ) < amount:
+
 
         return False
+
+
 
 
 
@@ -221,109 +142,32 @@ def deposit(
 
 
 
-    data = load_data()
-
-
-    uid = str(user_id)
-
-
-
-    if uid not in data:
-
-        data[uid] = {
-
-            "daily": "",
-
-            "streak": 0,
-
-            "bank": 0
-
-        }
-
-
-
-    data[uid]["bank"] += amount
-
-
-
-    save_data(
-        data
-    )
-
-
-
     return True
 
 
 
 
-def withdraw(
-    user_id,
-    amount
-):
-
-    data = load_data()
-
-
-    uid = str(user_id)
-
-
-
-    if uid not in data:
-
-        return False
-
-
-
-    if data[uid]["bank"] < amount:
-
-        return False
-
-
-
-    data[uid]["bank"] -= amount
-
-
-
-    save_data(
-        data
-    )
-
-
-
-    add_coins(
-
-        user_id,
-
-        amount
-
-    )
-
-
-    return True
-
 
 
 
 # =========================
-# БАЛАНС БАНКА
+# GEMS
 # =========================
 
 
-def bank_balance(user_id):
-
-    data = load_data()
+def get_gems(user_id):
 
 
-    return data.get(
+    player = get_player(
 
-        str(user_id),
+        user_id
 
-        {}
+    )
 
-    ).get(
 
-        "bank",
+    return player.get(
+
+        "gems",
 
         0
 
@@ -332,86 +176,330 @@ def bank_balance(user_id):
 
 
 
-# =========================
-# ЕЖЕДНЕВНЫЕ ЗАДАНИЯ
-# =========================
-
-
-QUESTS = [
-
-    {
-
-        "id": "battle_3",
-
-        "name":
-        "⚔️ Выиграть 3 битвы",
-
-        "reward":
-        3000
-
-    },
-
-
-    {
-
-        "id": "open_case",
-
-        "name":
-        "🎁 Открыть кейс",
-
-        "reward":
-        1000
-
-    },
-
-
-    {
-
-        "id": "collect_car",
-
-        "name":
-        "🚗 Получить машину",
-
-        "reward":
-        500
-
-    }
-
-]
 
 
 
 
-def quests_text():
+def add_gems(
 
-    text = (
+    user_id,
 
-        "📜 <b>ЗАДАНИЯ</b>\n\n"
+    amount
+
+):
+
+
+    player = get_player(
+
+        user_id
 
     )
 
 
-    for quest in QUESTS:
 
-        text += (
+    player["gems"] = (
 
-            quest["name"]
+        player.get(
 
-            +
+            "gems",
 
-            "\n💰 Награда: "
-
-            +
-
-            str(
-                quest["reward"]
-            )
-
-            +
-
-            " 🪙\n\n"
+            0
 
         )
 
+        +
 
-    return text
+        amount
+
+    )
+
+
+
+    update_player(
+
+        user_id,
+
+        player
+
+    )
+
+
+
+    return player["gems"]
+
+
+
+
+
+
+
+def spend_gems(
+
+    user_id,
+
+    amount
+
+):
+
+
+    player = get_player(
+
+        user_id
+
+    )
+
+
+
+    if player.get(
+
+        "gems",
+
+        0
+
+    ) < amount:
+
+
+        return False
+
+
+
+
+
+    player["gems"] -= amount
+
+
+
+    update_player(
+
+        user_id,
+
+        player
+
+    )
+
+
+
+    return True
+
+
+
+
+
+
+
+# =========================
+# RACE REWARD
+# =========================
+
+
+def give_race_reward(
+
+    user_id,
+
+    win=True
+
+):
+
+
+    if win:
+
+
+        coins = 1000
+
+        gems = 5
+
+        xp = 200
+
+
+
+    else:
+
+
+        coins = 200
+
+        gems = 0
+
+        xp = 50
+
+
+
+
+
+    player = get_player(
+
+        user_id
+
+    )
+
+
+
+    player["coins"] += coins
+
+
+
+    player["gems"] += gems
+
+
+
+    player["xp"] += xp
+
+
+
+    update_player(
+
+        user_id,
+
+        player
+
+    )
+
+
+
+    return {
+
+
+        "coins":
+
+        coins,
+
+
+        "gems":
+
+        gems,
+
+
+        "xp":
+
+        xp
+
+    }
+
+
+
+
+
+
+
+
+# =========================
+# DAILY REWARD
+# =========================
+
+
+def daily_reward(user_id):
+
+
+    player = get_player(
+
+        user_id
+
+    )
+
+
+
+    if "daily" not in player:
+
+
+        player["daily"] = False
+
+
+
+
+
+    if player["daily"]:
+
+
+        return {
+
+
+            "success":
+
+            False,
+
+
+            "message":
+
+            "Сегодня уже получено"
+
+        }
+
+
+
+
+
+
+
+    player["daily"] = True
+
+
+
+    player["coins"] += 3000
+
+
+
+    player["gems"] += 10
+
+
+
+    update_player(
+
+        user_id,
+
+        player
+
+    )
+
+
+
+    return {
+
+
+        "success":
+
+        True,
+
+
+        "coins":
+
+        3000,
+
+
+        "gems":
+
+        10
+
+    }
+
+
+
+
+
+
+
+
+# =========================
+# RESET DAILY
+# =========================
+
+
+def reset_daily(user_id):
+
+
+    player = get_player(
+
+        user_id
+
+    )
+
+
+    player["daily"] = False
+
+
+
+    update_player(
+
+        user_id,
+
+        player
+
+    )
