@@ -1,347 +1,307 @@
-import random
-import json
-import os
-
-
-from car_database import (
-    get_random_car
-)
+# =========================
+# BATTLES SYSTEM FINAL
+# =========================
 
 
 from database import (
-    add_win,
-    add_loss
+    get_player,
+    update_player
+)
+
+
+from battle_system import (
+    start_battle,
+    battle_text
 )
 
 
 
-BATTLE_FILE = "battle_stats.json"
+
 
 
 
 # =========================
-# СТАТИСТИКА МАШИН
+# BATTLE MODES
 # =========================
 
 
-def load_stats():
-
-    if not os.path.exists(BATTLE_FILE):
-
-        return {}
+BATTLE_MODES = {
 
 
-    try:
+    "quick":
 
-        with open(
-            BATTLE_FILE,
-            "r",
-            encoding="utf-8"
-        ) as file:
+    {
 
-            return json.load(file)
+        "name":
 
+        "⚔️ Быстрый бой",
 
-    except Exception:
+        "reward":
 
-        return {}
+        2000
 
+    },
 
 
-def save_stats(data):
+    "ranked":
 
-    with open(
-        BATTLE_FILE,
-        "w",
-        encoding="utf-8"
-    ) as file:
+    {
 
-        json.dump(
+        "name":
 
-            data,
+        "🏆 Рейтинговый бой",
 
-            file,
+        "reward":
 
-            ensure_ascii=False,
+        5000
 
-            indent=4
+    },
+
+
+    "clan":
+
+    {
+
+        "name":
+
+        "⚔️ Клановая битва",
+
+        "reward":
+
+        10000
+
+    }
+
+}
+
+
+
+
+
+
+
+# =========================
+# GET MODES
+# =========================
+
+
+def get_battle_modes():
+
+
+    return BATTLE_MODES
+
+
+
+
+
+
+
+# =========================
+# BATTLE TEXT MENU
+# =========================
+
+
+def battles_text():
+
+
+    text = (
+
+        "⚔️ <b>БИТВЫ</b>\n\n"
+
+    )
+
+
+
+    for key, mode in BATTLE_MODES.items():
+
+
+        text += (
+
+            f"{mode['name']}\n"
+
+            f"🎁 Награда: "
+
+            f"{mode['reward']}\n\n"
 
         )
 
 
 
-# =========================
-# СИЛА МАШИНЫ
-# =========================
-
-
-def car_power(car):
-
-
-    if not car:
-
-        return 0
+    return text
 
 
 
-    power = car.get(
-        "power",
-        0
-    )
 
-
-    speed = car.get(
-        "speed",
-        0
-    )
-
-
-    rating = car.get(
-        "rating",
-        50
-    )
-
-
-    rarity = car.get(
-        "rarity",
-        ""
-    )
-
-
-
-    bonus = 0
-
-
-
-    if "Mythic" in rarity:
-
-        bonus = 300
-
-
-    elif "Legendary" in rarity:
-
-        bonus = 150
-
-
-    elif "Rare" in rarity:
-
-        bonus = 50
-
-
-
-    random_factor = random.randint(
-        -50,
-        50
-    )
-
-
-
-    return (
-
-        power * 0.6
-
-        +
-
-        speed * 2
-
-        +
-
-        rating * 3
-
-        +
-
-        bonus
-
-        +
-
-        random_factor
-
-    )
 
 
 
 # =========================
-# СОЗДАНИЕ БИТВЫ
+# START PVP
 # =========================
 
 
-def start_battle():
+def create_battle(
 
-    car1 = get_random_car()
+    player_id,
 
-    car2 = get_random_car()
+    enemy_id
 
-
-
-    if not car1 or not car2:
-
-        return None, None
-
-
-
-    attempts = 0
-
-
-    while (
-
-        car1["name"] == car2["name"]
-
-        and attempts < 10
-
-    ):
-
-        car2 = get_random_car()
-
-        attempts += 1
-
-
-
-    return car1, car2
-
-
-
-# =========================
-# БИТВА
-# =========================
-
-
-def fight(
-    car1,
-    car2
 ):
 
 
-    score1 = car_power(
-        car1
+    result = start_battle(
+
+        player_id,
+
+        enemy_id
+
     )
 
 
-    score2 = car_power(
-        car2
-    )
+
+    return result
 
 
 
-    if score1 >= score2:
 
-        winner = car1
-
-        loser = car2
-
-
-    else:
-
-        winner = car2
-
-        loser = car1
-
-
-
-    save_car_win(
-        winner
-    )
-
-
-    return winner, loser
 
 
 
 # =========================
-# ПОБЕДЫ МАШИН
+# RESULT TEXT
 # =========================
 
 
-def save_car_win(car):
+def get_battle_result_text(
+
+    result,
+
+    user_id
+
+):
 
 
-    data = load_stats()
+    return battle_text(
+
+        result,
+
+        user_id
+
+    )
 
 
-    name = car["name"]
 
 
 
-    if name not in data:
 
 
-        data[name] = {
 
-            "wins": 0
+# =========================
+# SAVE HISTORY
+# =========================
+
+
+def save_battle_history(
+
+    user_id,
+
+    result
+
+):
+
+
+    player = get_player(
+
+        user_id
+
+    )
+
+
+
+    if "battle_history" not in player:
+
+
+        player["battle_history"] = []
+
+
+
+
+
+    player["battle_history"].append(
+
+        {
+
+
+            "winner":
+
+            result.get(
+
+                "winner"
+
+            ),
+
+
+            "loser":
+
+            result.get(
+
+                "loser"
+
+            )
 
         }
 
-
-
-    data[name]["wins"] += 1
-
-
-
-    save_stats(
-        data
     )
 
 
 
-# =========================
-# ТЕКСТ БИТВЫ
-# =========================
+    # ограничиваем историю
 
+    player["battle_history"] = (
 
-def battle_text(
-    car1,
-    car2
-):
-
-    return (
-
-        "⚔️ <b>LEGEND BATTLE</b>\n\n"
-
-        f"🏎 <b>{car1['name']}</b>\n"
-
-        f"⚡ {car1.get('power',0)} л.с.\n"
-
-        f"🚀 {car1.get('speed',0)} км/ч\n"
-
-        f"⭐ Рейтинг: {car1.get('rating',0)}\n"
-
-        f"💎 {car1.get('rarity','')}\n\n"
-
-
-        "🔥 VS 🔥\n\n"
-
-
-        f"🏎 <b>{car2['name']}</b>\n"
-
-        f"⚡ {car2.get('power',0)} л.с.\n"
-
-        f"🚀 {car2.get('speed',0)} км/ч\n"
-
-        f"⭐ Рейтинг: {car2.get('rating',0)}\n"
-
-        f"💎 {car2.get('rarity','')}\n\n"
-
-
-        "Выбирай победителя 👇"
+        player["battle_history"][-20:]
 
     )
 
 
 
+    update_player(
+
+        user_id,
+
+        player
+
+    )
+
+
+
+    return True
+
+
+
+
+
+
+
 # =========================
-# НАГРАДЫ ИГРОКА
+# GET HISTORY
 # =========================
 
 
-def player_win(user_id):
+def get_history(user_id):
 
-    add_win(
+
+    player = get_player(
+
         user_id
+
     )
 
 
+    return player.get(
 
-def player_loss(user_id):
+        "battle_history",
 
-    add_loss(
-        user_id
+        []
+
     )
