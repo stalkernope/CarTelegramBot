@@ -1,418 +1,440 @@
+# =========================
+# BATTLE SYSTEM FINAL
+# =========================
+
+
 import random
 
 
+
 from database import (
-    add_coins,
-    add_xp,
+    get_player,
     add_win,
     add_loss,
-    get_player
+    add_coins,
+    add_xp
 )
 
 
-from missions_system import (
-    check_all_missions
-)
-
-
-from achievement_system import (
-    check_achievements
+from car_database import (
+    get_car
 )
 
 
 
-# =========================
-# ТРАССЫ
-# =========================
 
-
-TRACKS = [
-
-    {
-        "name": "🌆 Город",
-        "bonus": "speed"
-    },
-
-    {
-        "name": "🏔 Горы",
-        "bonus": "power"
-    },
-
-    {
-        "name": "🏁 Трек",
-        "bonus": "balance"
-    },
-
-    {
-        "name": "🏜 Пустыня",
-        "bonus": "random"
-    }
-
-]
 
 
 
 
 # =========================
-# ПОГОДА
+# PLAYER POWER
 # =========================
 
 
-WEATHER = [
-
-    "☀️ Солнце",
-
-    "🌧 Дождь",
-
-    "❄️ Снег",
-
-    "🌪 Шторм"
-
-]
+def get_car_power(car_name):
 
 
+    car = get_car(
+
+        car_name
+
+    )
 
 
-# =========================
-# УСЛОВИЯ
-# =========================
-
-
-def get_race_conditions():
-
-    return {
-
-        "track":
-        random.choice(TRACKS),
-
-        "weather":
-        random.choice(WEATHER)
-
-    }
-
-
-
-
-# =========================
-# СИЛА МАШИНЫ
-# =========================
-
-
-def car_strength(car):
 
     if not car:
+
 
         return 0
 
 
-    power = car.get(
-        "power",
-        0
-    )
 
+    power = (
 
-    speed = car.get(
-        "speed",
-        0
-    )
+        car.get(
 
+            "power",
 
-    rarity = car.get(
-        "rarity",
-        ""
-    )
+            0
 
-
-    bonus = 0
-
-
-    if "Mythic" in rarity:
-
-        bonus = 500
-
-
-    elif "Legendary" in rarity:
-
-        bonus = 300
-
-
-    elif "Rare" in rarity:
-
-        bonus = 100
-
-
-
-    return (
-
-        power * 0.5
+        )
 
         +
 
-        speed * 2
+        car.get(
+
+            "speed",
+
+            0
+
+        )
 
         +
 
-        bonus
+        car.get(
 
-        +
+            "handling",
 
-        random.randint(
-            -100,
-            100
+            0
+
         )
 
     )
 
 
+    return power
+
+
+
+
+
 
 
 # =========================
-# БИТВА
+# BATTLE START
 # =========================
 
 
-def battle(car1, car2):
+def start_battle(
 
-    conditions = get_race_conditions()
+    player_id,
 
+    enemy_id
 
-    score1 = car_strength(car1)
-
-    score2 = car_strength(car2)
-
+):
 
 
-    critical = random.randint(
-        1,
-        100
+    player = get_player(
+
+        player_id
+
+    )
+
+
+    enemy = get_player(
+
+        enemy_id
+
     )
 
 
 
-    if critical <= 10:
 
 
-        if score1 >= score2:
+    player_car = player.get(
 
-            score1 += 300
+        "main_car"
 
-        else:
-
-            score2 += 300
+    )
 
 
+    enemy_car = enemy.get(
+
+        "main_car"
+
+    )
 
 
-    if score1 >= score2:
+
+
+
+    if not player_car:
 
 
         return {
 
-            "winner": car1,
 
-            "loser": car2,
+            "success":
 
-            "conditions": conditions,
+            False,
 
-            "critical": critical <= 10
+
+            "message":
+
+            "Нет главной машины"
 
         }
 
 
 
-    return {
-
-        "winner": car2,
-
-        "loser": car1,
-
-        "conditions": conditions,
-
-        "critical": critical <= 10
-
-    }
 
 
 
-
-# =========================
-# ПОБЕДА
-# =========================
+    if not enemy_car:
 
 
-def reward_win(user_id):
+        return {
 
 
-    player = get_player(
-        user_id
+            "success":
+
+            False,
+
+
+            "message":
+
+            "У противника нет машины"
+
+        }
+
+
+
+
+
+
+
+    player_power = get_car_power(
+
+        player_car
+
     )
 
 
-    coins = 500
 
+    enemy_power = get_car_power(
 
+        enemy_car
 
-    streak = player.get(
-        "win_streak",
-        0
     )
 
 
-    if streak >= 5:
 
-        coins += 500
+
+
+    player_bonus = random.randint(
+
+        -100,
+
+        100
+
+    )
+
+
+
+    enemy_bonus = random.randint(
+
+        -100,
+
+        100
+
+    )
+
+
+
+
+
+    final_player = player_power + player_bonus
+
+
+
+    final_enemy = enemy_power + enemy_bonus
+
+
+
+
+
+
+    if final_player >= final_enemy:
+
+
+        winner = player_id
+
+        loser = enemy_id
+
+        win = True
+
+
+
+    else:
+
+
+        winner = enemy_id
+
+        loser = player_id
+
+        win = False
+
+
+
+
+
+
+    add_win(
+
+        winner
+
+    )
+
+
+    add_loss(
+
+        loser
+
+    )
 
 
 
     add_coins(
 
-        user_id,
+        winner,
 
-        coins
+        2000
 
     )
 
 
     add_xp(
 
-        user_id,
+        winner,
 
-        200
-
-    )
-
-
-    add_win(
-
-        user_id
+        300
 
     )
 
 
-
-    updated_player = get_player(
-
-        user_id
-
-    )
-
-
-
-    missions = check_all_missions(
-
-        user_id,
-
-        updated_player
-
-    )
-
-
-    achievements = check_achievements(
-
-        user_id,
-
-        updated_player
-
-    )
 
 
 
     return {
 
-        "coins":
 
-        coins,
+        "success":
 
-
-        "missions":
-
-        missions,
+        True,
 
 
-        "achievements":
+        "winner":
 
-        achievements
+        winner,
+
+
+        "loser":
+
+        loser,
+
+
+        "player_power":
+
+        final_player,
+
+
+        "enemy_power":
+
+        final_enemy,
+
+
+        "win":
+
+        win
 
     }
 
 
 
 
-# =========================
-# ПОРАЖЕНИЕ
-# =========================
 
-
-def reward_loss(user_id):
-
-
-    add_loss(
-
-        user_id
-
-    )
-
-
-    return {
-
-        "coins": 0,
-
-        "missions": [],
-
-        "achievements": []
-
-    }
 
 
 
 
 # =========================
-# ТЕКСТ
+# BATTLE TEXT
 # =========================
 
 
-def battle_result_text(result):
+def battle_text(result, user_id):
 
 
-    winner = result["winner"]
+    if not result.get(
 
-    loser = result["loser"]
+        "success"
 
-
-
-    text = (
-
-        "⚔️ <b>LEGEND RACE</b>\n\n"
-
-        f"🏁 Трасса: "
-
-        f"{result['conditions']['track']['name']}\n"
-
-        f"🌦 Погода: "
-
-        f"{result['conditions']['weather']}\n\n"
-
-        f"🏆 Победитель:\n"
-
-        f"{winner['name']}\n\n"
-
-        f"❌ Проиграл:\n"
-
-        f"{loser['name']}"
-
-    )
+    ):
 
 
+        return result.get(
 
-    if result["critical"]:
-
-
-        text += (
-
-            "\n\n🔥 КРИТИЧЕСКАЯ ПОБЕДА!"
+            "message"
 
         )
 
 
 
-    return text
+
+
+    if result["winner"] == user_id:
+
+
+        return f"""
+
+🏆 <b>ПОБЕДА</b>
+
+
+⚡ Твоя сила:
+
+{result['player_power']}
+
+
+💰 Награда:
+
++2000 монет
+
+
+🔥 XP:
+
++300
+
+"""
+
+
+
+    else:
+
+
+        return f"""
+
+❌ <b>ПОРАЖЕНИЕ</b>
+
+
+Противник оказался сильнее.
+
+
+Твоя сила:
+
+{result['player_power']}
+
+Сила врага:
+
+{result['enemy_power']}
+
+"""
+
+
+
+
+
+
+
+
+# =========================
+# QUICK BATTLE
+# =========================
+
+
+def quick_battle(
+
+    user_id,
+
+    enemy_id
+
+):
+
+
+    return start_battle(
+
+        user_id,
+
+        enemy_id
+
+    )
