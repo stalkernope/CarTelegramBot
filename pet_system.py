@@ -1,15 +1,21 @@
+# =========================
+# PET SYSTEM FINAL
+# =========================
+
+
 from database import (
     get_player,
-    update_player,
-    remove_coins
+    update_player
 )
 
 
 
 
 
+
+
 # =========================
-# PETS
+# PET DATABASE
 # =========================
 
 
@@ -19,17 +25,16 @@ PETS = {
     "dog": {
 
 
-        "name": "🐕 Street Dog",
+        "name":
+        "🐕 Гончая",
 
 
-        "price": 5000,
+        "bonus":
+        "Больше опыта",
 
 
-        "power": 100,
-
-
-        "speed": 20
-
+        "xp_bonus":
+        10
 
     },
 
@@ -38,36 +43,16 @@ PETS = {
     "cat": {
 
 
-        "name": "🐈 Turbo Cat",
+        "name":
+        "🐈 Кибер-кот",
 
 
-        "price": 15000,
+        "bonus":
+        "Больше монет",
 
 
-        "power": 250,
-
-
-        "speed": 50
-
-
-    },
-
-
-
-    "hawk": {
-
-
-        "name": "🦅 Racing Hawk",
-
-
-        "price": 40000,
-
-
-        "power": 600,
-
-
-        "speed": 100
-
+        "coin_bonus":
+        10
 
     },
 
@@ -76,17 +61,16 @@ PETS = {
     "dragon": {
 
 
-        "name": "🐉 Neon Dragon",
+        "name":
+        "🐉 Дракон",
 
 
-        "price": 100000,
+        "bonus":
+        "Бонус к гонкам",
 
 
-        "power": 1500,
-
-
-        "speed": 200
-
+        "race_bonus":
+        15
 
     }
 
@@ -98,50 +82,121 @@ PETS = {
 
 
 
-# =========================
-# ALL PETS
-# =========================
-
-
-def get_pets():
-
-
-    return PETS
-
-
-
-
-
-
-
 
 # =========================
-# BUY PET
+# GET PETS TEXT
 # =========================
 
 
-def buy_pet(
+def pets_text(user_id):
+
+
+    player = get_player(
+
+        user_id
+
+    )
+
+
+    owned = player.get(
+
+        "pets",
+
+        []
+
+    )
+
+
+    active = player.get(
+
+        "active_pet",
+
+        None
+
+    )
+
+
+
+    text = (
+
+        "🐾 <b>ПИТОМЦЫ</b>\n\n"
+
+    )
+
+
+
+    if not owned:
+
+
+        return (
+
+            text +
+
+            "У тебя нет питомцев"
+
+        )
+
+
+
+
+
+
+    for pet in owned:
+
+
+        data = PETS.get(
+
+            pet
+
+        )
+
+
+        if data:
+
+
+            mark = (
+
+                "⭐ "
+
+                if active == pet
+
+                else ""
+
+            )
+
+
+            text += (
+
+                f"{mark}"
+
+                f"{data['name']}\n"
+
+                f"Бонус: {data['bonus']}\n\n"
+
+            )
+
+
+
+    return text
+
+
+
+
+
+
+
+# =========================
+# ADD PET
+# =========================
+
+
+def add_pet(
 
     user_id,
 
     pet_id
 
 ):
-
-
-    if pet_id not in PETS:
-
-
-        raise Exception(
-
-            "Питомец не найден"
-
-        )
-
-
-
-    pet = PETS[pet_id]
-
 
 
     player = get_player(
@@ -152,51 +207,32 @@ def buy_pet(
 
 
 
+    if pet_id not in PETS:
 
 
-    if pet_id in player["pets"]:
+        return False
 
 
-        raise Exception(
 
-            "Питомец уже есть"
+
+
+    if "pets" not in player:
+
+
+        player["pets"] = []
+
+
+
+
+
+    if pet_id not in player["pets"]:
+
+
+        player["pets"].append(
+
+            pet_id
 
         )
-
-
-
-
-
-    if player["coins"] < pet["price"]:
-
-
-        raise Exception(
-
-            "Недостаточно монет"
-
-        )
-
-
-
-
-
-    remove_coins(
-
-        user_id,
-
-        pet["price"]
-
-    )
-
-
-
-
-
-    player["pets"].append(
-
-        pet_id
-
-    )
 
 
 
@@ -210,8 +246,7 @@ def buy_pet(
 
 
 
-    return pet
-
+    return True
 
 
 
@@ -241,14 +276,16 @@ def set_active_pet(
 
 
 
-    if pet_id not in player["pets"]:
+    if pet_id not in player.get(
+
+        "pets",
+
+        []
+
+    ):
 
 
-        raise Exception(
-
-            "Питомца нет"
-
-        )
+        return False
 
 
 
@@ -276,15 +313,16 @@ def set_active_pet(
 
 
 
-
 # =========================
-# BONUS
+# GET BONUS
 # =========================
 
 
 def get_pet_bonus(
 
-    user_id
+    user_id,
+
+    bonus_type
 
 ):
 
@@ -297,7 +335,7 @@ def get_pet_bonus(
 
 
 
-    pet_id = player.get(
+    active = player.get(
 
         "active_pet"
 
@@ -305,19 +343,10 @@ def get_pet_bonus(
 
 
 
-    if not pet_id:
+    if not active:
 
 
-        return {
-
-
-            "power":0,
-
-
-            "speed":0
-
-
-        }
+        return 0
 
 
 
@@ -325,7 +354,7 @@ def get_pet_bonus(
 
     pet = PETS.get(
 
-        pet_id
+        active
 
     )
 
@@ -334,90 +363,16 @@ def get_pet_bonus(
     if not pet:
 
 
-        return {
-
-
-            "power":0,
-
-
-            "speed":0
-
-
-        }
+        return 0
 
 
 
 
 
+    return pet.get(
 
-    return {
+        bonus_type,
 
+        0
 
-        "power":pet["power"],
-
-
-        "speed":pet["speed"]
-
-
-    }
-    
-    # =========================
-# PETS TEXT
-# =========================
-
-def pets_text(user_id):
-
-    from database import get_player
-
-
-    player = get_player(
-        user_id
     )
-
-
-    pets = player.get(
-        "pets",
-        []
-    )
-
-
-    active = player.get(
-        "active_pet"
-    )
-
-
-    text = (
-        "🐾 <b>ПИТОМЦЫ</b>\n\n"
-    )
-
-
-    if not pets:
-
-        text += (
-            "❌ Питомцев пока нет\n\n"
-            "Покупай питомцев и получай бонусы!"
-        )
-
-        return text
-
-
-
-    text += "Твои питомцы:\n\n"
-
-
-    for pet in pets:
-
-        if pet == active:
-
-            text += (
-                f"⭐ {pet} (активный)\n"
-            )
-
-        else:
-
-            text += (
-                f"🐾 {pet}\n"
-            )
-
-
-    return text
