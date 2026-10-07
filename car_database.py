@@ -58,3 +58,12 @@ def remove_car(player_id, car):
         player["cars"].remove(car)
 
     update_player(player_id, player)
+    
+    def get_car(car_name):
+    cars = load_cars()
+
+    for car in cars:
+        if car["name"] == car_name:
+            return car
+
+    return None
