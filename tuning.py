@@ -654,3 +654,352 @@ def reset_tuning(
 
 
     return True
+    
+    
+    # =========================
+# GET UPGRADED CAR STATS
+# FINAL
+# =========================
+
+
+def get_upgraded_car_stats(
+
+    user_id,
+
+    car_name
+
+):
+
+
+    car = get_car(
+
+        car_name
+
+    )
+
+
+    if not car:
+
+
+        return None
+
+
+
+
+
+    bonus = get_car_bonus(
+
+        user_id,
+
+        car_name
+
+    )
+
+
+
+    return {
+
+
+        "name":
+
+        car["name"],
+
+
+
+        "power":
+
+        car.get(
+
+            "power",
+
+            0
+
+        )
+
+        +
+
+        bonus["power"],
+
+
+
+        "speed":
+
+        car.get(
+
+            "speed",
+
+            0
+
+        )
+
+        +
+
+        bonus["speed"],
+
+
+
+        "handling":
+
+        car.get(
+
+            "handling",
+
+            0
+
+        )
+
+        +
+
+        bonus["handling"],
+
+
+
+        "nitro":
+
+        car.get(
+
+            "nitro",
+
+            0
+
+        )
+
+        +
+
+        bonus["nitro"]
+
+    }
+
+
+
+
+
+
+
+
+# =========================
+# TOTAL TUNING LEVEL
+# =========================
+
+
+def get_total_tuning_level(
+
+    user_id,
+
+    car_name
+
+):
+
+
+    tuning = get_tuning_data(
+
+        user_id,
+
+        car_name
+
+    )
+
+
+    total = 0
+
+
+
+    for level in tuning.values():
+
+
+        total += level
+
+
+
+    return total
+
+
+
+
+
+
+
+
+# =========================
+# INSTALL PART
+# =========================
+
+
+def install_part(
+
+    user_id,
+
+    car_name,
+
+    part
+
+):
+
+
+    if part not in UPGRADES:
+
+
+        return {
+
+
+            "success":False,
+
+            "text":"❌ Деталь не существует"
+
+        }
+
+
+
+
+
+    return upgrade_car(
+
+        user_id,
+
+        car_name,
+
+        part
+
+    )
+
+
+
+
+
+
+
+
+# =========================
+# FULL TUNING INFO
+# MINI APP
+# =========================
+
+
+def get_full_tuning_info(
+
+    user_id,
+
+    car_name
+
+):
+
+
+    car = get_upgraded_car_stats(
+
+        user_id,
+
+        car_name
+
+    )
+
+
+    if not car:
+
+
+        return None
+
+
+
+
+
+    return {
+
+
+        "car":
+
+        car_name,
+
+
+
+        "stats":
+
+        {
+
+
+            "power":
+
+            car["power"],
+
+
+            "speed":
+
+            car["speed"],
+
+
+            "handling":
+
+            car["handling"],
+
+
+            "nitro":
+
+            car["nitro"]
+
+        },
+
+
+
+        "levels":
+
+        get_tuning_data(
+
+            user_id,
+
+            car_name
+
+        ),
+
+
+
+        "total_level":
+
+        get_total_tuning_level(
+
+            user_id,
+
+            car_name
+
+        )
+
+    }
+
+
+
+
+
+
+
+
+# =========================
+# CHECK MAX LEVEL
+# =========================
+
+
+def is_max_upgrade(
+
+    user_id,
+
+    car_name,
+
+    upgrade
+
+):
+
+
+    tuning = get_tuning_data(
+
+        user_id,
+
+        car_name
+
+    )
+
+
+
+    return tuning.get(
+
+        upgrade,
+
+        0
+
+    ) >= MAX_LEVEL
