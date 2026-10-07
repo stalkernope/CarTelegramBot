@@ -1,59 +1,102 @@
-from database import load_database
+# =========================
+# RANKING SYSTEM FINAL
+# =========================
+
+
+from database import (
+    load_database
+)
+
+
+from car_database import (
+    get_all_cars
+)
+
+
+from clan_system import (
+    top_clans
+)
+
+
+
+
+
 
 
 
 # =========================
-# РЕЙТИНГИ
+# PLAYER RANKING
 # =========================
 
 
-def get_players():
+def player_ranking():
+
 
     database = load_database()
+
 
 
     players = []
 
 
 
-    for user_id, player in database.items():
+    for uid, player in database.items():
+
 
         players.append(
 
             {
 
-                "id": user_id,
+                "id":
+
+                uid,
+
 
                 "level":
+
                 player.get(
+
                     "level",
+
                     1
+
                 ),
+
 
                 "wins":
+
                 player.get(
+
                     "wins",
+
                     0
+
                 ),
 
-                "rep":
+
+                "coins":
+
                 player.get(
-                    "rep",
+
+                    "coins",
+
                     0
+
                 ),
+
 
                 "garage":
-                len(
-                    player.get(
-                        "garage",
-                        []
-                    )
-                ),
 
-                "league":
-                player.get(
-                    "league",
-                    "🥉 Bronze"
+                len(
+
+                    player.get(
+
+                        "garage",
+
+                        []
+
+                    )
+
                 )
 
             }
@@ -62,41 +105,133 @@ def get_players():
 
 
 
+
+
+    players.sort(
+
+        key=lambda x:
+
+        (
+
+            x["wins"],
+
+            x["level"]
+
+        ),
+
+        reverse=True
+
+    )
+
+
+
     return players
 
 
 
 
+
+
+
 # =========================
-# ОБЩИЙ РЕЙТИНГ
+# TOP PLAYERS TEXT
 # =========================
 
 
-def global_ranking(limit=10):
+def players_rating_text():
 
 
-    players = get_players()
+    players = player_ranking()
 
 
 
-    for player in players:
+    text = (
+
+        "🏆 <b>РЕЙТИНГ ИГРОКОВ</b>\n\n"
+
+    )
 
 
-        player["score"] = (
 
-            player["rep"]
+    place = 1
 
-            +
 
-            player["wins"] * 100
 
-            +
+    for player in players[:10]:
 
-            player["level"] * 50
 
-            +
+        text += (
 
-            player["garage"] * 20
+            f"{place}. 👤 ID {player['id']}\n"
+
+            f"🏁 Победы: {player['wins']}\n"
+
+            f"⭐ Уровень: {player['level']}\n"
+
+            f"🚗 Машины: {player['garage']}\n\n"
+
+        )
+
+
+
+        place += 1
+
+
+
+    if place == 1:
+
+
+        text += "Игроков пока нет"
+
+
+
+    return text
+
+
+
+
+
+
+
+# =========================
+# WEALTH RANKING
+# =========================
+
+
+def coins_ranking():
+
+
+    database = load_database()
+
+
+
+    players = []
+
+
+
+    for uid, player in database.items():
+
+
+        players.append(
+
+            {
+
+                "id":
+
+                uid,
+
+
+                "coins":
+
+                player.get(
+
+                    "coins",
+
+                    0
+
+                )
+
+            }
 
         )
 
@@ -106,110 +241,94 @@ def global_ranking(limit=10):
 
         key=lambda x:
 
-        x["score"],
+        x["coins"],
 
         reverse=True
 
     )
 
 
-    return players[:limit]
+
+    return players
+
+
+
 
 
 
 
 # =========================
-# РЕЙТИНГ ПО ПОБЕДАМ
+# CAR RANKING
 # =========================
 
 
-def wins_ranking(limit=10):
+def car_ranking():
 
 
-    players = get_players()
+    cars = get_all_cars()
 
 
 
-    players.sort(
+    cars.sort(
 
         key=lambda x:
 
-        x["wins"],
+        x.get(
+
+            "power",
+
+            0
+
+        ),
 
         reverse=True
 
     )
 
 
-    return players[:limit]
+
+    return cars
 
 
 
-
-# =========================
-# РЕЙТИНГ ПО ГАРАЖУ
-# =========================
-
-
-def garage_ranking(limit=10):
-
-
-    players = get_players()
-
-
-
-    players.sort(
-
-        key=lambda x:
-
-        x["garage"],
-
-        reverse=True
-
-    )
-
-
-    return players[:limit]
 
 
 
 
 # =========================
-# ТЕКСТ ТОПА
+# TOP CARS TEXT
 # =========================
 
 
-def ranking_text():
+def cars_rating_text():
 
-    top = global_ranking()
+
+    cars = car_ranking()
 
 
 
     text = (
 
-        "🏆 <b>GLOBAL RANKING</b>\n\n"
+        "🚗 <b>ТОП МАШИН</b>\n\n"
 
     )
+
 
 
     place = 1
 
 
 
-    for player in top:
+    for car in cars[:10]:
 
 
         text += (
 
-            f"{place} место 🏎\n"
+            f"{place}. 🚘 {car['name']}\n"
 
-            f"🏆 Лига: {player['league']}\n"
+            f"⚡ Power: {car.get('power',0)}\n"
 
-            f"⭐ Репутация: {player['rep']}\n"
-
-            f"⚔️ Победы: {player['wins']}\n"
-
-            f"🚗 Машин: {player['garage']}\n\n"
+            f"🚀 Speed: {car.get('speed',0)}\n\n"
 
         )
 
@@ -218,87 +337,53 @@ def ranking_text():
 
 
 
-    if not top:
-
-        text += "Пока нет игроков"
-
-
-
     return text
 
 
 
 
+
+
+
 # =========================
-# СЕЗОННЫЕ НАГРАДЫ
+# CLAN RANKING
 # =========================
 
 
-SEASON_REWARDS = [
-
-    {
-
-        "place":
-
-        "1",
-
-        "reward":
-
-        "👑 Mythic Car + 100000 🪙"
-
-    },
+def clan_ranking():
 
 
-    {
-
-        "place":
-
-        "2-3",
-
-        "reward":
-
-        "🔥 Legendary Case"
-
-    },
+    return top_clans()
 
 
-    {
 
-        "place":
 
-        "4-10",
 
-        "reward":
 
-        "💎 Rare Case"
+
+# =========================
+# GLOBAL RANKING
+# =========================
+
+
+def global_rating():
+
+
+    return {
+
+
+        "players":
+
+        player_ranking(),
+
+
+        "cars":
+
+        car_ranking(),
+
+
+        "clans":
+
+        clan_ranking()
 
     }
-
-]
-
-
-
-
-def season_rewards_text():
-
-    text = (
-
-        "🏁 <b>SEASON REWARDS</b>\n\n"
-
-    )
-
-
-    for reward in SEASON_REWARDS:
-
-
-        text += (
-
-            f"🏆 Место: {reward['place']}\n"
-
-            f"🎁 {reward['reward']}\n\n"
-
-        )
-
-
-
-    return text
