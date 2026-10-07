@@ -994,3 +994,24 @@ def get_boss_progress(
         )
 
     }
+    
+    
+    # =========================
+# COMPATIBILITY FUNCTION
+# API COMPATIBILITY
+# =========================
+
+def race_npc(user_id, boss_id=None):
+
+    if boss_id:
+
+        boss = BOSSES.get(boss_id)
+
+        if not boss:
+            return {
+                "success": False,
+                "text": "Boss not found"
+            }
+
+
+    return start_boss_race(user_id)
