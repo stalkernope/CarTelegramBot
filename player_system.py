@@ -1,3 +1,8 @@
+# =========================
+# PLAYER SYSTEM FINAL
+# =========================
+
+
 from database import (
     get_player,
     update_player
@@ -5,272 +10,524 @@ from database import (
 
 
 
-# =========================
-# ЛИГИ
-# =========================
-
-
-LEAGUES = [
-
-    {
-        "name": "🥉 Bronze",
-        "rep": 0
-    },
-
-    {
-        "name": "🥈 Silver",
-        "rep": 1000
-    },
-
-    {
-        "name": "🥇 Gold",
-        "rep": 3000
-    },
-
-    {
-        "name": "💎 Diamond",
-        "rep": 7000
-    },
-
-    {
-        "name": "🔥 Legend",
-        "rep": 15000
-    },
-
-    {
-        "name": "👑 Immortal",
-        "rep": 30000
-    }
-
-]
-
-
 
 
 # =========================
-# ТИТУЛЫ
+# PLAYER PROFILE
 # =========================
 
 
-TITLES = [
+def get_profile(user_id):
 
-    {
-        "name": "Новичок",
-        "wins": 0
-    },
-
-    {
-        "name": "Гонщик",
-        "wins": 10
-    },
-
-    {
-        "name": "Профессионал",
-        "wins": 50
-    },
-
-    {
-        "name": "Легенда трассы",
-        "wins": 100
-    },
-
-    {
-        "name": "Король машин",
-        "wins": 250
-    },
-
-    {
-        "name": "Автомобильный бог",
-        "wins": 500
-    }
-
-]
-
-
-
-
-# =========================
-# ОБНОВЛЕНИЕ ЛИГИ
-# =========================
-
-
-def update_league(user_id):
 
     player = get_player(
+
         user_id
-    )
-
-
-    current = "🥉 Bronze"
-
-
-
-    for league in LEAGUES:
-
-        if player["rep"] >= league["rep"]:
-
-            current = league["name"]
-
-
-
-    player["league"] = current
-
-
-
-    update_player(
-
-        user_id,
-
-        player
 
     )
 
-
-
-    return current
-
-
-
-
-# =========================
-# ОБНОВЛЕНИЕ ТИТУЛА
-# =========================
-
-
-def update_title(user_id):
-
-    player = get_player(
-        user_id
-    )
-
-
-    title = "Новичок"
-
-
-
-    for item in TITLES:
-
-        if player["wins"] >= item["wins"]:
-
-            title = item["name"]
-
-
-
-    player["title"] = title
-
-
-
-    update_player(
-
-        user_id,
-
-        player
-
-    )
-
-
-
-    return title
-
-
-
-
-# =========================
-# ОБЩИЙ АПГРЕЙД
-# =========================
-
-
-def refresh_player(user_id):
-
-    league = update_league(
-        user_id
-    )
-
-
-    title = update_title(
-        user_id
-    )
 
 
     return {
 
-        "league": league,
 
-        "title": title
+        "id":
+
+        player.get(
+
+            "id",
+
+            user_id
+
+        ),
+
+
+
+        "level":
+
+        player.get(
+
+            "level",
+
+            1
+
+        ),
+
+
+
+        "xp":
+
+        player.get(
+
+            "xp",
+
+            0
+
+        ),
+
+
+
+        "coins":
+
+        player.get(
+
+            "coins",
+
+            0
+
+        ),
+
+
+
+        "gems":
+
+        player.get(
+
+            "gems",
+
+            0
+
+        ),
+
+
+
+        "wins":
+
+        player.get(
+
+            "wins",
+
+            0
+
+        ),
+
+
+
+        "losses":
+
+        player.get(
+
+            "losses",
+
+            0
+
+        ),
+
+
+
+        "garage":
+
+        player.get(
+
+            "garage",
+
+            []
+
+        ),
+
+
+
+        "main_car":
+
+        player.get(
+
+            "main_car"
+
+        ),
+
+
+
+        "pets":
+
+        player.get(
+
+            "pets",
+
+            []
+
+        ),
+
+
+
+        "titles":
+
+        player.get(
+
+            "titles",
+
+            []
+
+        ),
+
+
+
+        "clan":
+
+        player.get(
+
+            "clan"
+
+        ),
+
+
+
+        "premium":
+
+        player.get(
+
+            "premium",
+
+            False
+
+        )
 
     }
 
 
 
 
-# =========================
-# РЕЙТИНГ ИГРОКА
-# =========================
-
-
-def player_rating(player):
-
-
-    rating = (
-
-        player["wins"] * 50
-
-        +
-
-        player["level"] * 100
-
-        +
-
-        player["rep"]
-
-    )
-
-
-
-    return rating
-
 
 
 
 # =========================
-# КАРТОЧКА ИГРОКА
+# PROFILE TEXT
 # =========================
 
 
-def player_card(user_id):
+def profile_text(user_id):
+
 
     player = get_player(
+
         user_id
+
     )
 
 
-    refresh_player(
+
+    return f"""
+
+👤 <b>ПРОФИЛЬ</b>
+
+
+🆔 ID:
+
+{user_id}
+
+
+⭐ Уровень:
+
+{player.get('level',1)}
+
+
+🔥 XP:
+
+{player.get('xp',0)}
+
+
+💰 Монеты:
+
+{player.get('coins',0)}
+
+
+💎 Кристаллы:
+
+{player.get('gems',0)}
+
+
+🏁 Победы:
+
+{player.get('wins',0)}
+
+
+❌ Поражения:
+
+{player.get('losses',0)}
+
+
+🚗 Машины:
+
+{len(player.get('garage',[]))}
+
+
+🐾 Питомцы:
+
+{len(player.get('pets',[]))}
+
+
+👑 Главная машина:
+
+{player.get('main_car','нет')}
+
+"""
+
+
+
+
+
+
+
+
+# =========================
+# STATS
+# =========================
+
+
+def get_stats(user_id):
+
+
+    player = get_player(
+
         user_id
+
+    )
+
+
+    wins = player.get(
+
+        "wins",
+
+        0
+
     )
 
 
-    return (
+    losses = player.get(
 
-        "👤 <b>CAR LEGENDS PROFILE</b>\n\n"
+        "losses",
 
-        f"👑 Титул: {player['title']}\n"
-
-        f"🏆 Лига: {player['league']}\n\n"
-
-        f"⭐ Уровень: {player['level']}\n"
-
-        f"🔥 XP: {player['xp']}\n"
-
-        f"⭐ Репутация: {player['rep']}\n\n"
-
-        f"⚔️ Победы: {player['wins']}\n"
-
-        f"❌ Поражения: {player['losses']}\n"
-
-        f"🔥 Серия: {player['win_streak']}\n\n"
-
-        f"🚗 Машин: {len(player['garage'])}\n"
-
-        f"📊 Рейтинг: {player_rating(player)}"
+        0
 
     )
+
+
+
+    total = wins + losses
+
+
+
+    if total > 0:
+
+
+        win_rate = round(
+
+            wins / total * 100,
+
+            1
+
+        )
+
+
+    else:
+
+
+        win_rate = 0
+
+
+
+
+
+    return {
+
+
+        "wins":
+
+        wins,
+
+
+        "losses":
+
+        losses,
+
+
+        "win_rate":
+
+        win_rate,
+
+
+        "cars":
+
+        len(
+
+            player.get(
+
+                "garage",
+
+                []
+
+            )
+
+        ),
+
+
+        "pets":
+
+        len(
+
+            player.get(
+
+                "pets",
+
+                []
+
+            )
+
+        )
+
+    }
+
+
+
+
+
+
+
+
+# =========================
+# ADD TITLE
+# =========================
+
+
+def add_title(
+
+    user_id,
+
+    title
+
+):
+
+
+    player = get_player(
+
+        user_id
+
+    )
+
+
+
+    if "titles" not in player:
+
+
+        player["titles"] = []
+
+
+
+
+
+    if title not in player["titles"]:
+
+
+        player["titles"].append(
+
+            title
+
+        )
+
+
+
+    update_player(
+
+        user_id,
+
+        player
+
+    )
+
+
+
+    return True
+
+
+
+
+
+
+
+# =========================
+# PREMIUM
+# =========================
+
+
+def set_premium(
+
+    user_id,
+
+    status=True
+
+):
+
+
+    player = get_player(
+
+        user_id
+
+    )
+
+
+
+    player["premium"] = status
+
+
+
+    update_player(
+
+        user_id,
+
+        player
+
+    )
+
+
+
+    return True
+
+
+
+
+
+
+
+# =========================
+# RESET PLAYER
+# =========================
+
+
+def reset_player(user_id):
+
+
+    player = get_player(
+
+        user_id
+
+    )
+
+
+
+    player["coins"] = 5000
+
+    player["gems"] = 0
+
+    player["level"] = 1
+
+    player["xp"] = 0
+
+    player["garage"] = []
+
+    player["main_car"] = None
+
+    player["wins"] = 0
+
+    player["losses"] = 0
+
+
+
+    update_player(
+
+        user_id,
+
+        player
+
+    )
+
+
+    return True
