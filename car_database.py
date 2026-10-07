@@ -1,257 +1,60 @@
+import random
 import json
 import os
-import random
 
 
-
-
-CARS_FILE = "cars.json"
-
-
-
-
-
-
-# =========================
-# LOAD CARS
-# =========================
+CAR_FILE = "cars.json"
 
 
 def load_cars():
-
-
-    if not os.path.exists(
-
-        CARS_FILE
-
-    ):
-
-
-        return []
-
-
-
-    try:
-
-
-        with open(
-
-            CARS_FILE,
-
-            "r",
-
-            encoding="utf-8"
-
-        ) as file:
-
-
-            return json.load(file)
-
-
-
-    except Exception:
-
-
-        return []
-
-
-
-
-
-
-
-
-
-# =========================
-# SAVE CARS
-# =========================
-
-
-def save_cars(cars):
-
-
-    with open(
-
-        CARS_FILE,
-
-        "w",
-
-        encoding="utf-8"
-
-    ) as file:
-
-
-        json.dump(
-
-            cars,
-
-            file,
-
-            ensure_ascii=False,
-
-            indent=4
-
-        )
-
-
-
-
-
-
-
-
-# =========================
-# ALL CARS
-# =========================
-
-
-def get_all_cars():
-
-
-    return load_cars()
-
-
-
-
-
-
-
-# =========================
-# GET CAR
-# =========================
-
-
-def get_car(name):
-
-
-    cars = load_cars()
-
-
-
-    for car in cars:
-
-
-        if car.get("name") == name:
-
-
-            return car
-
-
-
-    return None
-
-
-
-
-
-
-
-
-# =========================
-# RANDOM CAR
-# =========================
+    if not os.path.exists(CAR_FILE):
+        return [
+            {
+                "name": "Toyota Supra",
+                "price": 5000,
+                "power": 300
+            },
+            {
+                "name": "BMW M3",
+                "price": 8000,
+                "power": 420
+            },
+            {
+                "name": "Nissan GTR",
+                "price": 12000,
+                "power": 565
+            }
+        ]
+
+    with open(CAR_FILE, "r", encoding="utf-8") as f:
+        return json.load(f)
 
 
 def get_random_car():
-
-
     cars = load_cars()
 
+    return random.choice(cars)
 
 
-    if not cars:
+def add_car(player_id, car):
+    from database import get_player, update_player
+
+    player = get_player(player_id)
+
+    if "cars" not in player:
+        player["cars"] = []
+
+    player["cars"].append(car)
+
+    update_player(player_id, player)
 
 
-        return None
+def remove_car(player_id, car):
+    from database import get_player, update_player
 
+    player = get_player(player_id)
 
+    if car in player.get("cars", []):
+        player["cars"].remove(car)
 
-    return random.choice(
-
-        cars
-
-    )
-
-
-
-
-
-
-
-
-# =========================
-# ADD CAR
-# =========================
-
-
-def add_new_car(car):
-
-
-    cars = load_cars()
-
-
-
-    cars.append(
-
-        car
-
-    )
-
-
-
-    save_cars(
-
-        cars
-
-    )
-
-
-
-
-
-
-
-
-# =========================
-# CAR POWER
-# =========================
-
-
-def get_car_power(name):
-
-
-    car = get_car(
-
-        name
-
-    )
-
-
-    if not car:
-
-
-        return 0
-
-
-
-    return (
-
-        car.get(
-
-            "power",
-
-            0
-
-        )
-
-        +
-
-        car.get(
-
-            "speed",
-
-            0
-
-        )
-
-    )
+    update_player(player_id, player)
