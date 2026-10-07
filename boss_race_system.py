@@ -1015,3 +1015,24 @@ def race_npc(user_id, boss_id=None):
 
 
     return start_boss_race(user_id)
+    
+    
+    # =========================
+# API COMPATIBILITY
+# FIGHT BOSS
+# =========================
+
+def fight_boss(user_id, boss_id=None):
+
+    if boss_id is not None:
+
+        boss = BOSSES.get(boss_id)
+
+        if not boss:
+            return {
+                "success": False,
+                "text": "❌ Босс не найден"
+            }
+
+
+    return start_boss_race(user_id)
