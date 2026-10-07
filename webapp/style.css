@@ -1,9 +1,6 @@
 * {
-
     box-sizing: border-box;
-
 }
-
 
 
 body {
@@ -13,15 +10,10 @@ body {
     min-height: 100vh;
 
     background:
-
     radial-gradient(
-
         circle at top,
-
-        #334155,
-
-        #020617 70%
-
+        #1e3a8a,
+        #020617 65%
     );
 
     color: white;
@@ -29,12 +21,9 @@ body {
     font-family:
 
     Arial,
-
     sans-serif;
 
 }
-
-
 
 
 
@@ -42,7 +31,7 @@ body {
 
     min-height: 100vh;
 
-    padding: 18px;
+    padding: 15px;
 
     padding-bottom: 100px;
 
@@ -52,7 +41,9 @@ body {
 
 
 
-/* HEADER */
+/* =========================
+HEADER
+========================= */
 
 
 .top {
@@ -65,17 +56,17 @@ body {
 
     background:
 
-    rgba(0,0,0,0.55);
+    rgba(0,0,0,.65);
 
     border:
 
-    1px solid rgba(255,255,255,0.15);
+    1px solid rgba(255,255,255,.15);
 
-    border-radius: 20px;
+    border-radius: 22px;
 
-    padding: 16px;
+    padding: 15px;
 
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(15px);
 
 }
 
@@ -97,9 +88,19 @@ body {
 
     text-align: right;
 
-    color:
+    color: #cbd5e1;
 
-    #cbd5e1;
+}
+
+
+
+#username {
+
+    color:white;
+
+    font-weight:900;
+
+    font-size:18px;
 
 }
 
@@ -107,28 +108,22 @@ body {
 
 
 
-/* WALLET */
+
+
+/* =========================
+WALLET
+========================= */
 
 
 .wallet {
 
-    margin-top: 18px;
+    margin-top:15px;
 
-    display:
+    display:grid;
 
-    flex;
+    grid-template-columns:repeat(3,1fr);
 
-    justify-content:
-
-    space-around;
-
-    background:
-
-    rgba(0,0,0,0.45);
-
-    padding: 15px;
-
-    border-radius: 20px;
+    gap:10px;
 
 }
 
@@ -136,11 +131,17 @@ body {
 
 .wallet div {
 
-    font-weight: bold;
+    background:
 
-    color:
+    rgba(0,0,0,.55);
 
-    #e2e8f0;
+    border-radius:18px;
+
+    padding:15px 5px;
+
+    text-align:center;
+
+    font-weight:900;
 
 }
 
@@ -150,110 +151,109 @@ body {
 
 
 
-/* CAR CARD */
+
+/* =========================
+PAGES
+========================= */
+
+
+.page {
+
+    display:none;
+
+}
+
+
+
+.page.active {
+
+    display:block;
+
+}
+
+
+
+
+
+
+
+
+/* =========================
+MAIN CAR
+========================= */
 
 
 .main-car {
 
-
-    margin-top: 25px;
-
-    text-align: center;
+    margin-top:20px;
 
     background:
-
 
     linear-gradient(
 
         180deg,
 
-        rgba(37,99,235,0.25),
+        rgba(37,99,235,.35),
 
-        rgba(0,0,0,0.85)
+        rgba(0,0,0,.85)
 
     );
 
+    border-radius:35px;
 
-    border-radius: 35px;
+    padding:25px 15px;
 
-    padding: 30px 15px;
-
+    text-align:center;
 
     border:
 
-    1px solid rgba(59,130,246,0.35);
-
+    1px solid rgba(96,165,250,.4);
 
     box-shadow:
 
-    0 0 40px rgba(37,99,235,0.25);
-
+    0 0 40px rgba(37,99,235,.3);
 
 }
 
 
 
+.car-image img {
 
+    width:90%;
 
-.car-glow {
+    max-height:230px;
 
-
-    font-size:
-
-    110px;
-
+    object-fit:contain;
 
     filter:
 
     drop-shadow(
 
-        0 0 30px #2563eb
+        0 0 25px #2563eb
 
     );
 
-
 }
 
 
 
+#main-car {
 
+    margin:15px 0 5px;
 
-.main-car h1 {
-
-
-    font-size:
-
-    28px;
-
-
-    margin:
-
-    15px 0;
-
+    font-size:28px;
 
 }
-
-
 
 
 
 .rarity {
 
+    color:#38bdf8;
 
-    color:
+    font-weight:900;
 
-    #38bdf8;
-
-
-    font-weight:
-
-    900;
-
-
-    letter-spacing:
-
-    3px;
-
+    letter-spacing:3px;
 
 }
 
@@ -263,31 +263,21 @@ body {
 
 
 
-/* STATS */
+
+/* =========================
+STATS
+========================= */
 
 
 .stats {
 
+    display:grid;
 
-    display:
+    grid-template-columns:repeat(3,1fr);
 
-    grid;
+    gap:10px;
 
-
-    grid-template-columns:
-
-    repeat(3,1fr);
-
-
-    gap:
-
-    10px;
-
-
-    margin-top:
-
-    25px;
-
+    margin-top:25px;
 
 }
 
@@ -295,26 +285,15 @@ body {
 
 .stats div {
 
-
     background:
 
-    rgba(255,255,255,0.08);
+    rgba(255,255,255,.08);
 
+    padding:15px 5px;
 
-    padding:
+    border-radius:18px;
 
-    15px 5px;
-
-
-    border-radius:
-
-    15px;
-
-
-    font-size:
-
-    12px;
-
+    font-size:12px;
 
 }
 
@@ -322,26 +301,13 @@ body {
 
 .stats b {
 
+    display:block;
 
-    display:
+    margin-top:8px;
 
-    block;
+    color:#60a5fa;
 
-
-    margin-top:
-
-    8px;
-
-
-    font-size:
-
-    20px;
-
-
-    color:
-
-    #60a5fa;
-
+    font-size:22px;
 
 }
 
@@ -351,62 +317,30 @@ body {
 
 
 
-/* BUTTONS */
-
-
-.menu {
-
-
-    margin-top:
-
-    25px;
-
-
-    display:
-
-    grid;
-
-
-    grid-template-columns:
-
-    repeat(2,1fr);
-
-
-    gap:
-
-    15px;
-
-
-}
-
-
+/* =========================
+BUTTONS
+========================= */
 
 
 button {
 
+    width:100%;
 
-    border:
+    border:none;
 
-    none;
+    border-radius:20px;
 
+    padding:16px;
 
-    padding:
+    margin-top:12px;
 
-    18px 10px;
+    color:white;
 
+    font-weight:900;
 
-    border-radius:
-
-    20px;
-
-
-    color:
-
-    white;
-
+    font-size:15px;
 
     background:
-
 
     linear-gradient(
 
@@ -414,39 +348,21 @@ button {
 
         #111827,
 
-        #1d4ed8
+        #2563eb
 
     );
 
-
-    font-size:
-
-    15px;
-
-
-    font-weight:
-
-    900;
-
-
     box-shadow:
 
-    0 8px 20px rgba(0,0,0,0.4);
-
+    0 8px 20px rgba(0,0,0,.5);
 
 }
-
-
 
 
 
 button:active {
 
-
-    transform:
-
-    scale(0.95);
-
+    transform:scale(.96);
 
 }
 
@@ -456,61 +372,143 @@ button:active {
 
 
 
-/* BOTTOM NAV */
+.quick-buttons {
+
+    margin-top:20px;
+
+    display:grid;
+
+    grid-template-columns:repeat(2,1fr);
+
+    gap:12px;
+
+}
+
+
+
+
+
+
+
+
+
+/* =========================
+CARDS
+========================= */
+
+
+.car-card {
+
+    background:
+
+    rgba(0,0,0,.65);
+
+    border-radius:25px;
+
+    padding:18px;
+
+    margin-top:15px;
+
+    border:
+
+    1px solid rgba(255,255,255,.12);
+
+}
+
+
+
+.car-card img {
+
+    width:100%;
+
+    height:150px;
+
+    object-fit:contain;
+
+}
+
+
+
+.car-card h3 {
+
+    margin:10px 0;
+
+}
+
+
+
+
+
+
+
+
+
+/* =========================
+PROFILE
+========================= */
+
+
+.profile-card {
+
+    background:
+
+    rgba(0,0,0,.65);
+
+    border-radius:25px;
+
+    padding:20px;
+
+    margin-top:20px;
+
+    font-size:18px;
+
+}
+
+
+
+
+
+
+
+
+/* =========================
+BOTTOM MENU
+========================= */
 
 
 footer {
 
+    position:fixed;
 
-    position:
+    bottom:15px;
 
-    fixed;
+    left:15px;
 
-
-    bottom:
-
-    15px;
+    right:15px;
 
 
-    left:
+    display:flex;
 
-    15px;
-
-
-    right:
-
-    15px;
-
-
-    display:
-
-    flex;
-
-
-    justify-content:
-
-    space-around;
+    justify-content:space-around;
 
 
     background:
 
-    rgba(0,0,0,0.85);
+    rgba(0,0,0,.9);
 
 
-    border-radius:
-
-    25px;
+    border-radius:25px;
 
 
-    padding:
-
-    14px 5px;
+    padding:12px 5px;
 
 
     border:
 
-    1px solid rgba(255,255,255,0.15);
+    1px solid rgba(255,255,255,.15);
 
+
+    backdrop-filter:blur(15px);
 
 }
 
@@ -518,20 +516,51 @@ footer {
 
 footer div {
 
+    text-align:center;
 
-    text-align:
+    color:#94a3b8;
 
-    center;
+    font-size:12px;
+
+    font-weight:900;
+
+}
 
 
-    font-size:
 
-    12px;
+footer div.active {
+
+    color:white;
+
+}
 
 
-    color:
 
-    #94a3b8;
+
+
+
+
+
+/* =========================
+MOBILE
+========================= */
+
+
+@media(max-width:380px){
+
+
+.logo {
+
+    font-size:18px;
+
+}
+
+
+#main-car {
+
+    font-size:22px;
+
+}
 
 
 }
