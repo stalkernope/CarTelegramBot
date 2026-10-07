@@ -1,5 +1,10 @@
-from telegram import Update
+# =========================
+# HANDLERS FINAL COMPLETE
+# CAR LEGENDS
+# =========================
 
+
+from telegram import Update
 
 from telegram.ext import (
     ContextTypes,
@@ -9,214 +14,147 @@ from telegram.ext import (
 
 
 
-# =========================
-# МЕНЮ
-# =========================
-
-
-from menu_system import (
-
-    main_menu,
-
-    garage_menu,
-
-    garage_cars_menu,
-
-    car_menu,
-
-    tuning_menu,
-
-    race_menu,
-
-    cases_menu,
-
-    shop_menu,
-
-    shop_cars_menu,
-
-    profile_menu,
-
-    career_menu,
-
-    clan_menu,
-
-    social_menu
-
-)
-
-
-
-
-# =========================
-# БАЗА
-# =========================
-
+# DATABASE
 
 from database import (
-
-    get_player
-
+    get_player,
+    update_player
 )
 
 
 
+# MENUS
 
-# =========================
-# ГАРАЖ
-# =========================
+from menu_system import (
+    main_menu,
+    profile_menu,
+    garage_menu,
+    shop_menu,
+    race_menu,
+    clan_menu,
+    social_menu,
+    tuning_menu,
+    cases_menu,
+    career_menu
+)
 
+
+
+# CARS
+
+from car_database import (
+    get_all_cars,
+    get_car
+)
+
+
+
+# SHOP
+
+from shop_cars import (
+    buy_car,
+    get_shop_cars
+)
+
+
+
+# GARAGE
 
 from garage_system import (
-
-    get_garage_cars,
-
-    garage_text,
-
-    car_text,
-
+    get_garage,
     set_main_car
-
 )
 
 
 
-
-# =========================
-# ТЮНИНГ
-# =========================
-
+# TUNING
 
 from tuning import (
-
-    tuning_text,
-
     upgrade_car
-
 )
 
 
 
+# RACES
 
-# =========================
-# ПИТОМЦЫ
-# =========================
+from boss_race_system import (
+    race_npc,
+    fight_boss
+)
+
+
+
+# BATTLES
+
+from battles import (
+    create_battle,
+    get_battle_result_text
+)
+
+
+
+# CLANS
+
+from clan_system import (
+    create_clan,
+    get_player_clan
+)
+
+
+from clan_war_system import (
+    clan_war_text
+)
+
+
+
+# OTHER SYSTEMS
+
+from case_system import (
+    open_case
+)
 
 
 from pet_system import (
-
-    pets_text
-
+    get_pets
 )
 
 
-
-
-# =========================
-# ГОНКИ
-# =========================
-
-
-from boss_race_system import (
-
-    race_npc,
-
-    race_result_text,
-
-    get_boss,
-
-    fight_boss
-
+from ranking_system import (
+    get_top_players
 )
-
-
-
-
-# =========================
-# КЕЙС
-# =========================
-
-
-from shop import (
-
-    open_case
-
-)
-
-
-from shop_cars import (
-
-    get_shop_cars,
-
-    buy_car
-
-)
-
-
-
-
-# =========================
-# КАРЬЕРА
-# =========================
-
-
-from career_system import (
-
-    career_text
-
-)
-
-
-
-
-# =========================
-# КЛАНЫ
-# =========================
-
-
-from clan_system import (
-
-    clan_text,
-
-    top_clans
-
-)
-
-
-
-
-# =========================
-# СОЦИАЛЬНОЕ
-# =========================
-
-
-from social_system import (
-
-    top_text,
-
-    battle_pass_text
-
-)
-
-
-
-
-# =========================
-# ДОСТИЖЕНИЯ
-# =========================
 
 
 from achievement_system import (
+    get_achievements
+)
 
-    achievement_text
 
+from career_system import (
+    get_career
+)
+
+
+from blacklist import (
+    blacklist_text
+)
+
+
+from daily_car import (
+    get_daily_car
+)
+
+
+from social_system import (
+    social_text
 )
 
 
 
 
 
+
 # =========================
-# START
+# START COMMAND
 # =========================
 
 
@@ -232,8 +170,7 @@ async def start(
     user = update.effective_user
 
 
-
-    get_player(
+    player = get_player(
 
         user.id
 
@@ -241,43 +178,57 @@ async def start(
 
 
 
-    await update.message.reply_text(
-
-        """
+    text = f"""
 
 🏎 <b>CAR LEGENDS</b>
 
 
-Добро пожаловать!
+👤 Игрок:
+
+{user.first_name}
 
 
-🚗 Машины
+⭐ Уровень:
 
-🔧 Тюнинг
-
-🐾 Питомцы
-
-🏁 Гонки
-
-🏆 Карьера
+{player['level']}
 
 
-Выбирай раздел 👇
+💰 Монеты:
 
-""",
+{player['coins']}
 
-        reply_markup=main_menu(),
 
-        parse_mode="HTML"
+🚗 Машина:
+
+{player.get('main_car') or 'Нет'}
+
+"""
+
+
+    await update.message.reply_text(
+
+        text,
+
+        parse_mode="HTML",
+
+        reply_markup=main_menu()
 
     )
-    
-    # =========================
-# BUTTONS
+
+
+
+
+
+
+
+
+
+# =========================
+# CALLBACK MAIN
 # =========================
 
 
-async def buttons(
+async def button_handler(
 
     update: Update,
 
@@ -293,42 +244,84 @@ async def buttons(
 
 
 
+    data = query.data
+
+
     user_id = query.from_user.id
 
 
-    action = query.data
 
 
 
-
-    # =====================
-    # НАЗАД
-    # =====================
-
-
-    if action == "back":
+# =========================
+# PROFILE
+# =========================
 
 
-        await query.edit_message_text(
+    if data == "profile":
 
-            "🏎 Главное меню",
 
-            reply_markup=main_menu()
+        player = get_player(
+
+            user_id
 
         )
 
 
-        return
+
+        await query.edit_message_text(
+
+f"""
+
+👤 PROFILE
+
+
+⭐ Level:
+
+{player['level']}
+
+
+🔥 XP:
+
+{player['xp']}
+
+
+💰 Coins:
+
+{player['coins']}
+
+
+💎 Gems:
+
+{player['gems']}
+
+
+🏆 Wins:
+
+{player['wins']}
+
+
+❌ Losses:
+
+{player['losses']}
+
+""",
+
+            reply_markup=profile_menu()
+
+        )
 
 
 
 
-    # =====================
-    # ПРОФИЛЬ
-    # =====================
 
 
-    if action == "profile":
+# =========================
+# STATS
+# =========================
+
+
+    elif data == "stats":
 
 
         player = get_player(
@@ -340,82 +333,50 @@ async def buttons(
 
         await query.edit_message_text(
 
-            f"""
+f"""
 
-👤 <b>ПРОФИЛЬ</b>
-
-
-⭐ Уровень:
-
-{player.get('level',1)}
-
-
-💰 Монеты:
-
-{player.get('coins',0)}
+📊 СТАТИСТИКА
 
 
 🏁 Победы:
 
-{player.get('wins',0)}
+{player['wins']}
 
 
-🚗 Машины:
+💀 Поражения:
 
-{len(player.get('garage',[]))}
+{player['losses']}
 
 
-🐾 Питомцы:
+⭐ Уровень:
 
-{len(player.get('pets',[]))}
+{player['level']}
+
+
+🚗 Машин:
+
+{len(player['garage'])}
 
 """,
 
-            reply_markup=profile_menu(),
-
-            parse_mode="HTML"
+            reply_markup=profile_menu()
 
         )
 
 
-        return
 
 
 
 
-    # =====================
-    # ГАРАЖ
-    # =====================
+# =========================
+# ACHIEVEMENTS
+# =========================
 
 
-    if action == "garage":
+    elif data == "achievements":
 
 
-        await query.edit_message_text(
-
-            garage_text(user_id),
-
-            reply_markup=garage_menu(),
-
-            parse_mode="HTML"
-
-        )
-
-
-        return
-
-
-
-
-    # =====================
-    # МАШИНЫ
-    # =====================
-
-
-    if action == "garage_cars":
-
-
-        cars = get_garage_cars(
+        text = get_achievements(
 
             user_id
 
@@ -424,103 +385,46 @@ async def buttons(
 
         await query.edit_message_text(
 
-            "🚗 <b>ТВОИ МАШИНЫ</b>",
+            text,
 
-            reply_markup=garage_cars_menu(cars),
-
-            parse_mode="HTML"
+            reply_markup=profile_menu()
 
         )
 
 
-        return
 
 
 
-
-    # =====================
-    # КАРТОЧКА МАШИНЫ
-    # =====================
-
-
-    if action.startswith("car_"):
+# =========================
+# CAREER
+# =========================
 
 
-        car_name = action.replace(
+    elif data == "career":
 
-            "car_",
 
-            ""
+        text = get_career(
+
+            user_id
 
         )
 
 
         await query.edit_message_text(
 
-            car_text(
+            text,
 
-                user_id,
-
-                car_name
-
-            ),
-
-            reply_markup=car_menu(car_name),
-
-            parse_mode="HTML"
+            reply_markup=career_menu()
 
         )
-
-
-        return
-
-
-
-
-    # =====================
-    # ГЛАВНАЯ МАШИНА
-    # =====================
-
-
-    if action.startswith("main_"):
-
-
-        car_name = action.replace(
-
-            "main_",
-
-            ""
-
-        )
-
-
-        set_main_car(
-
-            user_id,
-
-            car_name
-
-        )
-
-
-
-        await query.edit_message_text(
-
-            "👑 Главная машина установлена",
-
-            reply_markup=main_menu()
-
-        )
-
-
-        return
         
-            # =====================
-    # ТЮНИНГ
-    # =====================
+        
+        # =========================
+# GARAGE
+# =========================
 
 
-    if action == "tuning":
+    elif data == "garage":
 
 
         player = get_player(
@@ -530,267 +434,47 @@ async def buttons(
         )
 
 
-        car = player.get(
+        cars = player.get(
 
-            "main_car"
+            "garage",
+
+            []
 
         )
 
 
-        if not car:
+        if not cars:
 
 
             await query.edit_message_text(
 
-                "❌ Сначала выбери главную машину",
+                "🚗 Гараж пуст",
 
                 reply_markup=garage_menu()
 
             )
 
-
             return
 
 
 
-        await query.edit_message_text(
 
-            tuning_text(
 
-                user_id,
+        text = """
 
-                car
+🚗 <b>ТВОЙ ГАРАЖ</b>
 
-            ),
 
-            reply_markup=tuning_menu(car),
+"""
 
-            parse_mode="HTML"
 
-        )
 
+        for car in cars:
 
-        return
 
+            text += (
 
-
-
-    # =====================
-    # УЛУЧШЕНИЕ
-    # =====================
-
-
-    if action.startswith("upgrade_"):
-
-
-        data = action.replace(
-
-            "upgrade_",
-
-            ""
-
-        )
-
-
-        parts = data.split("_")
-
-
-
-        if len(parts) >= 2:
-
-
-            car_name = parts[0]
-
-            part = parts[1]
-
-
-
-            result = upgrade_car(
-
-                user_id,
-
-                car_name,
-
-                part
-
-            )
-
-
-
-            await query.edit_message_text(
-
-                result["message"],
-
-                reply_markup=garage_menu(),
-
-                parse_mode="HTML"
-
-            )
-
-
-        return
-
-
-
-
-    # =====================
-    # ПИТОМЦЫ
-    # =====================
-
-
-    if action == "pets":
-
-
-        await query.edit_message_text(
-
-            pets_text(user_id),
-
-            reply_markup=garage_menu(),
-
-            parse_mode="HTML"
-
-        )
-
-
-        return
-
-
-
-
-    # =====================
-    # КЕЙСЫ
-    # =====================
-
-
-    if action == "cases":
-
-
-        await query.edit_message_text(
-
-            "🎁 <b>ВЫБЕРИ КЕЙС</b>",
-
-            reply_markup=cases_menu(),
-
-            parse_mode="HTML"
-
-        )
-
-
-        return
-
-
-
-
-    if action in [
-
-        "normal_case",
-
-        "premium_case",
-
-        "legend_case"
-
-    ]:
-
-
-        car = open_case(
-
-            user_id
-
-        )
-
-
-        await query.edit_message_text(
-
-            "🎁 <b>КЕЙС ОТКРЫТ</b>\n\n"
-
-            f"🚗 {car['name']}",
-
-            reply_markup=main_menu(),
-
-            parse_mode="HTML"
-
-        )
-
-
-        return
-
-
-
-
-    # =====================
-    # МАГАЗИН
-    # =====================
-
-
-    if action == "shop":
-
-
-        cars = get_shop_cars()
-
-
-
-        await query.edit_message_text(
-
-            "🛒 <b>АВТОСАЛОН</b>\n\nВыбери машину:",
-
-            reply_markup=shop_cars_menu(cars),
-
-            parse_mode="HTML"
-
-        )
-
-
-        return
-
-
-
-
-    # =====================
-    # ПОКУПКА
-    # =====================
-
-
-    if action.startswith("buy_"):
-
-
-        car_name = action.replace(
-
-            "buy_",
-
-            ""
-
-        )
-
-
-
-        try:
-
-
-            car = buy_car(
-
-                user_id,
-
-                car_name
-
-            )
-
-
-            text = (
-
-                "✅ <b>ПОКУПКА УСПЕШНА</b>\n\n"
-
-                f"🚗 {car['name']}"
-
-            )
-
-
-
-        except Exception as error:
-
-
-            text = (
-
-                f"❌ {error}"
+                f"🏎 {car}\n"
 
             )
 
@@ -800,45 +484,477 @@ async def buttons(
 
             text,
 
-            reply_markup=main_menu(),
+            parse_mode="HTML",
 
-            parse_mode="HTML"
+            reply_markup=garage_menu()
 
         )
 
 
-        return
-        
-            # =====================
-    # ГОНКИ
-    # =====================
 
 
-    if action == "race":
+
+
+
+# =========================
+# GARAGE CARS
+# =========================
+
+
+    elif data == "garage_cars":
+
+
+        player = get_player(
+
+            user_id
+
+        )
+
+
+
+        text = """
+
+🚗 <b>МАШИНЫ</b>
+
+
+"""
+
+
+
+        for car in player["garage"]:
+
+
+            text += (
+
+                f"\n🏎 {car}"
+
+            )
+
 
 
         await query.edit_message_text(
 
-            "🏁 <b>ВЫБЕРИ ГОНКУ</b>",
+            text,
 
-            reply_markup=race_menu(),
+            parse_mode="HTML",
+
+            reply_markup=garage_menu()
+
+        )
+
+
+
+
+
+
+
+# =========================
+# SET MAIN CAR
+# =========================
+
+
+    elif data.startswith(
+
+        "main_"
+
+    ):
+
+
+        car = data.replace(
+
+            "main_",
+
+            ""
+
+        )
+
+
+        result = set_main_car(
+
+            user_id,
+
+            car
+
+        )
+
+
+
+        await query.edit_message_text(
+
+            f"""
+
+👑 Главная машина:
+
+
+{car}
+
+
+Установлена.
+
+""",
+
+            reply_markup=garage_menu()
+
+        )
+
+
+
+
+
+
+
+
+# =========================
+# SHOP
+# =========================
+
+
+    elif data == "shop":
+
+
+        await query.edit_message_text(
+
+            """
+
+🛒 <b>МАГАЗИН</b>
+
+
+Выбери раздел:
+
+""",
+
+            parse_mode="HTML",
+
+            reply_markup=shop_menu()
+
+        )
+
+
+
+
+
+
+
+
+# =========================
+# SHOP CARS
+# =========================
+
+
+    elif data == "shop_cars":
+
+
+        cars = get_shop_cars()
+
+
+
+        text = """
+
+🚗 <b>АВТОСАЛОН</b>
+
+
+"""
+
+
+
+        for car in cars[:30]:
+
+
+            text += (
+
+                f"""
+
+🏎 {car['name']}
+
+💰 Цена:
+{car['price']}
+
+
+"""
+
+            )
+
+
+
+        await query.edit_message_text(
+
+            text,
 
             parse_mode="HTML"
 
         )
 
 
-        return
 
 
 
 
-    # =====================
-    # NPC ГОНКА
-    # =====================
+
+# =========================
+# BUY CAR
+# =========================
 
 
-    if action == "npc":
+    elif data.startswith(
+
+        "buy_"
+
+    ):
+
+
+        car = data.replace(
+
+            "buy_",
+
+            ""
+
+        )
+
+
+
+        result = buy_car(
+
+            user_id,
+
+            car
+
+        )
+
+
+
+        await query.edit_message_text(
+
+            str(result)
+
+        )
+
+
+
+
+
+
+
+
+# =========================
+# TUNING
+# =========================
+
+
+    elif data == "tuning":
+
+
+        player = get_player(
+
+            user_id
+
+        )
+
+
+        car = player.get(
+
+            "main_car"
+
+        )
+
+
+
+        if not car:
+
+
+            await query.edit_message_text(
+
+                "❌ Сначала выбери машину"
+
+            )
+
+            return
+
+
+
+
+
+        await query.edit_message_text(
+
+            f"""
+
+🔧 ТЮНИНГ
+
+
+🚗 {car}
+
+
+Выбери улучшение:
+
+""",
+
+            reply_markup=tuning_menu(
+
+                car
+
+            )
+
+        )
+
+
+
+
+
+
+
+# =========================
+# UPGRADE
+# =========================
+
+
+    elif data.startswith(
+
+        "upgrade_"
+
+    ):
+
+
+        parts = data.split("_")
+
+
+
+        if len(parts) >= 3:
+
+
+            car = parts[1]
+
+            upgrade = parts[2]
+
+
+
+            result = upgrade_car(
+
+                user_id,
+
+                car,
+
+                upgrade
+
+            )
+
+
+
+            await query.edit_message_text(
+
+                str(result)
+
+            )
+
+
+
+
+
+
+
+
+# =========================
+# CASES
+# =========================
+
+
+    elif data == "cases":
+
+
+        await query.edit_message_text(
+
+            """
+
+🎁 КЕЙСЫ
+
+
+Выбери кейс:
+
+""",
+
+            reply_markup=cases_menu()
+
+        )
+
+
+
+
+
+
+
+# =========================
+# OPEN CASE
+# =========================
+
+
+    elif data.endswith(
+
+        "_case"
+
+    ):
+
+
+        case = data.replace(
+
+            "_case",
+
+            ""
+
+        )
+
+
+
+        result = open_case(
+
+            user_id,
+
+            case
+
+        )
+
+
+
+        await query.edit_message_text(
+
+            str(result)
+
+        )
+        
+        
+        # =========================
+# RACE MENU
+# =========================
+
+
+    elif data == "race":
+
+
+        await query.edit_message_text(
+
+            """
+
+🏁 ГОНКИ
+
+
+Выбери режим:
+
+""",
+
+            reply_markup=race_menu()
+
+        )
+
+
+
+
+
+
+
+
+# =========================
+# NPC RACE
+# =========================
+
+
+    elif data == "npc":
 
 
         player = get_player(
@@ -860,14 +976,13 @@ async def buttons(
 
             await query.edit_message_text(
 
-                "❌ Сначала выбери главную машину",
-
-                reply_markup=main_menu()
+                "❌ Нет активной машины"
 
             )
 
-
             return
+
+
 
 
 
@@ -883,26 +998,23 @@ async def buttons(
 
         await query.edit_message_text(
 
-            race_result_text(result),
-
-            reply_markup=race_menu(),
-
-            parse_mode="HTML"
+            str(result)
 
         )
 
 
-        return
 
 
 
 
-    # =====================
-    # БОСС
-    # =====================
 
 
-    if action == "boss":
+# =========================
+# BOSS RACE
+# =========================
+
+
+    elif data == "boss":
 
 
         player = get_player(
@@ -919,33 +1031,13 @@ async def buttons(
         )
 
 
-        if not car:
-
-
-            await query.edit_message_text(
-
-                "❌ Сначала выбери главную машину",
-
-                reply_markup=main_menu()
-
-            )
-
-
-            return
-
-
-
-        boss = get_boss()
-
-
-
         result = fight_boss(
 
             user_id,
 
             car,
 
-            boss["id"]
+            "boss"
 
         )
 
@@ -953,213 +1045,118 @@ async def buttons(
 
         await query.edit_message_text(
 
-            race_result_text(result),
-
-            reply_markup=race_menu(),
-
-            parse_mode="HTML"
+            str(result)
 
         )
 
 
-        return
 
 
 
 
-    # =====================
-    # PVP
-    # =====================
+
+# =========================
+# PVP
+# =========================
 
 
-    if action == "pvp":
+    elif data == "pvp":
 
 
         await query.edit_message_text(
 
             """
 
-🌎 <b>PVP</b>
+⚔️ PVP
 
 
-⚔️ Гонки игроков
+Ожидание соперника...
 
-🏆 Рейтинг
-
-🔥 Серии побед
-
-
-Система будет подключена.
-
-""",
-
-            reply_markup=race_menu(),
-
-            parse_mode="HTML"
+"""
 
         )
 
 
-        return
 
 
 
 
-    # =====================
-    # ЧЕМПИОНАТЫ
-    # =====================
 
 
-    if action == "championship":
+# =========================
+# BLACKLIST
+# =========================
+
+
+    elif data == "blacklist":
+
+
+        text = blacklist_text(
+
+            user_id
+
+        )
+
 
 
         await query.edit_message_text(
 
-            """
-
-🏆 <b>ЧЕМПИОНАТЫ</b>
-
-
-🥇 Турниры
-
-🎁 Награды
-
-🔥 Сезонные гонки
-
-
-Скоро доступно.
-
-""",
-
-            reply_markup=race_menu(),
-
-            parse_mode="HTML"
+            text
 
         )
 
 
-        return
 
 
 
 
-    # =====================
-    # СЕЗОНЫ
-    # =====================
 
 
-    if action == "seasons":
+# =========================
+# DAILY CAR
+# =========================
+
+
+    elif data == "daily_car":
+
+
+        car = get_daily_car(
+
+            user_id
+
+        )
+
 
 
         await query.edit_message_text(
 
-            """
+            f"""
 
-🔥 <b>СЕЗОН</b>
-
-
-🏎 CAR LEGENDS SEASON
+🎁 Ежедневная машина:
 
 
-🎁 Награды
+🏎 {car}
 
-🏆 Рейтинг
-
-🚗 Эксклюзивные машины
-
-""",
-
-            reply_markup=race_menu(),
-
-            parse_mode="HTML"
+"""
 
         )
 
 
-        return
-        
-            # =====================
-    # КАРЬЕРА
-    # =====================
-
-
-    if action == "career":
-
-
-        await query.edit_message_text(
-
-            career_text(user_id),
-
-            reply_markup=career_menu(),
-
-            parse_mode="HTML"
-
-        )
-
-
-        return
 
 
 
 
-    if action in [
-
-        "level",
-
-        "rewards"
-
-    ]:
 
 
-        await query.edit_message_text(
-
-            career_text(user_id),
-
-            reply_markup=career_menu(),
-
-            parse_mode="HTML"
-
-        )
+# =========================
+# PETS
+# =========================
 
 
-        return
+    elif data == "pets":
 
 
-
-
-    # =====================
-    # ДОСТИЖЕНИЯ
-    # =====================
-
-
-    if action == "achievements":
-
-
-        await query.edit_message_text(
-
-            achievement_text(user_id),
-
-            reply_markup=profile_menu(),
-
-            parse_mode="HTML"
-
-        )
-
-
-        return
-
-
-
-
-    # =====================
-    # СТАТИСТИКА
-    # =====================
-
-
-    if action == "stats":
-
-
-        player = get_player(
+        pets = get_pets(
 
             user_id
 
@@ -1168,290 +1165,84 @@ async def buttons(
 
         await query.edit_message_text(
 
-            f"""
-
-📊 <b>СТАТИСТИКА</b>
-
-
-🏁 Победы:
-
-{player.get('wins',0)}
-
-
-❌ Поражения:
-
-{player.get('losses',0)}
-
-
-💰 Монеты:
-
-{player.get('coins',0)}
-
-
-🚗 Машины:
-
-{len(player.get('garage',[]))}
-
-
-🐾 Питомцы:
-
-{len(player.get('pets',[]))}
-
-""",
-
-            reply_markup=profile_menu(),
-
-            parse_mode="HTML"
+            str(pets)
 
         )
 
 
-        return
 
 
 
 
-    # =====================
-    # ТИТУЛЫ
-    # =====================
 
 
-    if action == "titles":
+# =========================
+# RANKING
+# =========================
 
 
-        await query.edit_message_text(
+    elif data == "players_rating":
 
-            """
 
-🎖 <b>ТИТУЛЫ</b>
+        rating = get_top_players()
 
 
-👑 Car Legend
 
-🔥 Speed Master
+        text = """
 
-🏁 Street Racer
+🏆 ТОП ИГРОКОВ
 
 
-Открываются через карьеру.
+"""
 
-""",
 
-            reply_markup=career_menu(),
 
-            parse_mode="HTML"
-
-        )
-
-
-        return
-
-
-
-
-    # =====================
-    # СОЦИАЛЬНОЕ
-    # =====================
-
-
-    if action == "social":
-
-
-        await query.edit_message_text(
-
-            """
-
-🌐 <b>СОЦИАЛЬНОЕ</b>
-
-
-🏆 Рейтинг игроков
-
-🎫 Battle Pass
-
-👥 Друзья
-
-🎁 Рефералы
-
-""",
-
-            reply_markup=social_menu(),
-
-            parse_mode="HTML"
-
-        )
-
-
-        return
-
-
-
-
-    # =====================
-    # РЕЙТИНГ ИГРОКОВ
-    # =====================
-
-
-    if action == "players_rating":
-
-
-        await query.edit_message_text(
-
-            top_text(),
-
-            reply_markup=social_menu(),
-
-            parse_mode="HTML"
-
-        )
-
-
-        return
-
-
-
-
-    # =====================
-    # BATTLE PASS
-    # =====================
-
-
-    if action == "battle_pass":
-
-
-        await query.edit_message_text(
-
-            battle_pass_text(),
-
-            reply_markup=social_menu(),
-
-            parse_mode="HTML"
-
-        )
-
-
-        return
-        
-            # =====================
-    # КЛАНЫ
-    # =====================
-
-
-    if action == "clan":
-
-
-        await query.edit_message_text(
-
-            clan_text(user_id),
-
-            reply_markup=clan_menu(),
-
-            parse_mode="HTML"
-
-        )
-
-
-        return
-
-
-
-
-    # =====================
-    # МОЙ КЛАН
-    # =====================
-
-
-    if action == "my_clan":
-
-
-        await query.edit_message_text(
-
-            clan_text(user_id),
-
-            reply_markup=clan_menu(),
-
-            parse_mode="HTML"
-
-        )
-
-
-        return
-
-
-
-
-    # =====================
-    # ВОЙНА КЛАНОВ
-    # =====================
-
-
-    if action == "clan_war":
-
-
-        from clan_war_system import clan_war_text
-
-
-
-        await query.edit_message_text(
-
-            clan_war_text(user_id),
-
-            reply_markup=clan_menu(),
-
-            parse_mode="HTML"
-
-        )
-
-
-        return
-
-
-
-
-    # =====================
-    # РЕЙТИНГ КЛАНОВ
-    # =====================
-
-
-    if action == "clan_rating":
-
-
-        clans = top_clans()
-
-
-
-        text = (
-
-            "⚔️ <b>ТОП КЛАНОВ</b>\n\n"
-
-        )
-
-
-
-        place = 1
-
-
-
-        for clan in clans:
+        for player in rating:
 
 
             text += (
 
-                f"{place}. {clan['name']}\n"
+                f"""
 
-                f"⭐ Уровень: {clan['level']}\n"
+👤 {player['name']}
 
-                f"⚡ Сила: {clan['power']}\n\n"
+⭐ {player['level']}
+
+🏁 {player['wins']} побед
+
+
+"""
 
             )
 
 
-            place += 1
+
+        await query.edit_message_text(
+
+            text
+
+        )
 
 
 
-        if not clans:
 
-            text += "Кланов пока нет"
+
+
+
+
+# =========================
+# SOCIAL
+# =========================
+
+
+    elif data == "social":
+
+
+        text = social_text(
+
+            user_id
+
+        )
 
 
 
@@ -1459,144 +1250,357 @@ async def buttons(
 
             text,
 
-            reply_markup=clan_menu(),
-
-            parse_mode="HTML"
+            reply_markup=social_menu()
 
         )
 
 
-        return
 
 
 
 
-    # =====================
-    # ТУРНИРЫ
-    # =====================
 
 
-    if action == "tournaments":
+# =========================
+# BATTLE
+# =========================
 
 
-        from social_system import tournaments_text
-
-
-
-        await query.edit_message_text(
-
-            tournaments_text(),
-
-            reply_markup=social_menu(),
-
-            parse_mode="HTML"
-
-        )
-
-
-        return
-
-
-
-
-    # =====================
-    # ПРОЧЕЕ
-    # =====================
-
-
-    if action in [
-
-        "friends",
-
-        "referrals",
-
-        "exclusive",
-
-        "market",
-
-        "daily_car",
-
-        "parts",
-
-        "skins",
-
-        "garage_upgrade"
-
-    ]:
+    elif data == "battle":
 
 
         await query.edit_message_text(
 
             """
 
-🔥 <b>РАЗДЕЛ В РАЗРАБОТКЕ</b>
+⚔️ БОИ
 
 
-Система будет подключена.
+Выбор противника...
+
+"""
+
+        )
+        
+        
+        # =========================
+# CLAN MENU
+# =========================
+
+
+    elif data == "clan":
+
+
+        await query.edit_message_text(
+
+            """
+
+⚔️ КЛАНЫ
+
+
+Выбери действие:
 
 """,
 
-            reply_markup=main_menu(),
-
-            parse_mode="HTML"
+            reply_markup=clan_menu()
 
         )
 
 
-        return
 
 
-
-
-    # =====================
-    # НЕИЗВЕСТНО
-    # =====================
-
-
-    await query.edit_message_text(
-
-        "❌ Раздел не найден",
-
-        reply_markup=main_menu()
-
-    )
 
 
 
 
 # =========================
-# ОШИБКИ
+# MY CLAN
 # =========================
 
 
-async def error_handler(
+    elif data == "my_clan":
 
-    update,
 
-    context
+        clan = get_player_clan(
+
+            user_id
+
+        )
+
+
+
+        if not clan:
+
+
+            await query.edit_message_text(
+
+                """
+
+❌ Ты не состоишь в клане
+
+
+Создай свой клан или вступи в существующий.
+
+"""
+
+            )
+
+            return
+
+
+
+
+
+        await query.edit_message_text(
+
+            f"""
+
+⚔️ ТВОЙ КЛАН
+
+
+🏰 Название:
+
+{clan.get('name')}
+
+
+👥 Участники:
+
+{len(clan.get('members', []))}
+
+
+🔥 Сила:
+
+{clan.get('power',0)}
+
+"""
+
+        )
+
+
+
+
+
+
+
+
+# =========================
+# CLAN WAR
+# =========================
+
+
+    elif data == "clan_war":
+
+
+        text = clan_war_text(
+
+            user_id
+
+        )
+
+
+
+        await query.edit_message_text(
+
+            text
+
+        )
+
+
+
+
+
+
+
+
+# =========================
+# CLAN RATING
+# =========================
+
+
+    elif data == "clan_rating":
+
+
+        await query.edit_message_text(
+
+            """
+
+🏆 ТОП КЛАНОВ
+
+
+Рейтинг загружается...
+
+"""
+
+        )
+
+
+
+
+
+
+
+
+# =========================
+# CAREER
+# =========================
+
+
+    elif data == "career":
+
+
+        text = get_career(
+
+            user_id
+
+        )
+
+
+
+        await query.edit_message_text(
+
+            text,
+
+            reply_markup=career_menu()
+
+        )
+
+
+
+
+
+
+
+
+# =========================
+# BATTLE PASS
+# =========================
+
+
+    elif data == "battle_pass":
+
+
+        await query.edit_message_text(
+
+            """
+
+🎫 BATTLE PASS
+
+
+Уровень сезона:
+
+1
+
+
+Награды доступны.
+
+"""
+
+        )
+
+
+
+
+
+
+
+
+# =========================
+# TOURNAMENTS
+# =========================
+
+
+    elif data == "tournaments":
+
+
+        await query.edit_message_text(
+
+            """
+
+🏆 ТУРНИРЫ
+
+
+Скоро доступно.
+
+"""
+
+        )
+
+
+
+
+
+
+
+
+# =========================
+# BACK
+# =========================
+
+
+    elif data == "back":
+
+
+        await query.edit_message_text(
+
+            """
+
+🏎 CAR LEGENDS
+
+
+Главное меню:
+
+""",
+
+            reply_markup=main_menu()
+
+        )
+
+
+
+
+
+
+
+
+# =========================
+# UNKNOWN
+# =========================
+
+
+    else:
+
+
+        await query.edit_message_text(
+
+            """
+
+❌ Неизвестная команда
+
+"""
+
+        )
+
+
+
+
+
+
+
+
+
+# =========================
+# REGISTER HANDLERS
+# =========================
+
+
+def register_handlers(
+
+    application
 
 ):
 
-    print(
 
-        "Ошибка:",
-
-        context.error
-
-    )
-
-
-
-
-# =========================
-# ПОДКЛЮЧЕНИЕ
-# =========================
-
-
-def setup_handlers(app):
-
-
-    app.add_handler(
+    application.add_handler(
 
         CommandHandler(
 
@@ -1609,19 +1613,13 @@ def setup_handlers(app):
     )
 
 
-    app.add_handler(
+
+    application.add_handler(
 
         CallbackQueryHandler(
 
-            buttons
+            button_handler
 
         )
-
-    )
-
-
-    app.add_error_handler(
-
-        error_handler
 
     )
